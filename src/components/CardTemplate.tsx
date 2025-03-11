@@ -1,134 +1,132 @@
 
 import { useState, useEffect } from 'react';
 import { Student } from '@/utils/database';
-import { User2, Calendar, School, BookOpen, Phone, MapPin, Droplet, CreditCard } from 'lucide-react';
+import QRCode from 'qrcode.react';
+import { useTheme } from '@/hooks/use-theme';
 
 interface CardTemplateProps {
   student: Student;
-  templateColor?: 'blue' | 'red' | 'green';
+  templateColor?: string;
   showControls?: boolean;
 }
 
-const CardTemplate = ({ student, templateColor = 'blue', showControls = false }: CardTemplateProps) => {
-  const [qrCode, setQrCode] = useState<string>('');
-  
-  // Generate QR code on component mount
-  useEffect(() => {
-    // In a real app, you would use a QR code generation library like qrcode.react
-    // Here we're using a placeholder image for demonstration
-    const studentDataForQR = `${student.rollNumber},${student.name},${student.department}`;
-    // This would be replaced with actual QR code generation
-    setQrCode(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(studentDataForQR)}`);
-  }, [student]);
-  
-  const cardClasses = `id-card id-card-${templateColor}`;
-  
+const CardTemplate = ({ student, templateColor = '#4052b5', showControls = false }: CardTemplateProps) => {
+  const currentYear = new Date().getFullYear();
+  const academicYear = `${currentYear}-${currentYear + 3}`;
+
   return (
     <div className="relative">
       {showControls && (
         <div className="flex justify-center space-x-2 mb-4 no-print">
           <button 
             onClick={() => window.print()} 
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-ideal-blue text-white px-4 py-2 rounded hover:bg-ideal-blue-light transition-colors"
           >
             Print Card
           </button>
         </div>
       )}
       
-      <div className={cardClasses}>
-        <div className="id-card-header">
-          <h2 className="text-xl font-bold">IDEAL INSTITUTE OF TECHNOLOGY</h2>
-          <p className="text-sm opacity-90">VIDYUT NAGAR, KAKINADA - Ph: 0884-2363345</p>
-          <div className="text-sm font-semibold mt-2">{student.academicYear}</div>
-        </div>
-        
-        <div className="id-card-body">
-          <div className="flex flex-col items-center">
-            <div className="photo-placeholder">
-              {student.photo ? (
-                <img 
-                  src={`/placeholder.svg`} 
-                  alt={student.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User2 size={50} className="text-gray-400" />
-              )}
-            </div>
-            
-            <h3 className="text-lg font-bold text-blue-600 mt-2">{student.name}</h3>
-            <div className="text-sm text-gray-700">{student.department}</div>
-            
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 w-full">
-              <div className="flex items-center text-sm">
-                <BookOpen size={14} className="mr-1 text-gray-500" />
-                <span className="font-semibold">Course:</span>
-              </div>
-              <div className="text-sm">{student.course}</div>
-              
-              <div className="flex items-center text-sm">
-                <CreditCard size={14} className="mr-1 text-gray-500" />
-                <span className="font-semibold">Roll No:</span>
-              </div>
-              <div className="text-sm">{student.rollNumber}</div>
-              
-              <div className="flex items-center text-sm">
-                <Calendar size={14} className="mr-1 text-gray-500" />
-                <span className="font-semibold">D.O.B:</span>
-              </div>
-              <div className="text-sm">{student.dob}</div>
-            </div>
-            
-            <div className="mt-4 flex justify-between w-full">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
-                  <Droplet className="h-5 w-5 text-red-500" />
-                </div>
-                <div className="text-sm font-medium mt-1">{student.bloodGroup}</div>
-              </div>
-              
-              <div className="text-center">
-                <img
-                  src={qrCode}
-                  alt="QR Code"
-                  className="w-24 h-24 mx-auto"
-                />
-              </div>
+      <div className="w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg bg-white animate-fade-up">
+        {/* Header */}
+        <div 
+          className="h-[80px] p-3 text-white text-center"
+          style={{ backgroundColor: templateColor }}
+        >
+          <div className="flex items-center justify-center gap-3">
+            <img 
+              src="/lovable-uploads/64ae1059-ac2a-4e36-aa64-6c413fd422dc.png" 
+              alt="IDEAL Logo" 
+              className="h-12"
+            />
+            <div>
+              <h2 className="text-lg font-bold">IDEAL INSTITUTE OF TECHNOLOGY</h2>
+              <p className="text-sm opacity-90">VIDYUT NAGAR, KAKINADA - Ph: 0884-2363345</p>
             </div>
           </div>
         </div>
-        
-        <div className="id-card-footer">
-          <div className="text-xs mb-1">
-            <span className="font-semibold">Address:</span> {student.address}
+
+        {/* Academic Year */}
+        <div className="text-red-600 text-center py-2 font-semibold">
+          {academicYear}
+        </div>
+
+        {/* Photo and Basic Info */}
+        <div className="px-6 py-4">
+          <div className="flex justify-between items-start">
+            <div className="w-32 h-40 border-2 border-gray-300 overflow-hidden">
+              <img 
+                src={student.photo || '/placeholder.svg'} 
+                alt={student.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-2xl text-red-600 font-bold mb-2">
+                {student.bloodGroup}
+              </div>
+              <QRCode 
+                value={`${student.rollNumber},${student.name}`}
+                size={100}
+                level="H"
+              />
+            </div>
           </div>
-          <div className="text-xs mb-1">
-            <span className="font-semibold">Contact:</span> {student.contact}
+
+          <div className="mt-4">
+            <h3 className="text-ideal-text-primary text-xl font-bold uppercase">
+              {student.name}
+            </h3>
+            <p className="text-ideal-text-primary font-semibold">{student.department}</p>
           </div>
-          <div className="text-xs">
-            <span className="font-semibold">Aadhaar:</span> {student.aadhaar}
+
+          <div className="mt-4 space-y-2">
+            <div className="flex">
+              <span className="w-24 font-semibold">Course</span>
+              <span>: {student.course}</span>
+            </div>
+            <div className="flex">
+              <span className="w-24 font-semibold">Roll No</span>
+              <span>: {student.rollNumber}</span>
+            </div>
+            <div className="flex">
+              <span className="w-24 font-semibold">D.O.B</span>
+              <span>: {student.dob}</span>
+            </div>
           </div>
-          
-          <div className="mt-2">
-            <svg className="mx-auto" width="200" height="30">
-              {/* This would be replaced with a proper barcode in a real application */}
-              <rect x="0" y="0" width="200" height="30" fill="white" />
-              {Array.from({ length: 30 }).map((_, i) => (
-                <rect 
-                  key={i} 
-                  x={i * 6} 
-                  y="0" 
-                  width="3" 
-                  height="30" 
-                  fill="black" 
-                  opacity={Math.random() > 0.5 ? "1" : "0"}
-                />
-              ))}
-              <text x="100" y="40" textAnchor="middle" fill="black" fontSize="10">
-                {student.rollNumber}
-              </text>
-            </svg>
+        </div>
+
+        {/* Footer */}
+        <div 
+          className="absolute bottom-0 w-full py-3 px-4 text-white"
+          style={{ backgroundColor: templateColor }}
+        >
+          <div className="text-sm space-y-1">
+            <p>
+              <span className="font-semibold">Address:</span> {student.address}
+            </p>
+            <p>
+              <span className="font-semibold">Contact:</span> {student.contact}
+            </p>
+            <p>
+              <span className="font-semibold">Aadhaar:</span> {student.aadhaar}
+            </p>
+            <div className="mt-2 flex justify-center">
+              <svg className="h-12">
+                {/* Barcode simulation */}
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <rect 
+                    key={i} 
+                    x={i * 6} 
+                    y="0" 
+                    width="3" 
+                    height="40" 
+                    fill="white" 
+                    opacity={Math.random() > 0.5 ? "1" : "0"}
+                  />
+                ))}
+              </svg>
+            </div>
           </div>
         </div>
       </div>
