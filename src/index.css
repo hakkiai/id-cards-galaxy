@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 240 50% 45%;  /* Blue color based on IDEAL institute */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -35,19 +36,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +91,78 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* ID Card specific styles */
+.id-card {
+  width: 350px;
+  height: 550px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.id-card-blue {
+  background: linear-gradient(135deg, #3949ab 0%, #5e72e4 100%);
+}
+
+.id-card-red {
+  background: linear-gradient(135deg, #e53935 0%, #f44336 100%);
+}
+
+.id-card-green {
+  background: linear-gradient(135deg, #43a047 0%, #4caf50 100%);
+}
+
+.id-card-header {
+  padding: 15px;
+  color: white;
+  text-align: center;
+}
+
+.id-card-body {
+  background: white;
+  padding: 20px;
+  height: calc(100% - 120px);
+}
+
+.id-card-footer {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-align: center;
+  font-size: 12px;
+}
+
+.photo-placeholder {
+  width: 120px;
+  height: 140px;
+  border: 2px solid #eee;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  overflow: hidden;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .id-card {
+    page-break-inside: avoid;
+    margin: 10px;
+    box-shadow: none;
+    border: 1px solid #ddd;
   }
 }
