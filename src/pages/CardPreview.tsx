@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Grid2X2, User, Printer, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import CardTemplate from '@/components/CardTemplate';
 import { Student } from '@/utils/database';
+import { ColorPicker } from '@/components/ColorPicker';
 
 const CardPreview = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const CardPreview = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'single' | 'grid'>('single');
+  const [templateColor, setTemplateColor] = useState('#1e3c8c');
   
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem('isAuthenticated');
@@ -38,7 +39,7 @@ const CardPreview = () => {
     }
     
     try {
-      const { students, templateColor } = JSON.parse(generatedCardsJSON);
+      const { students } = JSON.parse(generatedCardsJSON);
       setStudents(students);
     } catch (error) {
       toast({
@@ -49,6 +50,10 @@ const CardPreview = () => {
       navigate('/dashboard');
     }
   }, [navigate, toast]);
+
+  const handleColorChange = (color: string) => {
+    setTemplateColor(color);
+  };
   
   const handlePrintAll = () => {
     window.print();
@@ -72,13 +77,11 @@ const CardPreview = () => {
   if (students.length === 0) {
     return <div className="p-8 text-center">Loading...</div>;
   }
-
-  const templateColor = JSON.parse(sessionStorage.getItem('generatedCards') || '{}').templateColor || '#4052b5';
   
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center mb-8 no-print">
+        <div className="flex items-center justify-between mb-8 no-print">
           <Button 
             variant="ghost" 
             onClick={() => navigate('/dashboard')} 
@@ -87,7 +90,19 @@ const CardPreview = () => {
             <ChevronLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
-          <h1 className="text-2xl font-bold">ID Card Preview</h1>
+          <div className="flex items-center gap-4">
+            <ColorPicker color={templateColor} onChange={handleColorChange} />
+            <div className="flex space-x-2">
+              <Button variant="outline" onClick={handlePrintAll}>
+                <Printer className="h-4 w-4 mr-2" />
+                Print All
+              </Button>
+              <Button onClick={handleDownloadAll}>
+                <Download className="h-4 w-4 mr-2" />
+                Download All
+              </Button>
+            </div>
+          </div>
         </div>
         
         <div className="flex justify-between items-center mb-6 no-print">
@@ -113,16 +128,6 @@ const CardPreview = () => {
                 Grid View
               </Button>
             </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={handlePrintAll}>
-              <Printer className="h-4 w-4 mr-2" />
-              Print All
-            </Button>
-            <Button onClick={handleDownloadAll}>
-              <Download className="h-4 w-4 mr-2" />
-              Download All
-            </Button>
           </div>
         </div>
         
