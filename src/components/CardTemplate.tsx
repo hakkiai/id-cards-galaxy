@@ -12,7 +12,7 @@ interface CardTemplateProps {
 
 const CardTemplate = ({ student, templateColor, showControls = false }: CardTemplateProps) => {
   const currentYear = new Date().getFullYear();
-  const academicYear = `${currentYear}-${currentYear + 3}`;
+  const academicYear = `${currentYear}-${currentYear + 4}`;
   const barcodeRef = useRef<SVGSVGElement>(null);
   
   useEffect(() => {
@@ -33,19 +33,19 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
   }, [student.rollNumber]);
 
   return (
-    <div className="w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg">
+    <div className="w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg relative flex flex-col">
       {/* Header with logo and institute name */}
       <div 
-        className="h-[100px] px-4 py-2"
+        className="py-3 px-4"
         style={{ backgroundColor: templateColor }}
       >
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-between gap-2">
           <img 
             src="/lovable-uploads/a545a42a-b17b-4c50-9599-5574346a185f.png"
             alt="IDEAL Logo" 
-            className="h-16 w-16 object-contain"
+            className="h-14 w-14 object-contain"
           />
-          <div className="text-center text-white">
+          <div className="text-center text-white flex-1">
             <h2 className="text-lg font-bold leading-tight">IDEAL INSTITUTE OF TECHNOLOGY</h2>
             <p className="text-sm opacity-90">VIDYUT NAGAR, KAKINADA</p>
           </div>
@@ -53,12 +53,12 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
       </div>
 
       {/* Academic Year */}
-      <div className="text-red-600 text-center py-2 font-semibold bg-white">
+      <div className="text-red-600 text-center py-1 font-semibold bg-white">
         {academicYear}
       </div>
 
       {/* Photo and Basic Info */}
-      <div className="px-6 py-2 bg-white">
+      <div className="px-6 py-2 bg-white flex-1">
         <div className="flex justify-between items-start gap-4">
           <div className="w-32 h-40 border-2 border-gray-300 overflow-hidden">
             <img 
@@ -108,21 +108,21 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
       {/* Footer with contact details and barcode */}
       <div 
-        className="absolute bottom-0 w-full py-2 px-4"
+        className="w-full py-2 px-4"
         style={{ backgroundColor: templateColor }}
       >
-        <div className="text-white text-sm space-y-1">
-          <p className="truncate leading-tight">
+        <div className="text-white text-xs space-y-1">
+          <p className="leading-tight">
             <span className="font-semibold">Address:</span> {student.address}
           </p>
-          <p className="truncate leading-tight">
+          <p className="leading-tight">
             <span className="font-semibold">Contact:</span> {student.contact}
           </p>
-          <p className="truncate leading-tight mb-2">
+          <p className="leading-tight mb-1">
             <span className="font-semibold">Aadhaar:</span> {student.aadhaar}
           </p>
-          <div className="bg-white rounded-sm p-1 mt-1">
-            <svg ref={barcodeRef} className="w-full"></svg>
+          <div className="bg-white rounded-sm p-1 mt-1 w-full h-10 flex items-center justify-center">
+            <svg ref={barcodeRef} className="w-full h-8"></svg>
           </div>
         </div>
       </div>
