@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Student } from '@/utils/database';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useTheme } from '@/hooks/use-theme';
 
 interface CardTemplateProps {
@@ -65,7 +64,7 @@ const CardTemplate = ({ student, templateColor = '#4052b5', showControls = false
               <div className="text-2xl text-red-600 font-bold mb-2">
                 {student.bloodGroup}
               </div>
-              <QRCode 
+              <QRCodeSVG 
                 value={`${student.rollNumber},${student.name}`}
                 size={100}
                 level="H"
