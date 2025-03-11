@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Student } from '@/utils/database';
-import { QRCode } from 'qrcode.react';
+import QRCode from 'qrcode.react';
 import { useTheme } from '@/hooks/use-theme';
 
 interface CardTemplateProps {
