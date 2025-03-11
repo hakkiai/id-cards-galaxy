@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Grid2X2, User, Printer, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import CardTemplate from '@/components/CardTemplate';
 import { Student } from '@/utils/database';
-import { ColorPicker } from '@/components/ColorPicker';
+import ColorPicker from '@/components/ColorPicker';
 
 const CardPreview = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ const CardPreview = () => {
             Back to Dashboard
           </Button>
           <div className="flex items-center gap-4">
-            <ColorPicker color={templateColor} onChange={handleColorChange} />
+            <ColorPicker initialColor={templateColor} onChange={handleColorChange} />
             <div className="flex space-x-2">
               <Button variant="outline" onClick={handlePrintAll}>
                 <Printer className="h-4 w-4 mr-2" />
