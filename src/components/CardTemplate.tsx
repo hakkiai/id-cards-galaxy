@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { Student } from '@/utils/database';
 import { QRCodeSVG } from 'qrcode.react';
 import { useTheme } from '@/hooks/use-theme';
+import JSBarcode from 'jsbarcode';
 
 interface CardTemplateProps {
   student: Student;
@@ -12,6 +14,20 @@ interface CardTemplateProps {
 const CardTemplate = ({ student, templateColor = '#4052b5', showControls = false }: CardTemplateProps) => {
   const currentYear = new Date().getFullYear();
   const academicYear = `${currentYear}-${currentYear + 3}`;
+  const barcodeRef = useRef<SVGSVGElement>(null);
+  
+  useEffect(() => {
+    // Generate barcode after component mounts
+    if (barcodeRef.current) {
+      JSBarcode(barcodeRef.current, student.rollNumber, {
+        format: "CODE128",
+        lineColor: "#ffffff",
+        width: 1.5,
+        height: 40,
+        displayValue: false
+      });
+    }
+  }, [student.rollNumber]);
 
   return (
     <div className="relative">
@@ -111,20 +127,7 @@ const CardTemplate = ({ student, templateColor = '#4052b5', showControls = false
               <span className="font-semibold">Aadhaar:</span> {student.aadhaar}
             </p>
             <div className="mt-2 flex justify-center">
-              <svg className="h-12">
-                {/* Barcode simulation */}
-                {Array.from({ length: 30 }).map((_, i) => (
-                  <rect 
-                    key={i} 
-                    x={i * 6} 
-                    y="0" 
-                    width="3" 
-                    height="40" 
-                    fill="white" 
-                    opacity={Math.random() > 0.5 ? "1" : "0"}
-                  />
-                ))}
-              </svg>
+              <svg ref={barcodeRef} className="h-12 w-full"></svg>
             </div>
           </div>
         </div>

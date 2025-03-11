@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft, Printer, Download, ChevronRight, ChevronLeft as ChevronLeftIcon } from 'lucide-react';
 import CardTemplate from '@/components/CardTemplate';
+import ColorPicker from '@/components/ColorPicker';
 import { Student } from '@/utils/database';
 
 const CardPreview = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [students, setStudents] = useState<Student[]>([]);
-  const [template, setTemplate] = useState<'blue' | 'red' | 'green'>('blue');
+  const [templateColor, setTemplateColor] = useState('#4052b5');
   const [currentIndex, setCurrentIndex] = useState(0);
   
   useEffect(() => {
@@ -42,7 +43,18 @@ const CardPreview = () => {
     try {
       const { students, template } = JSON.parse(generatedCardsJSON);
       setStudents(students);
-      setTemplate(template as 'blue' | 'red' | 'green');
+      
+      // Set initial color based on template
+      switch(template) {
+        case 'red':
+          setTemplateColor('#e53935');
+          break;
+        case 'green':
+          setTemplateColor('#4caf50');
+          break;
+        default:
+          setTemplateColor('#4052b5');
+      }
     } catch (error) {
       toast({
         title: "Error loading cards",
@@ -73,6 +85,10 @@ const CardPreview = () => {
   const handleNext = () => {
     setCurrentIndex((prev) => (prev < students.length - 1 ? prev + 1 : prev));
   };
+
+  const handleColorChange = (color: string) => {
+    setTemplateColor(color);
+  };
   
   if (students.length === 0) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -96,10 +112,14 @@ const CardPreview = () => {
         </div>
         
         <div className="flex justify-between items-center mb-6 no-print">
-          <div>
+          <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-500">
               Showing card {currentIndex + 1} of {students.length}
             </span>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">Card Color:</span>
+              <ColorPicker initialColor={templateColor} onChange={handleColorChange} />
+            </div>
           </div>
           <div className="flex space-x-2">
             <Button variant="outline" onClick={handlePrintAll}>
@@ -118,7 +138,7 @@ const CardPreview = () => {
           <div className="no-print">
             <CardTemplate 
               student={students[currentIndex]} 
-              templateColor={template}
+              templateColor={templateColor}
               showControls={true}
             />
             
@@ -149,7 +169,7 @@ const CardPreview = () => {
                 <div key={student.rollNumber} className="page-break">
                   <CardTemplate 
                     student={student} 
-                    templateColor={template}
+                    templateColor={templateColor}
                     showControls={false}
                   />
                 </div>
