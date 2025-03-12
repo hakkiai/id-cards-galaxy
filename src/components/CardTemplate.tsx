@@ -15,6 +15,16 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
   const academicYear = `${currentYear}-${currentYear + 4}`;
   const barcodeRef = useRef<SVGSVGElement>(null);
   
+  // Truncate text function to handle long text
+  const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
+
+  // Format name to handle long names
+  const formattedName = student.name.length > 25 ? 
+    <span className="text-lg font-bold text-gray-900 uppercase">{truncateText(student.name, 25)}</span> : 
+    <span className="text-xl font-bold text-gray-900 uppercase">{student.name}</span>;
+  
   useEffect(() => {
     if (barcodeRef.current) {
       try {
@@ -84,8 +94,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
         </div>
 
         <div className="mt-3">
-          <h3 className="text-xl font-bold text-gray-900 uppercase">
-            {student.name}
+          <h3 className="line-clamp-1">
+            {formattedName}
           </h3>
           <p className="font-semibold text-gray-700">{student.department}</p>
         </div>
@@ -112,8 +122,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
         style={{ backgroundColor: templateColor }}
       >
         <div className="text-white text-xs space-y-1">
-          <p className="leading-tight">
-            <span className="font-semibold">Address:</span> {student.address}
+          <p className="leading-tight line-clamp-1">
+            <span className="font-semibold">Address:</span> {truncateText(student.address, 50)}
           </p>
           <p className="leading-tight">
             <span className="font-semibold">Contact:</span> {student.contact}

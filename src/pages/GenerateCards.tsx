@@ -5,21 +5,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { ChevronLeft, FileDown, Search, Check } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { ChevronLeft, FileDown, Search, Check, Database, UploadCloud, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { db, Student } from '@/utils/database';
 import FileUpload from '@/components/FileUpload';
+import CardTemplate from '@/components/CardTemplate';
 
 const GenerateCards = () => {
   const navigate = useNavigate();
   const { category, year, option } = useParams<{ category: string; year: string; option: string }>();
   const { toast } = useToast();
-  const [startRoll, setStartRoll] = useState('');
-  const [endRoll, setEndRoll] = useState('');
-  const [individualRoll, setIndividualRoll] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('blue');
   const [students, setStudents] = useState<Student[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [tabOption, setTabOption] = useState('excel');
+  
+  // Mock batches for demonstration - in a real app, these would come from the database
+  const batches = [
+    { id: '1', name: 'ME 2024-A' },
+    { id: '2', name: 'ME 2024-B' },
+    { id: '3', name: 'CSE 2024-A' },
+    { id: '4', name: 'CSE 2024-B' },
+    { id: '5', name: 'ECE 2024-A' },
+    { id: '6', name: 'ECE 2024-B' },
+  ];
   
   useEffect(() => {
     // Check if user is authenticated
@@ -33,84 +44,55 @@ const GenerateCards = () => {
       navigate('/');
       return;
     }
-    
-    // Validate option
-    if (option !== 'range' && option !== 'individual' && option !== 'excel') {
-      toast({
-        title: "Invalid option",
-        description: "The selected generation option is not valid",
-        variant: "destructive",
-      });
-      navigate(`/year/${category}/${year}`);
-    }
   }, [navigate, toast, category, year, option]);
   
-  const handleGenerateByRange = () => {
-    if (!startRoll || !endRoll) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both start and end roll numbers",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const filteredStudents = db.getStudentsByRollNumberRange(startRoll, endRoll);
-    
-    if (filteredStudents.length === 0) {
-      toast({
-        title: "No students found",
-        description: "No students found in the specified roll number range",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setStudents(filteredStudents);
-    
-    toast({
-      title: "Cards generated",
-      description: `Generated ${filteredStudents.length} ID cards successfully`,
-    });
-  };
-  
-  const handleGenerateIndividual = () => {
-    if (!individualRoll) {
-      toast({
-        title: "Missing information",
-        description: "Please provide a roll number",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const student = db.getStudentByRollNumber(individualRoll);
-    
-    if (!student) {
-      toast({
-        title: "Student not found",
-        description: "No student found with the specified roll number",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setStudents([student]);
-    
-    toast({
-      title: "Card generated",
-      description: "ID card generated successfully",
-    });
-  };
-  
   const handleExcelUpload = (uploadedStudents: Omit<Student, 'id'>[]) => {
-    const newStudents = db.addMultipleStudents(uploadedStudents);
-    setStudents(newStudents);
+    setIsLoading(true);
+    setTimeout(() => {
+      const newStudents = db.addMultipleStudents(uploadedStudents);
+      setStudents(newStudents);
+      
+      toast({
+        title: "Cards generated",
+        description: `Generated ${newStudents.length} ID cards successfully`,
+      });
+      setIsLoading(false);
+    }, 1000);
+  };
+  
+  const handleBatchSelect = (batchId: string) => {
+    setIsLoading(true);
+    setSelectedBatch(batchId);
     
-    toast({
-      title: "Cards generated",
-      description: `Generated ${newStudents.length} ID cards successfully`,
-    });
+    // Simulate database fetch
+    setTimeout(() => {
+      // In a real application, this would query the database based on batch ID
+      // For now, let's generate some mock data
+      const mockStudents = Array.from({ length: 10 }, (_, i) => ({
+        id: i + 1,
+        rollNumber: `246K5A0${i + 301}`,
+        name: `STUDENT NAME ${i + 1}` + (i === 3 ? ' WITH A VERY LONG NAME THAT NEEDS TRUNCATION' : ''),
+        department: 'ME',
+        course: 'B.Tech',
+        year: 'First Year',
+        academicYear: '2024-2028',
+        dob: '30-09-2005',
+        bloodGroup: 'O+',
+        aadhaar: '8908 4409 9285',
+        contact: '7993245964',
+        address: `2-8-15/1/38 SRI VENKATESHWARA COLONY OLD BUS STAND` + (i === 2 ? ' WITH A VERY LONG ADDRESS THAT EXCEEDS THE AVAILABLE SPACE AND NEEDS TO BE TRUNCATED' : ''),
+        photo: '',
+        category: 'student' as 'student' | 'faculty' | 'bus'
+      }));
+      
+      setStudents(mockStudents);
+      setIsLoading(false);
+      
+      toast({
+        title: "Batch loaded",
+        description: `Loaded ${mockStudents.length} students from batch ${batchId}`,
+      });
+    }, 1500);
   };
   
   const handlePreviewCards = () => {
@@ -125,89 +107,86 @@ const GenerateCards = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center mb-8">
           <Button 
             variant="ghost" 
-            onClick={() => navigate(`/year/${category}/${year}`)} 
-            className="mr-4"
+            onClick={() => navigate('/dashboard')} 
+            className="mr-4 hover:bg-gray-100 transition-colors"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
-            Back
+            Back to Dashboard
           </Button>
           <h1 className="text-2xl font-bold">
-            Generate ID Cards
+            Generate {category === 'student' ? 'Student' : category === 'faculty' ? 'Faculty' : 'Bus Student'} ID Cards
           </h1>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <Card>
+          <div className="md:col-span-2 space-y-6">
+            <Card className="transition-shadow duration-300 hover:shadow-md">
               <CardHeader>
                 <CardTitle>Generate ID Cards</CardTitle>
                 <CardDescription>
-                  {option === 'range' && 'Generate ID cards by roll number range'}
-                  {option === 'individual' && 'Generate an ID card for an individual'}
-                  {option === 'excel' && 'Generate ID cards by uploading an Excel file'}
+                  Choose a method to generate ID cards
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {option === 'range' && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="start-roll">Start Roll Number</Label>
-                        <Input 
-                          id="start-roll" 
-                          placeholder="e.g. 246K5A0301" 
-                          value={startRoll}
-                          onChange={(e) => setStartRoll(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="end-roll">End Roll Number</Label>
-                        <Input 
-                          id="end-roll" 
-                          placeholder="e.g. 246K5A0310" 
-                          value={endRoll}
-                          onChange={(e) => setEndRoll(e.target.value)}
-                        />
+                <Tabs defaultValue="excel" value={tabOption} onValueChange={setTabOption} className="w-full">
+                  <TabsList className="grid grid-cols-2 mb-6">
+                    <TabsTrigger value="excel" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                      <UploadCloud className="h-4 w-4 mr-2" />
+                      Upload Excel
+                    </TabsTrigger>
+                    <TabsTrigger value="database" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                      <Database className="h-4 w-4 mr-2" />
+                      From Database
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="excel" className="space-y-4 focus:outline-none">
+                    <div className="p-1">
+                      <FileUpload onUploadComplete={handleExcelUpload} />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="database" className="focus:outline-none">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium mb-2">Select a Batch</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {batches.map((batch) => (
+                          <div
+                            key={batch.id}
+                            className={`rounded-lg border-2 p-4 cursor-pointer transition-all duration-200 ${
+                              selectedBatch === batch.id 
+                                ? 'border-green-500 bg-green-50 shadow-md' 
+                                : 'border-gray-200 hover:border-green-200 hover:bg-gray-50'
+                            }`}
+                            onClick={() => handleBatchSelect(batch.id)}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">{batch.name}</span>
+                              {selectedBatch === batch.id && (
+                                <Check className="h-4 w-4 text-green-500" />
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <Button onClick={handleGenerateByRange} className="w-full">
-                      <Search className="h-4 w-4 mr-2" />
-                      Generate Cards
-                    </Button>
+                  </TabsContent>
+                </Tabs>
+                
+                {isLoading && (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-gray-500">Loading data...</p>
                   </div>
                 )}
                 
-                {option === 'individual' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="individual-roll">Roll Number</Label>
-                      <Input 
-                        id="individual-roll" 
-                        placeholder="e.g. 246K5A0301" 
-                        value={individualRoll}
-                        onChange={(e) => setIndividualRoll(e.target.value)}
-                      />
-                    </div>
-                    <Button onClick={handleGenerateIndividual} className="w-full">
-                      <Search className="h-4 w-4 mr-2" />
-                      Generate Card
-                    </Button>
-                  </div>
-                )}
-                
-                {option === 'excel' && (
-                  <div className="space-y-4">
-                    <FileUpload onUploadComplete={handleExcelUpload} />
-                  </div>
-                )}
-                
-                {students.length > 0 && (
-                  <div className="mt-6">
+                {!isLoading && students.length > 0 && (
+                  <div className="mt-6 border-t pt-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-medium">Generated Cards</h3>
                       <div className="text-sm text-gray-500">{students.length} card(s)</div>
@@ -216,7 +195,7 @@ const GenerateCards = () => {
                       {students.map((student) => (
                         <div 
                           key={student.rollNumber} 
-                          className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                          className="flex justify-between items-center p-2 hover:bg-gray-100 rounded transition-colors"
                         >
                           <div>
                             <div className="font-medium">{student.name}</div>
@@ -228,55 +207,72 @@ const GenerateCards = () => {
                     </div>
                     <Button 
                       onClick={handlePreviewCards} 
-                      className="w-full mt-4"
+                      className="w-full mt-4 bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 group"
                       disabled={students.length === 0}
                     >
-                      <FileDown className="h-4 w-4 mr-2" />
-                      Preview ID Cards
+                      <FileDown className="h-4 w-4" />
+                      <span>Preview ID Cards</span>
+                      <ArrowRight className="h-4 w-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                     </Button>
                   </div>
                 )}
               </CardContent>
             </Card>
+            
+            {students.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Card Preview</CardTitle>
+                  <CardDescription>Preview your generated ID card</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <CardTemplate 
+                    student={students[0]} 
+                    templateColor={selectedTemplate === 'blue' ? '#1e3c8c' : selectedTemplate === 'red' ? '#e53935' : '#4caf50'} 
+                  />
+                </CardContent>
+              </Card>
+            )}
           </div>
           
           <div>
-            <Card>
+            <Card className="transition-shadow duration-300 hover:shadow-md sticky top-6">
               <CardHeader>
                 <CardTitle>Card Template</CardTitle>
                 <CardDescription>
-                  Choose a template for your ID cards
+                  Choose a template color for your ID cards
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="blue" onValueChange={setSelectedTemplate}>
-                  <TabsList className="grid grid-cols-3 mb-4">
-                    <TabsTrigger value="blue">Blue</TabsTrigger>
-                    <TabsTrigger value="red">Red</TabsTrigger>
-                    <TabsTrigger value="green">Green</TabsTrigger>
-                  </TabsList>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    {['#1e3c8c', '#e53935', '#4caf50', '#9c27b0', '#ff9800', '#795548'].map((color) => (
+                      <div 
+                        key={color}
+                        className={`w-full h-12 rounded-md cursor-pointer border-2 transition-all duration-200 ${
+                          selectedTemplate === color ? 'border-black shadow-md scale-110' : 'border-transparent hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setSelectedTemplate(color)}
+                      />
+                    ))}
+                  </div>
                   
-                  <div className="border rounded-md p-2 transition-all duration-300">
-                    <div className={`w-full h-20 rounded ${
-                      selectedTemplate === 'blue' ? 'bg-ideal-blue' : 
-                      selectedTemplate === 'red' ? 'bg-ideal-red' : 
-                      'bg-ideal-green'
-                    }`}>
-                      <div className="p-2 text-white text-center">
-                        <div className="text-xs">IDEAL INSTITUTE</div>
-                        <div className="text-xs mt-1">ID CARD TEMPLATE</div>
-                      </div>
+                  <div className="border rounded-md p-3 mt-4">
+                    <Label>Selected Color:</Label>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div 
+                        className="w-6 h-6 rounded-full" 
+                        style={{ backgroundColor: selectedTemplate }}
+                      ></div>
+                      <span className="text-sm font-mono">{selectedTemplate}</span>
                     </div>
                   </div>
                   
                   <div className="mt-4">
                     <p className="text-sm text-gray-500 mb-2">Template preview:</p>
-                    <div className="aspect-[2/3] bg-white border rounded relative overflow-hidden">
-                      <div className={`h-1/5 w-full ${
-                        selectedTemplate === 'blue' ? 'bg-ideal-blue' : 
-                        selectedTemplate === 'red' ? 'bg-ideal-red' : 
-                        'bg-ideal-green'
-                      }`}></div>
+                    <div className="aspect-[2/3] bg-white border rounded relative overflow-hidden shadow-sm">
+                      <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate }}></div>
                       <div className="h-3/5 w-full bg-white p-3">
                         <div className="w-16 h-20 mx-auto bg-gray-200 mb-2"></div>
                         <div className="h-2 bg-gray-200 rounded w-3/4 mx-auto mb-1"></div>
@@ -288,16 +284,12 @@ const GenerateCards = () => {
                           <div className="h-1.5 bg-gray-200 rounded"></div>
                         </div>
                       </div>
-                      <div className={`h-1/5 w-full ${
-                        selectedTemplate === 'blue' ? 'bg-ideal-lightBlue' : 
-                        selectedTemplate === 'red' ? 'bg-ideal-red/80' : 
-                        'bg-ideal-green/80'
-                      }`}>
+                      <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate, opacity: 0.8 }}>
                         <div className="h-2 bg-white/20 rounded w-3/4 mx-auto mt-2"></div>
                       </div>
                     </div>
                   </div>
-                </Tabs>
+                </div>
               </CardContent>
             </Card>
           </div>
