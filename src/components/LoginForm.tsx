@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { db } from '@/utils/database';
-import { BarChart4, LockKeyhole, User, LogIn } from 'lucide-react';
+import { Cloud, LockKeyhole, User, LogIn } from 'lucide-react';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -53,14 +53,14 @@ const LoginForm = () => {
     <Card className="w-full max-w-md shadow-2xl login-card animate-fade-in">
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-center mb-4 animate-[float_4s_ease-in-out_infinite]" style={{ animationDelay: "200ms" }}>
-          <div className="bg-primary p-3 rounded-full transition-transform hover:scale-110 duration-300 animate-[pulse-glow_3s_ease-in-out_infinite]">
-            <BarChart4 className="h-8 w-8 text-white" />
+          <div className="bg-[#4a7a8c] p-3 rounded-full transition-transform hover:scale-110 duration-300 animate-[pulse-glow_3s_ease-in-out_infinite]">
+            <Cloud className="h-8 w-8 text-white" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-center animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "300ms" }}>
+        <CardTitle className="text-2xl font-bold text-center text-[#2a4b3c] animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "300ms" }}>
           ID Card Generation System
         </CardTitle>
-        <CardDescription className="text-center animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "400ms" }}>
+        <CardDescription className="text-center text-[#3a5a45] animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "400ms" }}>
           Enter your credentials to access the system
         </CardDescription>
       </CardHeader>
@@ -68,13 +68,13 @@ const LoginForm = () => {
         <form onSubmit={handleLogin}>
           <div className="space-y-4">
             <div className="space-y-2 animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "500ms" }}>
-              <Label htmlFor="username" className="text-gray-700">Username</Label>
+              <Label htmlFor="username" className="text-[#2a4b3c]">Username</Label>
               <div className="relative group">
-                <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <User className="absolute left-3 top-2.5 h-5 w-5 text-[#5d7052] transition-colors group-focus-within:text-[#2a4b3c]" />
                 <Input 
                   id="username"
                   placeholder="admin"
-                  className="pl-10 transition-all border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white/90"
+                  className="pl-10 transition-all border-[#a3b18a] focus:border-[#5d7052] focus:ring-2 focus:ring-[#5d7052]/20 bg-white/60"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -82,14 +82,14 @@ const LoginForm = () => {
               </div>
             </div>
             <div className="space-y-2 animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "600ms" }}>
-              <Label htmlFor="password" className="text-gray-700">Password</Label>
+              <Label htmlFor="password" className="text-[#2a4b3c]">Password</Label>
               <div className="relative group">
-                <LockKeyhole className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <LockKeyhole className="absolute left-3 top-2.5 h-5 w-5 text-[#5d7052] transition-colors group-focus-within:text-[#2a4b3c]" />
                 <Input 
                   id="password"
                   type="password"
                   placeholder="••••••"
-                  className="pl-10 transition-all border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white/90"
+                  className="pl-10 transition-all border-[#a3b18a] focus:border-[#5d7052] focus:ring-2 focus:ring-[#5d7052]/20 bg-white/60"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -99,7 +99,7 @@ const LoginForm = () => {
             <div className="animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "700ms" }}>
               <Button 
                 type="submit" 
-                className="w-full group relative overflow-hidden transition-all duration-300 transform hover:translate-y-[-2px]" 
+                className="w-full group relative overflow-hidden transition-all duration-300 transform hover:translate-y-[-2px] bg-[#4a7a8c] hover:bg-[#3a6a7c]" 
                 disabled={isLoading}
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -115,13 +115,13 @@ const LoginForm = () => {
                     </>
                   )}
                 </span>
-                <span className="absolute inset-0 z-0 bg-gradient-to-r from-primary to-primary-foreground opacity-0 group-hover:opacity-20 transition-opacity"></span>
+                <span className="absolute inset-0 z-0 bg-gradient-to-r from-[#4a7a8c] to-[#5d7052] opacity-0 group-hover:opacity-20 transition-opacity"></span>
               </Button>
             </div>
           </div>
         </form>
       </CardContent>
-      <CardFooter className="text-center text-xs text-muted-foreground animate-[fade-in_1s_ease-out]" style={{ animationDelay: "800ms" }}>
+      <CardFooter className="text-center text-xs text-[#3a5a45] animate-[fade-in_1s_ease-out]" style={{ animationDelay: "800ms" }}>
         © {new Date().getFullYear()} ID Card Generation System
       </CardFooter>
     </Card>

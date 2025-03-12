@@ -91,7 +91,7 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
               {student.bloodGroup}
             </div>
             <QRCodeSVG 
-              value={`${student.rollNumber},${student.name}`}
+              value={`https://idealtech.edu.in/website/home.html`}
               size={90}
               level="H"
               includeMargin={true}

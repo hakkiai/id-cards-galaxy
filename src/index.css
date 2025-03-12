@@ -94,12 +94,12 @@
   }
 }
 
-/* New login page background and animations */
+/* Login page with nature-themed background */
 .login-page {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background-image: url('/lovable-uploads/94795cc9-ed82-45c7-b9b5-c852dc42d839.png');
+  background-image: url('/lovable-uploads/494e0042-5c2c-40da-926d-6280547e08ea.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -112,18 +112,26 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
   z-index: 1;
 }
 
 .login-card {
   position: relative;
   z-index: 2;
-  backdrop-filter: blur(16px);
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Theme colors inspired by the nature image */
+:root {
+  --nature-teal: #4a7a8c;
+  --nature-green: #5d7052;
+  --nature-cloud: #e6f0f3;
+  --nature-field: #a3b18a;
 }
 
 /* Enhanced animations */
