@@ -20,10 +20,16 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
-  // Format name to handle long names
-  const formattedName = student.name.length > 25 ? 
-    <span className="text-lg font-bold text-gray-900 uppercase">{truncateText(student.name, 25)}</span> : 
-    <span className="text-xl font-bold text-gray-900 uppercase">{student.name}</span>;
+  // Format name with dynamic font size based on length
+  const getNameComponent = () => {
+    if (student.name.length > 30) {
+      return <span className="text-sm font-bold text-gray-900 uppercase">{truncateText(student.name, 40)}</span>;
+    } else if (student.name.length > 25) {
+      return <span className="text-base font-bold text-gray-900 uppercase">{truncateText(student.name, 30)}</span>;
+    } else {
+      return <span className="text-xl font-bold text-gray-900 uppercase">{student.name}</span>;
+    }
+  };
   
   useEffect(() => {
     if (barcodeRef.current) {
@@ -95,7 +101,7 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
         <div className="mt-3">
           <h3 className="line-clamp-1">
-            {formattedName}
+            {getNameComponent()}
           </h3>
           <p className="font-semibold text-gray-700">{student.department}</p>
         </div>

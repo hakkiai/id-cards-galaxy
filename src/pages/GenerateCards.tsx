@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { ChevronLeft, FileDown, Search, Check, Database, UploadCloud, ArrowRight } from 'lucide-react';
+import { ChevronLeft, FileDown, Search, Check, Database, UploadCloud, ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { db, Student } from '@/utils/database';
 import FileUpload from '@/components/FileUpload';
@@ -21,6 +21,11 @@ const GenerateCards = () => {
   const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tabOption, setTabOption] = useState('excel');
+  
+  // Range selection states
+  const [showRangeSelection, setShowRangeSelection] = useState(false);
+  const [startRollNumber, setStartRollNumber] = useState('');
+  const [endRollNumber, setEndRollNumber] = useState('');
   
   // Mock batches for demonstration - in a real app, these would come from the database
   const batches = [
@@ -63,6 +68,11 @@ const GenerateCards = () => {
   const handleBatchSelect = (batchId: string) => {
     setIsLoading(true);
     setSelectedBatch(batchId);
+    setShowRangeSelection(true); // Show range selection when batch is selected
+    
+    // Reset range inputs
+    setStartRollNumber('');
+    setEndRollNumber('');
     
     // Simulate database fetch
     setTimeout(() => {
@@ -90,9 +100,47 @@ const GenerateCards = () => {
       
       toast({
         title: "Batch loaded",
-        description: `Loaded ${mockStudents.length} students from batch ${batchId}`,
+        description: `Loaded ${mockStudents.length} students from batch ${batches.find(b => b.id === batchId)?.name}`,
       });
     }, 1500);
+  };
+
+  const handleRangeSelection = () => {
+    if (!startRollNumber || !endRollNumber) {
+      toast({
+        title: "Invalid range",
+        description: "Please enter both start and end roll numbers",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    // In a real app, this would filter from the database
+    setTimeout(() => {
+      // Filter the current students based on roll number range
+      const filteredStudents = students.filter(
+        student => student.rollNumber >= startRollNumber && student.rollNumber <= endRollNumber
+      );
+      
+      if (filteredStudents.length === 0) {
+        toast({
+          title: "No students found",
+          description: "No students found in the specified range",
+          variant: "destructive",
+        });
+      } else {
+        setStudents(filteredStudents);
+        
+        toast({
+          title: "Range applied",
+          description: `Filtered to ${filteredStudents.length} students in the specified range`,
+        });
+      }
+      
+      setIsLoading(false);
+    }, 1000);
   };
   
   const handlePreviewCards = () => {
@@ -109,7 +157,7 @@ const GenerateCards = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center mb-8">
+        <div className="flex items-center mb-8 animate-[fade-in-right_0.5s_ease-out]">
           <Button 
             variant="ghost" 
             onClick={() => navigate('/dashboard')} 
@@ -125,7 +173,7 @@ const GenerateCards = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
-            <Card className="transition-shadow duration-300 hover:shadow-md">
+            <Card className="transition-shadow duration-300 hover:shadow-md animate-[fade-up_0.6s_ease-out]">
               <CardHeader>
                 <CardTitle>Generate ID Cards</CardTitle>
                 <CardDescription>
@@ -174,6 +222,47 @@ const GenerateCards = () => {
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Range Selection */}
+                      {showRangeSelection && selectedBatch && (
+                        <div className="mt-6 border-t border-dashed border-gray-300 pt-4 animate-[fade-up_0.4s_ease-out]">
+                          <div className="flex items-center mb-3">
+                            <SlidersHorizontal className="h-5 w-5 text-blue-500 mr-2" />
+                            <h3 className="text-lg font-medium">Roll Number Range (Optional)</h3>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="flex-1">
+                              <Label htmlFor="startRoll" className="text-sm font-medium mb-1 block">From</Label>
+                              <Input
+                                id="startRoll"
+                                placeholder="e.g. 246K5A0301"
+                                value={startRollNumber}
+                                onChange={(e) => setStartRollNumber(e.target.value)}
+                                className="border-gray-300 focus:border-blue-500"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <Label htmlFor="endRoll" className="text-sm font-medium mb-1 block">To</Label>
+                              <Input
+                                id="endRoll"
+                                placeholder="e.g. 246K5A0310"
+                                value={endRollNumber}
+                                onChange={(e) => setEndRollNumber(e.target.value)}
+                                className="border-gray-300 focus:border-blue-500"
+                              />
+                            </div>
+                            <div className="flex items-end">
+                              <Button 
+                                onClick={handleRangeSelection} 
+                                className="bg-blue-500 hover:bg-blue-600"
+                                disabled={!startRollNumber || !endRollNumber}
+                              >
+                                Apply Range
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -186,16 +275,17 @@ const GenerateCards = () => {
                 )}
                 
                 {!isLoading && students.length > 0 && (
-                  <div className="mt-6 border-t pt-6">
+                  <div className="mt-6 border-t pt-6 animate-[fade-up_0.6s_ease-out]">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-medium">Generated Cards</h3>
                       <div className="text-sm text-gray-500">{students.length} card(s)</div>
                     </div>
                     <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-2">
-                      {students.map((student) => (
+                      {students.map((student, index) => (
                         <div 
                           key={student.rollNumber} 
                           className="flex justify-between items-center p-2 hover:bg-gray-100 rounded transition-colors"
+                          style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <div>
                             <div className="font-medium">{student.name}</div>
@@ -220,7 +310,7 @@ const GenerateCards = () => {
             </Card>
             
             {students.length > 0 && (
-              <Card>
+              <Card className="animate-[fade-up_0.8s_ease-out]">
                 <CardHeader>
                   <CardTitle>Card Preview</CardTitle>
                   <CardDescription>Preview your generated ID card</CardDescription>
@@ -228,7 +318,7 @@ const GenerateCards = () => {
                 <CardContent className="flex justify-center">
                   <CardTemplate 
                     student={students[0]} 
-                    templateColor={selectedTemplate === 'blue' ? '#1e3c8c' : selectedTemplate === 'red' ? '#e53935' : '#4caf50'} 
+                    templateColor={selectedTemplate} 
                   />
                 </CardContent>
               </Card>
@@ -236,7 +326,7 @@ const GenerateCards = () => {
           </div>
           
           <div>
-            <Card className="transition-shadow duration-300 hover:shadow-md sticky top-6">
+            <Card className="transition-shadow duration-300 hover:shadow-md sticky top-6 animate-[fade-in-right_0.7s_ease-out]">
               <CardHeader>
                 <CardTitle>Card Template</CardTitle>
                 <CardDescription>
