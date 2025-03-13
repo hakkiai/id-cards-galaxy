@@ -70,21 +70,29 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
       {/* Academic Year */}
       <div className="text-red-600 text-center py-1 font-semibold bg-white">
-        {academicYear}
+        {student.academicYear || academicYear}
       </div>
 
       {/* Photo and Basic Info */}
       <div className="px-6 py-2 bg-white flex-1">
         <div className="flex justify-between items-start gap-4">
           <div className="w-32 h-40 border-2 border-gray-300 overflow-hidden">
-            <img 
-              src={student.photo || '/placeholder.svg'} 
-              alt={student.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/placeholder.svg';
-              }}
-            />
+            {student.photo ? (
+              <img 
+                src={student.photo} 
+                alt={student.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
+                }}
+              />
+            ) : (
+              <img 
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
+                alt={student.name}
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           <div className="flex flex-col items-center gap-2">
             <div className="text-2xl text-red-600 font-bold">
