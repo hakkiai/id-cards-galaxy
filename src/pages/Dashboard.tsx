@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,12 +57,13 @@ const Dashboard = () => {
   };
   
   const handleCategorySelect = (category: string) => {
-    // Directly navigate to generate page with the default option
+    // Navigate to the appropriate page based on the category selected
     if (category === 'student') {
       navigate('/generate/student/All/excel');
     } else if (category === 'faculty') {
       navigate('/generate/faculty/All Faculty/excel');
     } else {
+      // For bus category, we only want students with the bus tag
       navigate('/generate/bus/All/excel');
     }
   };
@@ -115,14 +115,14 @@ const Dashboard = () => {
             onClick={() => handleCategorySelect('student')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
-            <div className="student-animation absolute right-5 bottom-5 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <GraduationCap className="w-full h-full text-blue-500 dark:text-blue-400 animate-[float_3s_ease-in-out_infinite]" />
-            </div>
             
             <CardContent className="p-6 relative z-10">
-              <div className="h-40 mb-4 flex flex-col items-center justify-center">
-                <div className="w-28 h-28 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+              <div className="h-40 mb-4 flex flex-col items-center justify-center relative">
+                <div className="w-28 h-28 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 relative overflow-hidden">
                   <GraduationCap className="h-14 w-14 text-blue-500 dark:text-blue-400" />
+                  <div className="absolute inset-0 bg-blue-200/30 scale-0 group-hover:scale-100 rounded-full transition-transform duration-500 flex items-center justify-center">
+                    <GraduationCap className="h-14 w-14 text-blue-600 dark:text-blue-300 animate-[float_3s_ease-in-out_infinite]" />
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold mt-4 text-blue-700 dark:text-blue-300 group-hover:scale-105 transition-transform duration-300">Student Generate</h3>
               </div>
@@ -146,14 +146,14 @@ const Dashboard = () => {
             onClick={() => handleCategorySelect('faculty')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
-            <div className="faculty-animation absolute right-5 bottom-5 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <Users className="w-full h-full text-red-500 dark:text-red-400 animate-[float_3s_ease-in-out_infinite]" />
-            </div>
             
             <CardContent className="p-6 relative z-10">
               <div className="h-40 mb-4 flex flex-col items-center justify-center">
-                <div className="w-28 h-28 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                <div className="w-28 h-28 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 relative overflow-hidden">
                   <Users className="h-14 w-14 text-red-500 dark:text-red-400" />
+                  <div className="absolute inset-0 bg-red-200/30 scale-0 group-hover:scale-100 rounded-full transition-transform duration-500 flex items-center justify-center">
+                    <Users className="h-14 w-14 text-red-600 dark:text-red-300 animate-[float_3s_ease-in-out_infinite]" />
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold mt-4 text-red-700 dark:text-red-300 group-hover:scale-105 transition-transform duration-300">Faculty Generate</h3>
               </div>
@@ -177,17 +177,14 @@ const Dashboard = () => {
             onClick={() => handleCategorySelect('bus')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
-            <div className="bus-animation absolute right-5 bottom-5 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <div className="relative">
-                <Bus className="w-full h-full text-amber-500 dark:text-amber-400 animate-[float_3s_ease-in-out_infinite]" />
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-400 dark:bg-gray-600 animate-[road-move_2s_linear_infinite]"></div>
-              </div>
-            </div>
             
             <CardContent className="p-6 relative z-10">
               <div className="h-40 mb-4 flex flex-col items-center justify-center">
-                <div className="w-28 h-28 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                <div className="w-28 h-28 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 relative overflow-hidden">
                   <Bus className="h-14 w-14 text-amber-500 dark:text-amber-400" />
+                  <div className="absolute inset-0 bg-amber-200/30 scale-0 group-hover:scale-100 rounded-full transition-transform duration-500 flex items-center justify-center">
+                    <Bus className="h-14 w-14 text-amber-600 dark:text-amber-300 animate-[float_3s_ease-in-out_infinite]" />
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold mt-4 text-amber-700 dark:text-amber-300 group-hover:scale-105 transition-transform duration-300">Bus Generate</h3>
               </div>

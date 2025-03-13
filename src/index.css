@@ -147,8 +147,8 @@
 }
 
 @keyframes slide-up {
-  0% { opacity: 0; transform: translateY(40px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { transform: translateY(40px); }
+  100% { transform: translateY(0px); }
 }
 
 @keyframes fade-in-right {
@@ -173,6 +173,18 @@
   }
 }
 
+/* Icon reveal animation */
+@keyframes reveal-icon {
+  0% { 
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Bus-themed animations */
 @keyframes bus-move {
   0% { transform: translateX(-100%); }
@@ -189,6 +201,7 @@
   100% { background-position: 100% 0; }
 }
 
+/* Bus-specific styles */
 .bus-animation {
   background: linear-gradient(90deg, transparent 0%, #FEC6A1 50%, transparent 100%);
   animation: bus-move 3s ease-in-out infinite;
@@ -301,7 +314,37 @@
   opacity: 1;
 }
 
-/* ID Card specific styles (continue with existing styles) */
+/* Dashboard card animations */
+.card-icon-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-icon {
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.card-icon-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.card-icon-container:hover .card-icon {
+  transform: scale(1.1);
+}
+
+.card-icon-container:hover .card-icon-bg {
+  opacity: 1;
+  animation: pulse-glow 2s infinite;
+}
+
+/* ID Card specific styles */
 .id-card {
   width: 350px;
   height: 550px;
@@ -378,12 +421,6 @@
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
 }
 
 /* Dashboard animations */

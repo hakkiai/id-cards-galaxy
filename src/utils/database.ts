@@ -100,6 +100,11 @@ class Database {
   
   // Get students by category and year
   public getStudentsByCategoryAndYear(category: string, year: string): Student[] {
+    if (category === 'bus') {
+      // For bus category, we want only students with the bus tag
+      return this.students.filter(student => student.isBusStudent === true);
+    }
+    
     return this.students.filter(
       student => student.category === category && student.year === year
     );
@@ -140,7 +145,7 @@ class Database {
 
   // Get bus students
   public getBusStudents(): Student[] {
-    return this.students.filter(student => student.isBusStudent);
+    return this.students.filter(student => student.isBusStudent === true);
   }
 }
 
