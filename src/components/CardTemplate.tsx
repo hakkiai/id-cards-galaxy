@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Student } from '@/utils/database';
 import { QRCodeSVG } from 'qrcode.react';
 import JSBarcode from 'jsbarcode';
+import { Bus } from 'lucide-react';
 
 interface CardTemplateProps {
   student: Student;
@@ -50,6 +51,16 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
   return (
     <div className="w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg relative flex flex-col">
+      {/* Bus Student Badge - if applicable */}
+      {student.isBusStudent && (
+        <div className="absolute top-2 right-2 z-10 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
+          <div className="bg-amber-500 text-white rounded-full px-3 py-1 flex items-center gap-1 shadow-md">
+            <Bus className="h-4 w-4" />
+            <span className="text-xs font-bold">BUS</span>
+          </div>
+        </div>
+      )}
+
       {/* Header with logo and institute name */}
       <div 
         className="py-3 px-4"
@@ -111,7 +122,13 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           <h3 className="line-clamp-1">
             {getNameComponent()}
           </h3>
-          <p className="font-semibold text-gray-700">{student.department}</p>
+          <p className="font-semibold text-gray-700">
+            {student.department === 'CSM' 
+              ? 'Computer Science and Machine Learning' 
+              : student.department === 'CSE'
+                ? 'Computer Science and Engineering'
+                : student.department}
+          </p>
         </div>
 
         <div className="mt-2 space-y-1">
@@ -132,9 +149,16 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
       {/* Footer with contact details and barcode */}
       <div 
-        className="w-full py-2 px-4"
+        className="w-full py-2 px-4 relative"
         style={{ backgroundColor: templateColor }}
       >
+        {student.isBusStudent && (
+          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bus-indicator z-10">
+            <div className="bg-amber-400 text-amber-900 rounded-full px-4 py-0.5 text-xs font-bold shadow-md">
+              BUS STUDENT
+            </div>
+          </div>
+        )}
         <div className="text-white text-xs space-y-1">
           <p className="leading-tight line-clamp-1">
             <span className="font-semibold">Address:</span> {truncateText(student.address, 50)}

@@ -24,6 +24,7 @@ export interface Student {
   address: string;
   photo: string;
   category: 'student' | 'faculty' | 'bus';
+  isBusStudent?: boolean; // New property for bus students
 }
 
 // Mock database
@@ -47,7 +48,8 @@ class Database {
       contact: '7993245964',
       address: '2-8-15/1/38 SRI VENKATESHWARA COLONY OLD BUS STAND',
       photo: '246K5A0301.jpg',
-      category: 'student'
+      category: 'student',
+      isBusStudent: true
     },
     {
       id: 2,
@@ -63,7 +65,8 @@ class Database {
       contact: '6309369004',
       address: '3-150/1 KOTHAPETA RAMALAYAM STREET KOVVURU-1 KAKINADA RURAL',
       photo: '246K5A0302.jpg',
-      category: 'student'
+      category: 'student',
+      isBusStudent: false
     },
     {
       id: 3,
@@ -79,7 +82,8 @@ class Database {
       contact: '9951818844',
       address: '4-8-51/3, BONASU VARI VEEDI SAMALAKOTA 533440',
       photo: '246K5A0303.jpg',
-      category: 'student'
+      category: 'student',
+      isBusStudent: true
     }
   ];
   
@@ -132,6 +136,11 @@ class Database {
     
     this.students.push(...newStudents);
     return newStudents;
+  }
+
+  // Get bus students
+  public getBusStudents(): Student[] {
+    return this.students.filter(student => student.isBusStudent);
   }
 }
 

@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,7 +50,8 @@ const generateMockStudents = (year: string, category: string): Student[] => {
       contact: `79932${40000 + i}`,
       address: `${i+1}-${i+10}-${i+15}/1/${i+30} SRI VENKATESHWARA COLONY, KAKINADA`,
       photo: '', // Will be handled by placeholder
-      category: 'student'
+      category: category === 'CSE' || category === 'CSM' ? 'student' : 'bus',
+      isBusStudent: Math.random() > 0.7 // Randomly assign 30% as bus students
     };
   });
 };
@@ -268,7 +268,7 @@ const GenerateCards = () => {
                               >
                                 <h3 className="text-xl font-bold text-center mb-3">{cat}</h3>
                                 <p className="text-gray-600 text-center">
-                                  {cat === 'CSE' ? 'Computer Science and Engineering' : 'Computer Science & Mathematics'}
+                                  {cat === 'CSE' ? 'Computer Science and Engineering' : 'Computer Science and Machine Learning'}
                                 </p>
                               </div>
                             ))}
@@ -386,7 +386,7 @@ const GenerateCards = () => {
                       {students.map((student, index) => (
                         <div 
                           key={student.rollNumber} 
-                          className="flex justify-between items-center p-3 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                          className={`flex justify-between items-center p-3 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors ${student.isBusStudent ? 'bus-student relative overflow-hidden' : ''}`}
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <div className="flex items-center gap-3">
@@ -409,7 +409,14 @@ const GenerateCards = () => {
                               )}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">{student.name}</div>
+                              <div className="font-medium text-gray-900 flex items-center gap-2">
+                                {student.name}
+                                {student.isBusStudent && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                    Bus
+                                  </span>
+                                )}
+                              </div>
                               <div className="text-sm text-gray-500 flex items-center gap-2">
                                 <span>{student.rollNumber}</span>
                                 <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
@@ -593,6 +600,24 @@ const GenerateCards = () => {
                 </div>
               </div>
             )}
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="busStudent"
+                checked={editingStudent?.isBusStudent || false}
+                onChange={(e) => {
+                  if (editingStudent) {
+                    setEditingStudent({
+                      ...editingStudent,
+                      isBusStudent: e.target.checked
+                    });
+                  }
+                }}
+                className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <Label htmlFor="busStudent">Bus Student</Label>
+            </div>
           </div>
           
           <DialogFooter>
