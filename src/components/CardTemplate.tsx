@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Student } from '@/utils/database';
 import { QRCodeSVG } from 'qrcode.react';
 import JSBarcode from 'jsbarcode';
-import { Bus } from 'lucide-react';
+import { Bus, Droplet } from 'lucide-react';
 
 interface CardTemplateProps {
   student: Student;
@@ -106,7 +106,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
             )}
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="text-2xl text-red-600 font-bold">
+            <div className="text-2xl text-red-600 font-bold flex items-center gap-1">
+              <Droplet className="h-5 w-5 text-red-600 animate-pulse" fill="rgba(239, 68, 68, 0.2)" />
               {student.bloodGroup}
             </div>
             <QRCodeSVG 

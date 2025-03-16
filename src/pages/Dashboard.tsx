@@ -1,9 +1,10 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap, Users, Bus, LogOut, Sun, Moon } from 'lucide-react';
+import { GraduationCap, Users, Bus, LogOut, Sun, Moon, Droplet } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Toggle } from '@/components/ui/toggle';
 
@@ -71,8 +72,14 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-8 animate-[fade-in_0.5s_ease-out]">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-[pulse_3s_ease-in-out_infinite]">
+            Ideal Institute of Technology – Student Identity Card Generation Portal
+          </h1>
+        </div>
+        
         <div className="flex justify-between items-center mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ID Card Generation System</h1>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h2>
           <div className="flex items-center gap-3">
             <Toggle 
               aria-label="Toggle theme" 
@@ -101,7 +108,7 @@ const Dashboard = () => {
         </div>
         
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-8 transform hover:shadow-md transition-all duration-300 animate-[slide-up_0.6s_ease-out]">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">Welcome, {sessionStorage.getItem('username') || 'Admin'}</h2>
+          <h2 className="text-xl font-semibold mb-4 dark:text-white admin-title">Welcome, {sessionStorage.getItem('username') || 'Admin'}</h2>
           <p className="text-gray-600 dark:text-gray-300">
             Select a category below to generate ID cards. You can generate cards for students,
             faculty members, or bus students.
@@ -111,7 +118,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Student Generation Card */}
           <Card 
-            className="relative overflow-hidden cursor-pointer group"
+            className="relative overflow-hidden cursor-pointer group dashboard-card before:animate-border-glow"
             onClick={() => handleCategorySelect('student')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
@@ -142,7 +149,7 @@ const Dashboard = () => {
           
           {/* Faculty Generation Card */}
           <Card 
-            className="relative overflow-hidden cursor-pointer group"
+            className="relative overflow-hidden cursor-pointer group dashboard-card before:animate-border-glow"
             onClick={() => handleCategorySelect('faculty')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
@@ -173,7 +180,7 @@ const Dashboard = () => {
           
           {/* Bus Generation Card */}
           <Card 
-            className="relative overflow-hidden cursor-pointer group"
+            className="relative overflow-hidden cursor-pointer group dashboard-card before:animate-border-glow"
             onClick={() => handleCategorySelect('bus')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
