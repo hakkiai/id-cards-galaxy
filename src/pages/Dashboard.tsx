@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -73,8 +72,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 animate-[fade-in_0.5s_ease-out]">
-          <div className="title-box">
-            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-[pulse_3s_ease-in-out_infinite]">
+          <div className="title-box-static">
+            <h1 className="text-3xl font-bold uppercase">
               Ideal Institute of Technology – Student Identity Card Generation Portal
             </h1>
           </div>
@@ -86,23 +85,20 @@ const Dashboard = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <div 
-              className={`theme-switch ${isDarkMode ? 'dark' : ''}`}
-              onClick={toggleTheme}
-            >
-              <div className="theme-switch-thumb">
-                {isDarkMode ? (
-                  <Moon className="h-4 w-4 text-blue-700" />
-                ) : (
-                  <Sun className="h-4 w-4 text-yellow-400" />
-                )}
-              </div>
+            <div className="flex items-center space-x-2">
+              <Sun className="h-5 w-5 text-yellow-500 dark:text-gray-400" />
+              <Switch 
+                checked={isDarkMode}
+                onCheckedChange={toggleTheme}
+                className="data-[state=checked]:bg-gray-800"
+              />
+              <Moon className="h-5 w-5 text-gray-400 dark:text-blue-300" />
             </div>
             
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="logout-btn-glow group relative overflow-hidden dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+              className="logout-btn-red group relative overflow-hidden dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
               <span className="relative z-10 flex items-center gap-2 transition-transform duration-300 group-hover:translate-x-1">
                 Logout

@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -603,17 +602,194 @@
   transform: translateX(34px);
 }
 
+/* New title box with static design and flashing border */
+.title-box-static {
+  position: relative;
+  background: linear-gradient(135deg, rgba(225, 235, 255, 0.9), rgba(240, 245, 255, 0.6));
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid transparent;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.1),
+    0 5px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  text-align: center;
+  animation: border-pulse 2s infinite;
+}
+
+@keyframes border-pulse {
+  0% {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+  }
+  100% {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  }
+}
+
+.dark .title-box-static {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(44, 55, 74, 0.6));
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Red Logout button */
+.logout-btn-red {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  transition: all 0.3s ease;
+}
+
+.logout-btn-red::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    rgba(239, 68, 68, 0.4) 0%,
+    rgba(248, 113, 113, 0.8) 50%,
+    rgba(239, 68, 68, 0.4) 100%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: border-glow 2s linear infinite;
+}
+
+.logout-btn-red:hover {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+/* ID Card specific styles */
+.id-card {
+  width: 350px;
+  height: 550px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.id-card-blue {
+  background: linear-gradient(135deg, #3949ab 0%, #5e72e4 100%);
+}
+
+.id-card-red {
+  background: linear-gradient(135deg, #e53935 0%, #f44336 100%);
+}
+
+.id-card-green {
+  background: linear-gradient(135deg, #43a047 0%, #4caf50 100%);
+}
+
+.id-card-header {
+  padding: 15px;
+  color: white;
+  text-align: center;
+}
+
+.id-card-body {
+  background: white;
+  padding: 20px;
+  height: calc(100% - 120px);
+}
+
+.id-card-footer {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-align: center;
+  font-size: 12px;
+}
+
+.photo-placeholder {
+  width: 120px;
+  height: 140px;
+  border: 2px solid #eee;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  overflow: hidden;
+}
+
+/* Blood drop symbol for ID cards */
+.blood-drop {
+  display: inline-flex;
+  color: #e53935;
+  margin-right: 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Student and faculty animations */
+.student-animation,
+.faculty-animation {
+  position: relative;
+}
+
+.student-animation::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: pulse-glow 2s infinite;
+}
+
+.faculty-animation::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: pulse-glow 2s infinite;
+}
+
 /* Print-specific styles */
 @media print {
   @page {
     size: A4;
-    margin: 0;
+    margin: 12mm;
   }
   
   body {
     margin: 0;
     padding: 0;
-    background: white;
+    background: white !important;
   }
   
   .no-print {
@@ -621,23 +797,27 @@
   }
   
   .id-card {
-    page-break-inside: avoid;
-    margin: 10px;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin: 0 auto;
     box-shadow: none;
     border: 1px solid #ddd;
   }
   
   .print-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10mm;
-    padding: 10mm;
-    page-break-inside: avoid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 20mm;
+    width: 100%;
+    max-width: 100%;
   }
   
   .print-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10mm;
   }
 }
 

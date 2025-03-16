@@ -40,8 +40,11 @@ const CardPreview = () => {
     }
     
     try {
-      const { students } = JSON.parse(generatedCardsJSON);
+      const { students, template } = JSON.parse(generatedCardsJSON);
       setStudents(students);
+      if (template) {
+        setTemplateColor(template);
+      }
     } catch (error) {
       toast({
         title: "Error loading cards",
@@ -178,11 +181,16 @@ const CardPreview = () => {
             </div>
           )}
           
-          {/* Print layout */}
+          {/* Print layout - two cards per page with proper page breaks */}
           <div className="hidden print:block">
-            <div className="grid grid-cols-2 gap-4">
-              {students.map((student) => (
-                <div key={student.rollNumber} className="page-break">
+            <div className="print-grid">
+              {students.map((student, index) => (
+                <div 
+                  key={student.rollNumber} 
+                  className="print-card"
+                  // Force page break after every 2 cards
+                  style={index % 2 === 1 ? { pageBreakAfter: 'always' } : {}}
+                >
                   <CardTemplate 
                     student={student} 
                     templateColor={templateColor}
