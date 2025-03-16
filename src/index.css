@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -253,8 +254,19 @@
     #FEC6A1 10px,
     #FEC6A1 20px
   );
-  opacity: 0.3;
-  z-index: -1;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.bus-student::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #F97316;
+  animation: road-move 10s linear infinite;
 }
 
 .bus-student-avatar {
@@ -274,33 +286,6 @@
   animation: pulse-glow 2s infinite;
 }
 
-/* Bus student in the student list */
-.bus-student::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    #FEF7CD,
-    #FEF7CD 10px,
-    #FEC6A1 10px,
-    #FEC6A1 20px
-  );
-  opacity: 0.1;
-  z-index: 0;
-}
-
-.bus-student::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: #F97316;
-  animation: road-move 10s linear infinite;
-}
-
 /* Card hover animations */
 .dashboard-card {
   transition: all 0.4s ease-in-out;
@@ -311,14 +296,22 @@
 .dashboard-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: border-glow 3s linear infinite;
 }
 
 .dashboard-card:hover {
@@ -414,7 +407,119 @@
   overflow: hidden;
 }
 
+/* Blood drop symbol for ID cards */
+.blood-drop {
+  display: inline-flex;
+  color: #e53935;
+  margin-right: 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Student and faculty animations */
+.student-animation,
+.faculty-animation {
+  position: relative;
+}
+
+.student-animation::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: pulse-glow 2s infinite;
+}
+
+.faculty-animation::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: pulse-glow 2s infinite;
+}
+
+/* Theme toggle styles */
+.theme-toggle {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.theme-toggle:hover::before {
+  opacity: 1;
+}
+
+/* Dark mode styles */
+.dark .login-card {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .dashboard-card {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Admin title animations */
+.admin-title {
+  background: linear-gradient(
+    to right,
+    #12c2e9,
+    #c471ed,
+    #f64f59
+  );
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: title-shine 3s linear infinite;
+}
+
+@keyframes title-shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Print-specific styles */
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  
   body {
     margin: 0;
     padding: 0;
@@ -431,152 +536,6 @@
     box-shadow: none;
     border: 1px solid #ddd;
   }
-}
-
-/* Theme toggle animation */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Dashboard animations */
-.student-animation {
-  position: relative;
-}
-
-.student-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-.faculty-animation {
-  position: relative;
-}
-
-.faculty-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-/* Theme toggle styles */
-.theme-toggle {
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.theme-toggle:hover::before {
-  opacity: 1;
-}
-
-/* Dark mode styles */
-.dark .login-card {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .dashboard-card {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Admin Dashboard Enhancements */
-.dashboard-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.dashboard-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  animation: border-glow 3s linear infinite;
-}
-
-@keyframes border-glow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.admin-title {
-  background: linear-gradient(
-    to right,
-    #12c2e9,
-    #c471ed,
-    #f64f59
-  );
-  background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: title-shine 3s linear infinite;
-}
-
-@keyframes title-shine {
-  to {
-    background-position: 200% center;
-  }
-}
-
-/* Print-specific styles */
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-  }
   
   .print-grid {
     display: grid;
@@ -597,371 +556,3 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
-/* Dashboard animations */
-.student-animation {
-  position: relative;
-}
-
-.student-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-.faculty-animation {
-  position: relative;
-}
-
-.faculty-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-/* Theme toggle styles */
-.theme-toggle {
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.theme-toggle:hover::before {
-  opacity: 1;
-}
-
-/* Dark mode styles */
-.dark .login-card {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .dashboard-card {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Admin Dashboard Enhancements */
-.dashboard-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.dashboard-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  animation: border-glow 3s linear infinite;
-}
-
-@keyframes border-glow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.admin-title {
-  background: linear-gradient(
-    to right,
-    #12c2e9,
-    #c471ed,
-    #f64f59
-  );
-  background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: title-shine 3s linear infinite;
-}
-
-@keyframes title-shine {
-  to {
-    background-position: 200% center;
-  }
-}
-
-/* Print-specific styles */
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-  }
-  
-  .print-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10mm;
-    padding: 10mm;
-    page-break-inside: avoid;
-  }
-  
-  .print-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-}
-
-/* Theme toggle animation */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Dashboard animations */
-.student-animation {
-  position: relative;
-}
-
-.student-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-.faculty-animation {
-  position: relative;
-}
-
-.faculty-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-/* Theme toggle styles */
-.theme-toggle {
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.theme-toggle:hover::before {
-  opacity: 1;
-}
-
-/* Dark mode styles */
-.dark .login-card {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .dashboard-card {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Admin Dashboard Enhancements */
-.dashboard-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.dashboard-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  animation: border-glow 3s linear infinite;
-}
-
-@keyframes border-glow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.admin-title {
-  background: linear-gradient(
-    to right,
-    #12c2e9,
-    #c471ed,
-    #f64f59
-  );
-  background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: title-shine 3s linear infinite;
-}
-
-@keyframes title-shine {
-  to {
-    background-position: 200% center;
-  }
-}
-
-/* Print-specific styles */
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-  }
-  
-  .print-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10mm;
-    padding: 10mm;
-    page-break-inside: avoid;
-  }
-  
-  .print-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-}
-
-/* Theme toggle animation */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Dashboard animations */
-.student-animation {
-  position: relative;
-}
-
-.student-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-.faculty-animation {
-  position: relative;
-}
-
-.faculty-animation::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  animation: pulse-glow 2s infinite;
-}
-
-/* Theme toggle styles */
-.theme-toggle {
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255,
