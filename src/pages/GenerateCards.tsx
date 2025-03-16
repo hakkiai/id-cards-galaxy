@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -758,3 +759,56 @@ const GenerateCards = () => {
                 onChange={(e) => setEditDob(e.target.value)} 
                 placeholder="DD-MM-YYYY"
               />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input 
+                id="address" 
+                value={editAddress} 
+                onChange={(e) => setEditAddress(e.target.value)} 
+                placeholder="Enter address"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="contact">Contact Number</Label>
+              <Input 
+                id="contact" 
+                value={editContact} 
+                onChange={(e) => setEditContact(e.target.value)} 
+                placeholder="Enter contact number"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="aadhaar">Aadhaar Number</Label>
+              <Input 
+                id="aadhaar" 
+                value={editAadhaar} 
+                onChange={(e) => setEditAadhaar(e.target.value)} 
+                placeholder="Enter aadhaar number"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="isBusStudent" 
+                checked={editIsBusStudent} 
+                onCheckedChange={(checked) => setEditIsBusStudent(checked === true)}
+              />
+              <Label htmlFor="isBusStudent" className="cursor-pointer">Bus Student</Label>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+            <Button onClick={saveStudentEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default GenerateCards;
