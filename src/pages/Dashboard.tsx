@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap, Users, Bus, LogOut, Sun, Moon, Droplet } from 'lucide-react';
+import { GraduationCap, Users, Bus, LogOut, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
-import { Toggle } from '@/components/ui/toggle';
+import { Switch } from '@/components/ui/switch';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -72,31 +72,37 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 animate-[fade-in_0.5s_ease-out]">
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-[pulse_3s_ease-in-out_infinite]">
-            Ideal Institute of Technology – Student Identity Card Generation Portal
-          </h1>
+        <div className="mb-8 animate-[fade-in_0.5s_ease-out]">
+          <div className="title-box">
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-[pulse_3s_ease-in-out_infinite]">
+              Ideal Institute of Technology – Student Identity Card Generation Portal
+            </h1>
+          </div>
         </div>
         
         <div className="flex justify-between items-center mb-8 animate-fade-in">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h2>
+          <div className="admin-dashboard-card">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h2>
+          </div>
+          
           <div className="flex items-center gap-3">
-            <Toggle 
-              aria-label="Toggle theme" 
+            <div 
+              className={`theme-switch ${isDarkMode ? 'dark' : ''}`}
               onClick={toggleTheme}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:shadow-lg"
             >
-              {isDarkMode ? (
-                <Sun className="h-5 w-5 text-yellow-400 animate-[spin_1s_ease-out]" />
-              ) : (
-                <Moon className="h-5 w-5 text-blue-700 animate-[spin_1s_ease-out]" />
-              )}
-            </Toggle>
+              <div className="theme-switch-thumb">
+                {isDarkMode ? (
+                  <Moon className="h-4 w-4 text-blue-700" />
+                ) : (
+                  <Sun className="h-4 w-4 text-yellow-400" />
+                )}
+              </div>
+            </div>
             
             <Button 
               variant="outline" 
               onClick={handleLogout}
-              className="group relative overflow-hidden dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+              className="logout-btn-glow group relative overflow-hidden dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
               <span className="relative z-10 flex items-center gap-2 transition-transform duration-300 group-hover:translate-x-1">
                 Logout

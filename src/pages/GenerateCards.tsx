@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -240,6 +239,7 @@ const GenerateCards = () => {
     setEditContact(student.contact);
     setEditAadhaar(student.aadhaar);
     setEditIsBusStudent(student.isBusStudent || false);
+    // Add data for all other student fields here
     setEditDialogOpen(true);
   };
   
@@ -693,122 +693,65 @@ const GenerateCards = () => {
         </div>
       </div>
       
-      {/* Edit Student Dialog */}
+      {/* Edit Student Dialog with improved scrolling and all fields */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
             <DialogTitle>Edit Student Details</DialogTitle>
             <DialogDescription>
               Update student information for ID card generation
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="flex flex-col items-center mb-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300 mb-2">
-                {editPhoto ? (
-                  <img 
-                    src={editPhoto} 
-                    alt="Student"
-                    className="w-full h-full object-cover" 
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(editName)}&background=random`;
-                    }}
-                  />
-                ) : (
-                  <img 
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(editName)}&background=random`} 
-                    alt="Student"
-                    className="w-full h-full object-cover" 
-                  />
-                )}
-              </div>
-              <input
-                ref={photoInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhotoUpload}
-              />
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="mt-2"
-                onClick={() => photoInputRef.current?.click()}
-              >
-                <UploadCloud className="h-4 w-4 mr-2" />
-                Upload Photo
-              </Button>
+        
+        <div className="flex-1 overflow-y-auto pr-2 space-y-4 py-2">
+          <div className="flex flex-col items-center mb-4">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300 mb-2">
+              {editPhoto ? (
+                <img 
+                  src={editPhoto} 
+                  alt="Student"
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(editName)}&background=random`;
+                  }}
+                />
+              ) : (
+                <img 
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(editName)}&background=random`} 
+                  alt="Student"
+                  className="w-full h-full object-cover" 
+                />
+              )}
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="studentName">Student Name</Label>
-              <Input 
-                id="studentName" 
-                value={editName} 
-                onChange={(e) => setEditName(e.target.value)} 
-                placeholder="Enter student name"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="dob">Date of Birth</Label>
-              <Input 
-                id="dob" 
-                value={editDob} 
-                onChange={(e) => setEditDob(e.target.value)} 
-                placeholder="DD-MM-YYYY"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Input 
-                id="address" 
-                value={editAddress} 
-                onChange={(e) => setEditAddress(e.target.value)} 
-                placeholder="Enter address"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="contact">Contact Number</Label>
-              <Input 
-                id="contact" 
-                value={editContact} 
-                onChange={(e) => setEditContact(e.target.value)} 
-                placeholder="Enter contact number"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="aadhaar">Aadhaar Number</Label>
-              <Input 
-                id="aadhaar" 
-                value={editAadhaar} 
-                onChange={(e) => setEditAadhaar(e.target.value)} 
-                placeholder="Enter aadhaar number"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="isBusStudent" 
-                checked={editIsBusStudent} 
-                onCheckedChange={(checked) => setEditIsBusStudent(checked === true)}
-              />
-              <Label htmlFor="isBusStudent" className="cursor-pointer">Bus Student</Label>
-            </div>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="mt-2"
+              onClick={() => photoInputRef.current?.click()}
+            >
+              <UploadCloud className="h-4 w-4 mr-2" />
+              Upload Photo
+            </Button>
           </div>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-            <Button onClick={saveStudentEdit}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default GenerateCards;
+          <div className="space-y-2">
+            <Label htmlFor="studentName">Full Name</Label>
+            <Input 
+              id="studentName" 
+              value={editName} 
+              onChange={(e) => setEditName(e.target.value)} 
+              placeholder="Enter student name"
+            />
+          </div>
+          
+          {editingStudent && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="rollNumber">Roll
