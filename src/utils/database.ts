@@ -24,7 +24,7 @@ export interface Student {
   address: string;
   photo: string;
   category: 'student' | 'faculty' | 'bus';
-  isBusStudent?: boolean; // New property for bus students
+  isBusStudent?: boolean; // Property for bus students
 }
 
 // Mock database
@@ -100,13 +100,22 @@ class Database {
   
   // Get students by category and year
   public getStudentsByCategoryAndYear(category: string, year: string): Student[] {
+    // For bus category, we want only students with the bus tag
     if (category === 'bus') {
-      // For bus category, we want only students with the bus tag
+      // For bus category, filter only students with isBusStudent = true
       return this.students.filter(student => student.isBusStudent === true);
     }
     
+    // For student category, return all students of that year
+    if (category === 'student') {
+      return this.students.filter(student => 
+        student.category === category && (year === 'All' || student.year === year)
+      );
+    }
+    
+    // For other categories (faculty), filter by category and year
     return this.students.filter(
-      student => student.category === category && student.year === year
+      student => student.category === category && (year === 'All' || student.year === year)
     );
   }
   
@@ -146,6 +155,15 @@ class Database {
   // Get bus students
   public getBusStudents(): Student[] {
     return this.students.filter(student => student.isBusStudent === true);
+  }
+  
+  // Update student
+  public updateStudent(id: number, updatedStudent: Partial<Student>): Student | undefined {
+    const index = this.students.findIndex(s => s.id === id);
+    if (index === -1) return undefined;
+    
+    this.students[index] = { ...this.students[index], ...updatedStudent };
+    return this.students[index];
   }
 }
 

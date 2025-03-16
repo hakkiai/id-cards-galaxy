@@ -3,10 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { ChevronLeft, FileDown, Search, Check, Database, UploadCloud, ArrowRight, SlidersHorizontal, Edit, User } from 'lucide-react';
+import { 
+  ChevronLeft, FileDown, Search, Check, Database, UploadCloud, 
+  ArrowRight, SlidersHorizontal, Edit, User, Download, Bus, Printer 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { db, Student } from '@/utils/database';
 import FileUpload from '@/components/FileUpload';
@@ -19,6 +23,7 @@ const generateMockStudents = (year: string, category: string): Student[] => {
     '2nd Year': { prefix: '236K1A', yearRange: '2023-2027' },
     '3rd Year': { prefix: '226K1A', yearRange: '2022-2026' },
     '4th Year': { prefix: '216K1A', yearRange: '2021-2025' },
+    'All': { prefix: '246K1A', yearRange: '2024-2028' }, // Default for 'All'
   };
 
   const namesPool = [
@@ -42,7 +47,7 @@ const generateMockStudents = (year: string, category: string): Student[] => {
       name: namesPool[i % namesPool.length].toUpperCase(),
       department: category,
       course: 'B.Tech',
-      year,
+      year: year === 'All' ? ['1st Year', '2nd Year', '3rd Year', '4th Year'][i % 4] : year,
       academicYear: yearRange,
       dob: `${10 + (i % 20)}-${1 + (i % 12)}-200${3 + (i % 5)}`,
       bloodGroup: ['A+', 'B+', 'O+', 'AB+', 'A-', 'B-'][i % 6],
@@ -50,8 +55,8 @@ const generateMockStudents = (year: string, category: string): Student[] => {
       contact: `79932${40000 + i}`,
       address: `${i+1}-${i+10}-${i+15}/1/${i+30} SRI VENKATESHWARA COLONY, KAKINADA`,
       photo: '', // Will be handled by placeholder
-      category: category === 'CSE' || category === 'CSM' ? 'student' : 'bus',
-      isBusStudent: Math.random() > 0.7 // Randomly assign 30% as bus students
+      category: 'student',
+      isBusStudent: category === 'bus' ? true : Math.random() > 0.7 // All bus category are bus students, for others 30% random
     };
   });
 };
@@ -64,6 +69,8 @@ const GenerateCards = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tabOption, setTabOption] = useState('excel');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   
   // Database selection states
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -79,6 +86,11 @@ const GenerateCards = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [editName, setEditName] = useState('');
   const [editPhoto, setEditPhoto] = useState('');
+  const [editDob, setEditDob] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editContact, setEditContact] = useState('');
+  const [editAadhaar, setEditAadhaar] = useState('');
+  const [editIsBusStudent, setEditIsBusStudent] = useState(false);
   
   useEffect(() => {
     // Check if user is authenticated
@@ -92,11 +104,51 @@ const GenerateCards = () => {
       navigate('/');
       return;
     }
+    
+    // If we're on the bus category, load bus students immediately
+    if (category === 'bus') {
+      loadStudents();
+    }
   }, [navigate, toast, category, year, option]);
+  
+  const loadStudents = () => {
+    setIsLoading(true);
+    
+    // Filter students based on the category and year
+    setTimeout(() => {
+      let studentsData: Student[] = [];
+      
+      if (category === 'bus') {
+        // For bus category, only get students with bus tag
+        studentsData = db.getBusStudents();
+      } else {
+        // For other categories, get by category and year
+        studentsData = db.getStudentsByCategoryAndYear(category || 'student', year || 'All');
+      }
+      
+      if (studentsData.length === 0) {
+        // If no data in DB, generate mock students
+        studentsData = generateMockStudents(year || 'All', category || 'CSE');
+      }
+      
+      setStudents(studentsData);
+      setIsLoading(false);
+      
+      toast({
+        title: "Students loaded",
+        description: `Loaded ${studentsData.length} students for ${category} ${year === 'All' ? 'all years' : year}`,
+      });
+    }, 1000);
+  };
   
   const handleExcelUpload = (uploadedStudents: Omit<Student, 'id'>[]) => {
     setIsLoading(true);
     setTimeout(() => {
+      // For bus category, ensure all uploaded students have isBusStudent = true
+      if (category === 'bus') {
+        uploadedStudents = uploadedStudents.map(s => ({...s, isBusStudent: true}));
+      }
+      
       const newStudents = db.addMultipleStudents(uploadedStudents);
       setStudents(newStudents);
       
@@ -123,7 +175,13 @@ const GenerateCards = () => {
     
     // Generate mock students based on selected category and year
     setTimeout(() => {
-      const mockStudents = generateMockStudents(year, selectedCategory || 'CSE');
+      let mockStudents = generateMockStudents(year, selectedCategory || 'CSE');
+      
+      // For bus category, filter to only show bus students
+      if (category === 'bus') {
+        mockStudents = mockStudents.filter(s => s.isBusStudent === true);
+      }
+      
       setStudents(mockStudents);
       setIsLoading(false);
       setShowRangeSelection(true);
@@ -176,20 +234,61 @@ const GenerateCards = () => {
     setEditingStudent(student);
     setEditName(student.name);
     setEditPhoto(student.photo);
+    setEditDob(student.dob);
+    setEditAddress(student.address);
+    setEditContact(student.contact);
+    setEditAadhaar(student.aadhaar);
+    setEditIsBusStudent(student.isBusStudent || false);
     setEditDialogOpen(true);
   };
   
   const saveStudentEdit = () => {
     if (!editingStudent) return;
     
+    // Convert photoFile to base64 if available
+    if (photoFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        updateStudentData(base64String);
+      };
+      reader.readAsDataURL(photoFile);
+    } else {
+      updateStudentData(editPhoto);
+    }
+  };
+  
+  const updateStudentData = (photoUrl: string) => {
+    if (!editingStudent) return;
+    
+    const updatedStudent = {
+      ...editingStudent,
+      name: editName,
+      photo: photoUrl,
+      dob: editDob,
+      address: editAddress,
+      contact: editContact,
+      aadhaar: editAadhaar,
+      isBusStudent: editIsBusStudent
+    };
+    
+    // Update in database
+    db.updateStudent(editingStudent.id, updatedStudent);
+    
+    // Update in local state
     const updatedStudents = students.map(student => 
-      student.id === editingStudent.id 
-        ? { ...student, name: editName, photo: editPhoto }
-        : student
+      student.id === editingStudent.id ? updatedStudent : student
     );
     
-    setStudents(updatedStudents);
+    // If this is the bus category and we're removing bus tag, filter this student out
+    if (category === 'bus' && !editIsBusStudent) {
+      setStudents(updatedStudents.filter(s => s.isBusStudent));
+    } else {
+      setStudents(updatedStudents);
+    }
+    
     setEditDialogOpen(false);
+    setPhotoFile(null);
     
     toast({
       title: "Student updated",
@@ -197,11 +296,36 @@ const GenerateCards = () => {
     });
   };
   
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setPhotoFile(file);
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setEditPhoto(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+  
   const handlePreviewCards = () => {
     // Store the generated cards data in session storage for the preview page
     sessionStorage.setItem('generatedCards', JSON.stringify({
       students,
-      template: selectedTemplate
+      template: selectedTemplate,
+      cardsPerPage: 2 // Ensure exactly 2 cards per page
     }));
     
     // Navigate to the preview page
@@ -211,6 +335,12 @@ const GenerateCards = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-6 animate-[fade-in_0.5s_ease-out]">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-[pulse_3s_ease-in-out_infinite]">
+            Ideal Institute of Technology – Student Identity Card Portal
+          </h1>
+        </div>
+
         <div className="flex items-center mb-8 animate-[fade-in-right_0.5s_ease-out]">
           <Button 
             variant="ghost" 
@@ -227,13 +357,16 @@ const GenerateCards = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
-            <Card className="transition-shadow duration-300 hover:shadow-md animate-[fade-up_0.6s_ease-out]">
+            <Card className="transition-shadow duration-300 hover:shadow-md animate-[fade-up_0.6s_ease-out] relative overflow-hidden">
+              <div className="absolute inset-0 animate-[pulse_4s_ease-in-out_infinite] bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 pointer-events-none"></div>
+              
               <CardHeader>
                 <CardTitle>Generate ID Cards</CardTitle>
                 <CardDescription>
                   Choose a method to generate ID cards
                 </CardDescription>
               </CardHeader>
+              
               <CardContent>
                 <Tabs defaultValue="excel" value={tabOption} onValueChange={setTabOption} className="w-full">
                   <TabsList className="grid grid-cols-2 mb-6">
@@ -379,7 +512,35 @@ const GenerateCards = () => {
                   <div className="mt-6 border-t pt-6 animate-[fade-up_0.6s_ease-out]">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-medium">Student Records</h3>
-                      <div className="text-sm text-gray-500">{students.length} student(s)</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">{students.length} student(s)</span>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handlePreviewCards}
+                          className="flex items-center gap-1"
+                        >
+                          <Printer className="h-4 w-4" />
+                          Print Cards
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const dataStr = JSON.stringify(students, null, 2);
+                            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                            const url = URL.createObjectURL(dataBlob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'students-data.json';
+                            a.click();
+                          }}
+                          className="flex items-center gap-1"
+                        >
+                          <Download className="h-4 w-4" />
+                          Export
+                        </Button>
+                      </div>
                     </div>
                     
                     <div className="space-y-3 max-h-[400px] overflow-y-auto border rounded-md p-2">
@@ -550,7 +711,7 @@ const GenerateCards = () => {
                     alt="Student"
                     className="w-full h-full object-cover" 
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(editName) + '&background=random';
+                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(editName)}&background=random`;
                     }}
                   />
                 ) : (
@@ -561,7 +722,19 @@ const GenerateCards = () => {
                   />
                 )}
               </div>
-              <Button size="sm" variant="outline" className="mt-2">
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="mt-2"
+                onClick={() => photoInputRef.current?.click()}
+              >
                 <UploadCloud className="h-4 w-4 mr-2" />
                 Upload Photo
               </Button>
@@ -577,57 +750,11 @@ const GenerateCards = () => {
               />
             </div>
             
-            {editingStudent && (
-              <div className="bg-gray-50 p-3 rounded-md">
-                <h4 className="text-sm font-medium mb-2">Student Information</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-500">Roll Number:</span>
-                    <p>{editingStudent.rollNumber}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Department:</span>
-                    <p>{editingStudent.department}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Year:</span>
-                    <p>{editingStudent.year}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Blood Group:</span>
-                    <p>{editingStudent.bloodGroup}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="busStudent"
-                checked={editingStudent?.isBusStudent || false}
-                onChange={(e) => {
-                  if (editingStudent) {
-                    setEditingStudent({
-                      ...editingStudent,
-                      isBusStudent: e.target.checked
-                    });
-                  }
-                }}
-                className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            <div className="space-y-2">
+              <Label htmlFor="dob">Date of Birth</Label>
+              <Input 
+                id="dob" 
+                value={editDob} 
+                onChange={(e) => setEditDob(e.target.value)} 
+                placeholder="DD-MM-YYYY"
               />
-              <Label htmlFor="busStudent">Bus Student</Label>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-            <Button onClick={saveStudentEdit}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default GenerateCards;
