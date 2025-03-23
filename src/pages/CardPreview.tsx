@@ -183,13 +183,33 @@ const CardPreview = () => {
           
           {/* Print layout - two cards per page with proper page breaks */}
           <div className="hidden print:block">
+            <style type="text/css" media="print">
+              {`
+                @page {
+                  size: A4;
+                  margin: 0;
+                }
+                .print-grid {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 20px;
+                  padding: 20px;
+                }
+                .print-card {
+                  break-inside: avoid;
+                  page-break-inside: avoid;
+                }
+                /* Force two cards per page */
+                .print-card:nth-child(2n) {
+                  page-break-after: always;
+                }
+              `}
+            </style>
             <div className="print-grid">
               {students.map((student, index) => (
                 <div 
                   key={student.rollNumber} 
                   className="print-card"
-                  // Force page break after every 2 cards
-                  style={index % 2 === 1 ? { pageBreakAfter: 'always' } : {}}
                 >
                   <CardTemplate 
                     student={student} 

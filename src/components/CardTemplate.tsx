@@ -37,11 +37,12 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
       try {
         JSBarcode(barcodeRef.current, student.rollNumber, {
           format: "CODE128",
-          width: 1.5,
-          height: 30,
+          width: 2.2,  // Increased from 1.5 to 2.2 for larger barcode
+          height: 40,  // Increased from 30 to 40 for taller barcode
           displayValue: false,
           background: "#ffffff",
-          lineColor: "#000000"
+          lineColor: "#000000",
+          margin: 0   // Reduced margin to maximize space usage
         });
       } catch (error) {
         console.error('Error generating barcode:', error);
@@ -87,7 +88,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
       {/* Photo and Basic Info */}
       <div className="px-6 py-2 bg-white flex-1">
         <div className="flex justify-between items-start gap-4">
-          <div className="w-32 h-40 border-2 border-gray-300 overflow-hidden">
+          {/* Photo container - adjusted to center better */}
+          <div className="w-32 h-40 border-2 border-gray-300 overflow-hidden mx-auto">
             {student.photo ? (
               <img 
                 src={student.photo} 
@@ -167,11 +169,9 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           <p className="leading-tight">
             <span className="font-semibold">Contact:</span> {student.contact}
           </p>
-          <p className="leading-tight mb-1">
-            <span className="font-semibold">Aadhaar:</span> {student.aadhaar}
-          </p>
-          <div className="bg-white rounded-sm p-1 mt-1 w-full h-10 flex items-center justify-center">
-            <svg ref={barcodeRef} className="w-full h-8"></svg>
+          {/* Removed Aadhaar card info line */}
+          <div className="bg-white rounded-sm p-1 mt-2 w-full h-12 flex items-center justify-center">
+            <svg ref={barcodeRef} className="w-full h-10"></svg>
           </div>
         </div>
       </div>
