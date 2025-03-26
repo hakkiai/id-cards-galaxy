@@ -1,12 +1,12 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Grid2X2, User, Printer, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Grid2X2, User, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import CardTemplate from '@/components/CardTemplate';
 import { Student } from '@/utils/database';
 import ColorPicker from '@/components/ColorPicker';
+import html2canvas from 'html2canvas';
 
 const CardPreview = () => {
   const navigate = useNavigate();
@@ -15,6 +15,8 @@ const CardPreview = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'single' | 'grid'>('single');
   const [templateColor, setTemplateColor] = useState('#1e3c8c');
+  const [downloading, setDownloading] = useState(false);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem('isAuthenticated');
@@ -45,6 +47,8 @@ const CardPreview = () => {
       if (template) {
         setTemplateColor(template);
       }
+      // Initialize card refs
+      cardRefs.current = students.map(() => null);
     } catch (error) {
       toast({
         title: "Error loading cards",
@@ -59,15 +63,97 @@ const CardPreview = () => {
     setTemplateColor(color);
   };
   
-  const handlePrintAll = () => {
-    window.print();
+  // Function to download a single card as JPEG
+  const handleDownloadCard = async (index: number) => {
+    const cardElement = cardRefs.current[index];
+    if (!cardElement) {
+      toast({
+        title: "Error",
+        description: "Could not find card element to download",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const canvas = await html2canvas(cardElement, {
+        scale: 2, // Higher scale for better quality
+        useCORS: true,
+        backgroundColor: null,
+        logging: false
+      });
+      
+      const link = document.createElement('a');
+      link.download = `ID_Card_${students[index].rollNumber}.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.9);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Download complete",
+        description: `ID card for ${students[index].name} downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating JPEG:", error);
+      toast({
+        title: "Download failed",
+        description: "There was an error generating the JPEG file",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleDownloadAll = () => {
+  // Function to download all cards as JPEG
+  const handleDownloadAll = async () => {
+    if (downloading) return;
+    
+    setDownloading(true);
     toast({
-      title: "Download initiated",
-      description: `Downloading ${students.length} ID cards as PDF`,
+      title: "Preparing download",
+      description: `Processing ${students.length} ID cards for download`,
     });
+    
+    try {
+      // Use a delay between downloads to prevent browser from freezing
+      for (let i = 0; i < students.length; i++) {
+        const cardElement = cardRefs.current[i];
+        if (!cardElement) continue;
+        
+        const canvas = await html2canvas(cardElement, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: null,
+          logging: false
+        });
+        
+        const link = document.createElement('a');
+        link.download = `ID_Card_${students[i].rollNumber}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Add a small delay between downloads
+        if (i < students.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+      
+      toast({
+        title: "Download complete",
+        description: `All ${students.length} ID cards downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating JPEGs:", error);
+      toast({
+        title: "Download failed",
+        description: "There was an error generating the JPEG files",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloading(false);
+    }
   };
   
   const handlePrevious = () => {
@@ -97,13 +183,13 @@ const CardPreview = () => {
           <div className="flex items-center gap-4">
             <ColorPicker initialColor={templateColor} onChange={handleColorChange} />
             <div className="flex space-x-2">
-              <Button variant="outline" onClick={handlePrintAll}>
-                <Printer className="h-4 w-4 mr-2" />
-                Print All
-              </Button>
-              <Button onClick={handleDownloadAll}>
+              <Button 
+                onClick={handleDownloadAll}
+                disabled={downloading}
+                className="bg-green-600 hover:bg-green-700"
+              >
                 <Download className="h-4 w-4 mr-2" />
-                Download All
+                {downloading ? "Processing..." : "Download All as JPEG"}
               </Button>
             </div>
           </div>
@@ -138,12 +224,17 @@ const CardPreview = () => {
         <div className="flex flex-col items-center">
           {/* Single card view */}
           {viewMode === 'single' && (
-            <div className="no-print">
-              <CardTemplate 
-                student={students[currentIndex]} 
-                templateColor={templateColor}
-                showControls={false}
-              />
+            <div>
+              <div 
+                ref={el => cardRefs.current[currentIndex] = el}
+                className="card-container"
+              >
+                <CardTemplate 
+                  student={students[currentIndex]} 
+                  templateColor={templateColor}
+                  showControls={false}
+                />
+              </div>
               
               <div className="flex justify-center space-x-4 mt-6">
                 <Button 
@@ -154,6 +245,15 @@ const CardPreview = () => {
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Previous
                 </Button>
+                
+                <Button 
+                  onClick={() => handleDownloadCard(currentIndex)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download as JPEG
+                </Button>
+                
                 <Button 
                   variant="outline" 
                   onClick={handleNext}
@@ -169,47 +269,47 @@ const CardPreview = () => {
           {/* Grid view */}
           {viewMode === 'grid' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {students.map((student) => (
-                <div key={student.rollNumber}>
-                  <CardTemplate 
-                    student={student} 
-                    templateColor={templateColor}
-                    showControls={false}
-                  />
+              {students.map((student, index) => (
+                <div key={student.rollNumber} className="relative group">
+                  <div 
+                    ref={el => cardRefs.current[index] = el}
+                    className="card-container"
+                  >
+                    <CardTemplate 
+                      student={student} 
+                      templateColor={templateColor}
+                      showControls={false}
+                    />
+                  </div>
+                  
+                  {/* Download button overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-lg">
+                    <Button 
+                      onClick={() => handleDownloadCard(index)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
           
-          {/* Print layout - two cards per page with proper page breaks */}
-          <div className="hidden print:block">
-            <style type="text/css" media="print">
-              {`
-                @page {
-                  size: A4;
-                  margin: 0;
-                }
-                .print-grid {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 20px;
-                  padding: 20px;
-                }
-                .print-card {
-                  break-inside: avoid;
-                  page-break-inside: avoid;
-                }
-                /* Force two cards per page */
-                .print-card:nth-child(2n) {
-                  page-break-after: always;
-                }
-              `}
-            </style>
-            <div className="print-grid">
-              {students.map((student, index) => (
-                <div 
-                  key={student.rollNumber} 
-                  className="print-card"
+          {/* Hidden container to keep all cards rendered for download */}
+          <div className="hidden">
+            {students.map((student, index) => (
+              viewMode === 'grid' || index !== currentIndex ? (
+                <div
+                  key={`hidden-${student.rollNumber}`}
+                  ref={el => {
+                    // Only update ref if it's not already set
+                    if (!cardRefs.current[index]) {
+                      cardRefs.current[index] = el;
+                    }
+                  }}
+                  className="card-container"
                 >
                   <CardTemplate 
                     student={student} 
@@ -217,8 +317,8 @@ const CardPreview = () => {
                     showControls={false}
                   />
                 </div>
-              ))}
-            </div>
+              ) : null
+            ))}
           </div>
         </div>
       </div>
