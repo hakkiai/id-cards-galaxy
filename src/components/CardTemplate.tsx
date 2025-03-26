@@ -69,7 +69,7 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
       >
         <div className="flex items-center justify-between gap-2">
           <img 
-            src="/lovable-uploads/a545a42a-b17b-4c50-9599-5574346a185f.png"
+            src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png"
             alt="IDEAL Logo" 
             className="h-14 w-14 object-contain"
           />
@@ -163,13 +163,12 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
         )}
         <div className="text-white text-xs space-y-1">
-          <p className="leading-tight line-clamp-1">
-            <span className="font-semibold">Address:</span> {truncateText(student.address, 50)}
+          <p className="leading-tight text-wrap break-words max-h-14 overflow-y-auto">
+            <span className="font-semibold">Address:</span> {student.address}
           </p>
           <p className="leading-tight">
             <span className="font-semibold">Contact:</span> {student.contact}
           </p>
-          {/* Removed Aadhaar card info line */}
           <div className="bg-white rounded-sm p-1 mt-2 w-full h-12 flex items-center justify-center">
             <svg ref={barcodeRef} className="w-full h-10"></svg>
           </div>

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { db } from '@/utils/database';
-import { Cloud, LockKeyhole, User, LogIn } from 'lucide-react';
+import { LockKeyhole, User, LogIn } from 'lucide-react';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -53,12 +53,16 @@ const LoginForm = () => {
     <Card className="w-full max-w-md shadow-2xl login-card animate-fade-in">
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-center mb-4 animate-[float_4s_ease-in-out_infinite]" style={{ animationDelay: "200ms" }}>
-          <div className="bg-[#4a7a8c] p-3 rounded-full transition-transform hover:scale-110 duration-300 animate-[pulse-glow_3s_ease-in-out_infinite]">
-            <Cloud className="h-8 w-8 text-white" />
+          <div className="p-3 rounded-full transition-transform hover:scale-110 duration-300 animate-[pulse-glow_3s_ease-in-out_infinite]">
+            <img 
+              src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
+              alt="IDEAL Institute Logo" 
+              className="h-20 w-20 object-contain"
+            />
           </div>
         </div>
         <CardTitle className="text-2xl font-bold text-center text-[#2a4b3c] animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "300ms" }}>
-          ID Card Generation System
+          ID CARD GENERATION SYSTEM
         </CardTitle>
         <CardDescription className="text-center text-[#3a5a45] animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "400ms" }}>
           Enter your credentials to access the system
@@ -122,7 +126,7 @@ const LoginForm = () => {
         </form>
       </CardContent>
       <CardFooter className="text-center text-xs text-[#3a5a45] animate-[fade-in_1s_ease-out]" style={{ animationDelay: "800ms" }}>
-        © {new Date().getFullYear()} ID Card Generation System
+        © {new Date().getFullYear()} IDEAL Institute of Technology
       </CardFooter>
     </Card>
   );
