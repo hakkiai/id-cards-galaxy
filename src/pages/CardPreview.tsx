@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -77,7 +78,7 @@ const CardPreview = () => {
     
     try {
       const canvas = await html2canvas(cardElement, {
-        scale: 2, // Higher scale for better quality
+        scale: 3, // Higher scale for better quality
         useCORS: true,
         backgroundColor: null,
         logging: false
@@ -85,7 +86,7 @@ const CardPreview = () => {
       
       const link = document.createElement('a');
       link.download = `ID_Card_${students[index].rollNumber}.jpg`;
-      link.href = canvas.toDataURL('image/jpeg', 0.9);
+      link.href = canvas.toDataURL('image/jpeg', 0.95); // Higher quality setting
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -121,7 +122,7 @@ const CardPreview = () => {
         if (!cardElement) continue;
         
         const canvas = await html2canvas(cardElement, {
-          scale: 2,
+          scale: 3, // Higher scale for better quality
           useCORS: true,
           backgroundColor: null,
           logging: false
@@ -129,7 +130,7 @@ const CardPreview = () => {
         
         const link = document.createElement('a');
         link.download = `ID_Card_${students[i].rollNumber}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.href = canvas.toDataURL('image/jpeg', 0.95); // Higher quality
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
