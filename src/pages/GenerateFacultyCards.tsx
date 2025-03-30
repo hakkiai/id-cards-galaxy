@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,40 +15,47 @@ import { useToast } from '@/hooks/use-toast';
 import { db, Faculty } from '@/utils/database';
 import FileUpload from '@/components/FileUpload';
 import FacultyCardTemplate from '@/components/FacultyCardTemplate';
+import html2canvas from 'html2canvas';
 
 // Sample faculty data for demonstration
 const generateMockFaculty = (department: string): Faculty[] => {
   const namesPool = [
-    'Dr. Venkata Rao', 'Prof. Lakshmi Narayana', 'Dr. Surya Prakash', 'Prof. Durga Prasad', 
-    'Dr. Ramakrishna', 'Prof. Satyanarayana', 'Dr. Venkateswara Rao', 'Prof. Narasimha Rao',
-    'Dr. Siva Prasad', 'Prof. Ravi Teja', 'Dr. Gopal Krishna', 'Prof. Sai Krishna',
-    'Dr. Murali Krishna', 'Prof. Naga Babu', 'Dr. Pavan Kumar', 'Prof. Aditya Varma'
+    'Dr. Ramakrishna Rao', 'Dr. Sarala Devi', 'Prof. Venkatesh Murthy', 
+    'Dr. Annapurna Devi', 'Dr. J. Krishnamurthy', 'Dr. S. Prasad',
+    'Prof. K. Nageswara Rao', 'Dr. P. Lakshmi', 'Dr. T. Satyanarayana',
+    'Prof. M. Sivakumar', 'Dr. G. Radha Krishna', 'Dr. L. Sudhakar',
+    'Prof. B. Padmavathi', 'Dr. K. Suresh', 'Prof. N. Rambabu'
   ];
   
-  const designationsPool = [
-    'Professor', 'Associate Professor', 'Assistant Professor', 'HOD', 
-    'Dean', 'Principal', 'Director', 'Lecturer'
+  const teluguNames = [
+    'డా. రామకృష్ణ రావు', 'డా. శారలా దేవి', 'ప్రొఫ్. వెంకటేష్ మూర్తి',
+    'డా. అన్నపూర్ణ దేవి', 'డా. జె. కృష్ణమూర్తి', 'డా. ఎస్. ప్రసాద్',
+    'ప్రొఫ్. కె. నాగేశ్వర రావు', 'డా. పి. లక్ష్మి', 'డా. టి. సత్యనారాయణ',
+    'ప్రొఫ్. ఎం. శివకుమార్', 'డా. జి. రాధాకృష్ణ', 'డా. ఎల్. సుధాకర్',
+    'ప్రొఫ్. బి. పద్మావతి', 'డా. కె. సురేష్', 'ప్రొఫ్. ఎన్. రాంబాబు'
   ];
-  
-  const qualificationsPool = [
-    'Ph.D in Computer Science', 'M.Tech in CSE', 'Ph.D in AI', 'M.Tech in IT',
-    'Ph.D in Machine Learning', 'M.Tech in Data Science', 'Ph.D in Networking', 'M.Tech in Cyber Security'
-  ];
+
+  const designations = ['Assistant Professor', 'Associate Professor', 'Professor', 'HOD', 'Senior Professor'];
+  const bloodGroups = ['A+', 'B+', 'O+', 'AB+', 'A-', 'B-', 'O-', 'AB-'];
   
   return Array.from({ length: 10 }, (_, i) => {
+    const nameIndex = i % namesPool.length;
     return {
       id: i + 1,
-      facultyId: `FAC-${department}-${100 + i}`,
-      name: namesPool[i % namesPool.length],
-      department: department,
-      designation: designationsPool[i % designationsPool.length],
-      qualification: qualificationsPool[i % qualificationsPool.length],
-      joiningDate: `${10 + (i % 20)}-${1 + (i % 12)}-20${10 + (i % 10)}`,
-      bloodGroup: ['A+', 'B+', 'O+', 'AB+', 'A-', 'B-'][i % 6],
-      contact: `98765${40000 + i}`,
-      email: `faculty${i+1}@idealinstitute.edu.in`,
-      address: `${i+1}-${i+10}-${i+15}/1/${i+30} PROFESSOR QUARTERS, KAKINADA`,
+      facultyId: `FAC00${i + 1}`,
+      name: namesPool[nameIndex].toUpperCase(),
+      teluguName: teluguNames[nameIndex],
+      department: department === 'All' ? ['CSE', 'CSM', 'ME', 'ECE', 'EEE'][i % 5] : department,
+      designation: designations[i % designations.length],
+      qualification: ['Ph.D', 'M.Tech', 'M.Phil', 'Ph.D (Pursuing)', 'Post-Doctoral'][i % 5],
+      bloodGroup: bloodGroups[i % bloodGroups.length],
+      aadhaar: `${5000 + i} ${7000 + i} ${5700 + i}`,
+      panNumber: `ABCDE${1234 + i}F`,
+      contact: `9${i}05${i}40${i}58`,
+      email: `faculty${i+1}@idealtech.edu.in`,
+      address: `${i+1}-${i+10}-${i+15}/1/${i+30} Faculty Quarters, Vidyut Nagar, Kakinada`,
       photo: '', // Will be handled by placeholder
+      joinDate: `${10 + (i % 20)}-${1 + (i % 12)}-20${10 + (i % 10)}`,
       category: 'faculty'
     };
   });
@@ -70,17 +78,20 @@ const GenerateFacultyCards = () => {
   // Faculty creation dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newFaculty, setNewFaculty] = useState<Partial<Faculty>>({
-    name: '',
     facultyId: '',
+    name: '',
+    teluguName: '',
     department: '',
-    designation: '',
+    designation: 'Assistant Professor',
     qualification: '',
-    joiningDate: '',
-    bloodGroup: '',
+    bloodGroup: 'O+',
+    aadhaar: '',
+    panNumber: '',
     contact: '',
     email: '',
     address: '',
     photo: '',
+    joinDate: '',
     category: 'faculty'
   });
   
@@ -112,13 +123,15 @@ const GenerateFacultyCards = () => {
   const loadFacultyData = () => {
     setIsLoading(true);
     
-    // Get faculty data from database
     setTimeout(() => {
-      let facultyData = db.getFacultyByDepartment('all');
+      let facultyData: Faculty[] = [];
+      
+      // Try to get faculty data from database
+      facultyData = db.getAllFaculty();
       
       if (facultyData.length === 0) {
         // If no data in DB, generate mock faculty
-        facultyData = generateMockFaculty('CSE');
+        facultyData = generateMockFaculty('All');
       }
       
       setFaculty(facultyData);
@@ -134,9 +147,6 @@ const GenerateFacultyCards = () => {
   const handleExcelUpload = (uploadedFaculty: Omit<Faculty, 'id'>[]) => {
     setIsLoading(true);
     setTimeout(() => {
-      // Ensure category is set to faculty
-      uploadedFaculty = uploadedFaculty.map(f => ({...f, category: 'faculty'}));
-      
       const newFaculty = db.addMultipleFaculty(uploadedFaculty);
       setFaculty(newFaculty);
       
@@ -152,15 +162,20 @@ const GenerateFacultyCards = () => {
     setIsLoading(true);
     setSelectedDepartment(department);
     
-    // Generate mock faculty based on selected department
     setTimeout(() => {
-      const mockFaculty = generateMockFaculty(department);
-      setFaculty(mockFaculty);
+      let facultyData = db.getFacultyByDepartment(department);
+      
+      if (facultyData.length === 0) {
+        // If no data in DB, generate mock faculty
+        facultyData = generateMockFaculty(department);
+      }
+      
+      setFaculty(facultyData);
       setIsLoading(false);
       
       toast({
         title: "Faculty loaded",
-        description: `Loaded ${mockFaculty.length} faculty members from ${department} department`,
+        description: `Loaded ${facultyData.length} faculty members from ${department === 'All' ? 'all departments' : department}`,
       });
     }, 1000);
   };
@@ -169,7 +184,7 @@ const GenerateFacultyCards = () => {
     if (!newFaculty.name || !newFaculty.facultyId || !newFaculty.department) {
       toast({
         title: "Missing information",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (Name, ID, Department)",
         variant: "destructive",
       });
       return;
@@ -184,7 +199,7 @@ const GenerateFacultyCards = () => {
       };
       reader.readAsDataURL(photoFile);
     } else {
-      saveFacultyWithPhoto(newFaculty.photo || '');
+      saveFacultyWithPhoto("");
     }
   };
   
@@ -195,29 +210,29 @@ const GenerateFacultyCards = () => {
       category: 'faculty'
     } as Omit<Faculty, 'id'>;
     
-    // Add to database
     const addedFaculty = db.addFaculty(facultyToAdd);
-    
-    // Update state
     setFaculty(prev => [...prev, addedFaculty]);
+    setCreateDialogOpen(false);
+    setPhotoFile(null);
     
-    // Reset form and close dialog
+    // Reset form
     setNewFaculty({
-      name: '',
       facultyId: '',
+      name: '',
+      teluguName: '',
       department: '',
-      designation: '',
+      designation: 'Assistant Professor',
       qualification: '',
-      joiningDate: '',
-      bloodGroup: '',
+      bloodGroup: 'O+',
+      aadhaar: '',
+      panNumber: '',
       contact: '',
       email: '',
       address: '',
       photo: '',
+      joinDate: '',
       category: 'faculty'
     });
-    setPhotoFile(null);
-    setCreateDialogOpen(false);
     
     toast({
       title: "Faculty added",
@@ -292,20 +307,14 @@ const GenerateFacultyCards = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (editingFaculty) {
-        setEditingFaculty({
-          ...editingFaculty,
-          photo: reader.result as string
-        });
+        setEditingFaculty({...editingFaculty, photo: reader.result as string});
       } else {
-        setNewFaculty({
-          ...newFaculty,
-          photo: reader.result as string
-        });
+        setNewFaculty({...newFaculty, photo: reader.result as string});
       }
     };
     reader.readAsDataURL(file);
   };
-  
+
   // Handle preview cards - Store faculty data in session storage and navigate to preview
   const handlePreviewCards = () => {
     if (faculty.length === 0) {
@@ -320,8 +329,7 @@ const GenerateFacultyCards = () => {
     // Store the generated cards data in session storage for the preview page
     sessionStorage.setItem('generatedCards', JSON.stringify({
       students: faculty, // Using students key for compatibility with CardPreview
-      template: selectedTemplate,
-      cardsPerPage: 2 // Ensure exactly 2 cards per page
+      template: selectedTemplate
     }));
     
     // Navigate to the preview page
@@ -331,48 +339,152 @@ const GenerateFacultyCards = () => {
   const handleDownloadAllCards = async () => {
     if (faculty.length === 0) {
       toast({
-        title: "No faculty cards to download",
+        title: "No cards to download",
         description: "Please generate faculty cards first",
         variant: "destructive",
       });
       return;
     }
     
+    setIsLoading(true);
     toast({
       title: "Preparing download",
-      description: "This may take a moment...",
+      description: "Generating JPEG files for all faculty cards...",
     });
     
-    // Store the generated cards data in session storage for the preview page
-    sessionStorage.setItem('generatedCards', JSON.stringify({
-      students: faculty,
-      template: selectedTemplate,
-      cardsPerPage: 2
-    }));
+    // Create a temporary div to hold the cards for conversion
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
     
-    // Navigate to the preview page with download flag
-    navigate('/preview?download=true');
+    try {
+      for (let i = 0; i < faculty.length; i++) {
+        const facultyMember = faculty[i];
+        
+        // Create the card element
+        const cardElement = document.createElement('div');
+        cardElement.style.width = '350px';
+        cardElement.style.height = '550px';
+        cardElement.style.position = 'relative';
+        
+        // Append to temp div
+        tempDiv.innerHTML = '';
+        tempDiv.appendChild(cardElement);
+        
+        // Render the card content
+        const ReactDOM = await import('react-dom');
+        ReactDOM.render(
+          <FacultyCardTemplate 
+            faculty={facultyMember} 
+            templateColor={selectedTemplate} 
+          />, 
+          cardElement
+        );
+        
+        // Wait a bit for the render to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Convert to canvas
+        const canvas = await html2canvas(cardElement, {
+          scale: 3,
+          backgroundColor: null,
+          logging: false,
+          useCORS: true
+        });
+        
+        // Convert to JPEG
+        const jpegUrl = canvas.toDataURL('image/jpeg', 1.0);
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = jpegUrl;
+        link.download = `faculty_${facultyMember.facultyId}_${facultyMember.name.replace(/\s+/g, '_')}.jpg`;
+        link.click();
+        
+        // Wait a bit between downloads
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      toast({
+        title: "Download complete",
+        description: `Successfully downloaded ${faculty.length} faculty cards as JPEG files`,
+      });
+    } catch (error) {
+      console.error("Error generating downloads:", error);
+      toast({
+        title: "Error",
+        description: "There was an error generating the downloads",
+        variant: "destructive",
+      });
+    } finally {
+      // Clean up
+      document.body.removeChild(tempDiv);
+      setIsLoading(false);
+    }
   };
   
   const handleDownloadCard = async (facultyMember: Faculty) => {
-    if (!cardRef.current) {
+    setIsLoading(true);
+    
+    try {
+      // Create a temporary div with the card
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+      
+      // Create the card element
+      const cardElement = document.createElement('div');
+      tempDiv.appendChild(cardElement);
+      
+      // Render the card content
+      const ReactDOM = await import('react-dom');
+      ReactDOM.render(
+        <FacultyCardTemplate 
+          faculty={facultyMember} 
+          templateColor={selectedTemplate} 
+        />, 
+        cardElement
+      );
+      
+      // Wait a bit for the render to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Convert to canvas
+      const canvas = await html2canvas(cardElement, {
+        scale: 3,
+        backgroundColor: null,
+        logging: false,
+        useCORS: true
+      });
+      
+      // Convert to JPEG
+      const jpegUrl = canvas.toDataURL('image/jpeg', 1.0);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = jpegUrl;
+      link.download = `faculty_${facultyMember.facultyId}_${facultyMember.name.replace(/\s+/g, '_')}.jpg`;
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(tempDiv);
+      
+      toast({
+        title: "Download complete",
+        description: `Successfully downloaded ID card for ${facultyMember.name}`,
+      });
+    } catch (error) {
+      console.error("Error generating download:", error);
       toast({
         title: "Error",
-        description: "Could not find card element to download",
+        description: "There was an error generating the download",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
-    
-    // Store single faculty in session storage
-    sessionStorage.setItem('generatedCards', JSON.stringify({
-      students: [facultyMember],
-      template: selectedTemplate,
-      cardsPerPage: 1
-    }));
-    
-    // Navigate to preview with single card
-    navigate('/preview');
   };
   
   return (
@@ -401,7 +513,7 @@ const GenerateFacultyCards = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
             <Card className="transition-shadow duration-300 hover:shadow-md animate-[fade-up_0.6s_ease-out] relative overflow-hidden">
-              <div className="absolute inset-0 animate-[pulse_4s_ease-in-out_infinite] bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-teal-500/20 pointer-events-none"></div>
+              <div className="absolute inset-0 animate-[pulse_4s_ease-in-out_infinite] bg-gradient-to-r from-green-500/20 via-blue-500/20 to-teal-500/20 pointer-events-none"></div>
               
               <CardHeader>
                 <CardTitle>Generate Faculty ID Cards</CardTitle>
@@ -425,44 +537,43 @@ const GenerateFacultyCards = () => {
                   
                   <TabsContent value="excel" className="space-y-4 focus:outline-none">
                     <div className="p-1">
-                      <FileUpload<Faculty> 
-                        onUploadComplete={handleExcelUpload} 
-                        type="faculty"
-                      />
-                    </div>
-                  </TabsContent>
+                    <FileUpload<Faculty> 
+                      onUploadComplete={handleExcelUpload} 
+                      type="faculty"
+                    />
+                  </div>
+                </TabsContent>
                   
                   <TabsContent value="database" className="focus:outline-none">
                     <div className="space-y-4">
                       {/* Department Selection */}
                       {!selectedDepartment && (
                         <>
-                          <div className="flex items-center justify-between mb-4">
+                          <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-medium">Select a Department</h3>
                             <Button 
-                              variant="outline" 
-                              size="sm" 
                               onClick={() => setCreateDialogOpen(true)}
-                              className="flex items-center gap-1"
+                              className="bg-green-500 hover:bg-green-600 text-white"
                             >
-                              <Plus className="h-4 w-4 mr-1" />
+                              <Plus className="h-4 w-4 mr-2" />
                               Add New Faculty
                             </Button>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            {['CSE', 'CSM', 'ECE', 'EEE', 'MECH', 'CIVIL'].map((dept) => (
+                            {['All', 'CSE', 'CSM', 'ME', 'ECE', 'EEE'].map((dept) => (
                               <div
                                 key={dept}
                                 className="border-2 rounded-lg p-6 cursor-pointer transition-all duration-300 hover:shadow-md hover:border-green-500 hover:bg-green-50 hover:transform hover:scale-105"
                                 onClick={() => handleDepartmentSelect(dept)}
                               >
                                 <h3 className="text-xl font-bold text-center mb-3">{dept}</h3>
-                                <p className="text-gray-600 text-center text-sm">
-                                  {dept === 'CSE' ? 'Computer Science and Engineering' : 
-                                   dept === 'CSM' ? 'Computer Science and Machine Learning' :
-                                   dept === 'ECE' ? 'Electronics and Communication Engineering' :
-                                   dept === 'EEE' ? 'Electrical and Electronics Engineering' :
-                                   dept === 'MECH' ? 'Mechanical Engineering' : 'Civil Engineering'}
+                                <p className="text-gray-600 text-center">
+                                  {dept === 'All' ? 'All Departments' : 
+                                   dept === 'CSE' ? 'Computer Science and Engineering' : 
+                                   dept === 'CSM' ? 'Computer Science and Machine Learning' : 
+                                   dept === 'ME' ? 'Mechanical Engineering' : 
+                                   dept === 'ECE' ? 'Electronics & Communication Engineering' : 
+                                   'Electrical & Electronics Engineering'}
                                 </p>
                               </div>
                             ))}
@@ -470,12 +581,12 @@ const GenerateFacultyCards = () => {
                         </>
                       )}
                       
-                      {/* Faculty List - Only show if department is selected */}
+                      {/* Faculty list if department is selected */}
                       {selectedDepartment && (
                         <>
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-medium">Faculty from {selectedDepartment} Department</h3>
-                            <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-medium">Faculty from {selectedDepartment === 'All' ? 'All Departments' : selectedDepartment}</h3>
+                            <div className="flex gap-2">
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
@@ -485,23 +596,14 @@ const GenerateFacultyCards = () => {
                                 Change Department
                               </Button>
                               <Button 
-                                variant="outline" 
-                                size="sm" 
                                 onClick={() => setCreateDialogOpen(true)}
-                                className="flex items-center gap-1"
+                                className="bg-green-500 hover:bg-green-600 text-white"
+                                size="sm"
                               >
-                                <Plus className="h-4 w-4 mr-1" />
-                                Add Faculty
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add New Faculty
                               </Button>
                             </div>
-                          </div>
-                          
-                          <div className="relative">
-                            <Input
-                              placeholder="Search faculty by name or ID..."
-                              className="pl-10 mb-4"
-                            />
-                            <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                           </div>
                         </>
                       )}
@@ -554,8 +656,8 @@ const GenerateFacultyCards = () => {
                           }}
                           className="flex items-center gap-1"
                         >
-                          <FileDown className="h-4 w-4 mr-1" />
-                          Export
+                          <FileDown className="h-4 w-4" />
+                          Export Data
                         </Button>
                       </div>
                     </div>
@@ -588,10 +690,11 @@ const GenerateFacultyCards = () => {
                             </div>
                             <div>
                               <div className="font-medium text-gray-900">{facultyMember.name}</div>
-                              <div className="text-sm text-gray-500 flex items-center gap-2">
-                                <span>{facultyMember.facultyId}</span>
-                                <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-                                <span>{facultyMember.designation}</span>
+                              <div className="text-sm text-gray-500">
+                                {facultyMember.teluguName && (
+                                  <span className="mr-2">{facultyMember.teluguName}</span>
+                                )}
+                                <span>{facultyMember.designation}, {facultyMember.department}</span>
                               </div>
                             </div>
                           </div>
@@ -601,34 +704,24 @@ const GenerateFacultyCards = () => {
                               size="sm" 
                               variant="outline"
                               className="flex items-center gap-1"
-                              onClick={() => handleEditFaculty(facultyMember)}
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">Edit</span>
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="flex items-center gap-1"
                               onClick={() => handleDownloadCard(facultyMember)}
                             >
                               <Download className="h-3.5 w-3.5" />
                               <span className="hidden sm:inline">Download</span>
                             </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="flex items-center gap-1"
+                              onClick={() => handleEditFaculty(facultyMember)}
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Edit</span>
+                            </Button>
                           </div>
                         </div>
                       ))}
                     </div>
-                    
-                    <Button 
-                      onClick={handlePreviewCards} 
-                      className="w-full mt-4 bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 group"
-                      disabled={faculty.length === 0}
-                    >
-                      <FileDown className="h-4 w-4" />
-                      <span>Preview ID Cards</span>
-                      <ArrowRight className="h-4 w-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -641,12 +734,10 @@ const GenerateFacultyCards = () => {
                   <CardDescription>Preview your generated faculty ID card</CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
-                  <div ref={cardRef}>
-                    <FacultyCardTemplate 
-                      faculty={faculty[0]} 
-                      templateColor={selectedTemplate} 
-                    />
-                  </div>
+                  <FacultyCardTemplate 
+                    faculty={faculty[0]} 
+                    templateColor={selectedTemplate} 
+                  />
                 </CardContent>
               </Card>
             )}
@@ -663,7 +754,7 @@ const GenerateFacultyCards = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
-                    {['#1e8e3e', '#1e3c8c', '#e53935', '#9c27b0', '#ff9800', '#795548'].map((color) => (
+                    {['#1e8e3e', '#e53935', '#1e3c8c', '#9c27b0', '#ff9800', '#795548'].map((color) => (
                       <div 
                         key={color}
                         className={`w-full h-12 rounded-md cursor-pointer border-2 transition-all duration-200 ${
@@ -697,8 +788,6 @@ const GenerateFacultyCards = () => {
                         <div className="grid grid-cols-2 gap-1">
                           <div className="h-1.5 bg-gray-200 rounded"></div>
                           <div className="h-1.5 bg-gray-200 rounded"></div>
-                          <div className="h-1.5 bg-gray-200 rounded"></div>
-                          <div className="h-1.5 bg-gray-200 rounded"></div>
                         </div>
                       </div>
                       <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate, opacity: 0.8 }}>
@@ -717,9 +806,9 @@ const GenerateFacultyCards = () => {
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader className="pb-2">
-            <DialogTitle>Add New Faculty</DialogTitle>
+            <DialogTitle>Add New Faculty Member</DialogTitle>
             <DialogDescription>
-              Enter faculty information for ID card generation
+              Enter faculty details to create a new ID card
             </DialogDescription>
           </DialogHeader>
           
@@ -758,44 +847,71 @@ const GenerateFacultyCards = () => {
               </Button>
             </div>
             
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="facultyId">Faculty ID*</Label>
+                <Input 
+                  id="facultyId" 
+                  value={newFaculty.facultyId} 
+                  onChange={(e) => setNewFaculty({...newFaculty, facultyId: e.target.value})} 
+                  placeholder="e.g. FAC001"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="bloodGroup">Blood Group</Label>
+                <Input 
+                  id="bloodGroup" 
+                  value={newFaculty.bloodGroup} 
+                  onChange={(e) => setNewFaculty({...newFaculty, bloodGroup: e.target.value})} 
+                  placeholder="e.g. O+"
+                />
+              </div>
+            </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="facultyName">Full Name</Label>
+              <Label htmlFor="name">Full Name*</Label>
               <Input 
-                id="facultyName" 
+                id="name" 
                 value={newFaculty.name} 
                 onChange={(e) => setNewFaculty({...newFaculty, name: e.target.value})} 
                 placeholder="Enter faculty name"
+                required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="facultyId">Faculty ID</Label>
+              <Label htmlFor="teluguName">Telugu Name</Label>
               <Input 
-                id="facultyId" 
-                value={newFaculty.facultyId} 
-                onChange={(e) => setNewFaculty({...newFaculty, facultyId: e.target.value})} 
-                placeholder="Enter faculty ID"
+                id="teluguName" 
+                value={newFaculty.teluguName} 
+                onChange={(e) => setNewFaculty({...newFaculty, teluguName: e.target.value})} 
+                placeholder="Telugu name (optional)"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
-              <Input 
-                id="department" 
-                value={newFaculty.department} 
-                onChange={(e) => setNewFaculty({...newFaculty, department: e.target.value})} 
-                placeholder="Enter department"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="designation">Designation</Label>
-              <Input 
-                id="designation" 
-                value={newFaculty.designation} 
-                onChange={(e) => setNewFaculty({...newFaculty, designation: e.target.value})} 
-                placeholder="Enter designation"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="department">Department*</Label>
+                <Input 
+                  id="department" 
+                  value={newFaculty.department} 
+                  onChange={(e) => setNewFaculty({...newFaculty, department: e.target.value})} 
+                  placeholder="e.g. CSE"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="designation">Designation</Label>
+                <Input 
+                  id="designation" 
+                  value={newFaculty.designation} 
+                  onChange={(e) => setNewFaculty({...newFaculty, designation: e.target.value})} 
+                  placeholder="e.g. Assistant Professor"
+                />
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -804,48 +920,62 @@ const GenerateFacultyCards = () => {
                 id="qualification" 
                 value={newFaculty.qualification} 
                 onChange={(e) => setNewFaculty({...newFaculty, qualification: e.target.value})} 
-                placeholder="Enter qualification"
+                placeholder="e.g. Ph.D"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="joiningDate">Joining Date</Label>
+              <Label htmlFor="joinDate">Join Date</Label>
               <Input 
-                id="joiningDate" 
-                value={newFaculty.joiningDate} 
-                onChange={(e) => setNewFaculty({...newFaculty, joiningDate: e.target.value})} 
-                placeholder="Enter joining date (DD-MM-YYYY)"
+                id="joinDate" 
+                value={newFaculty.joinDate} 
+                onChange={(e) => setNewFaculty({...newFaculty, joinDate: e.target.value})} 
+                placeholder="DD-MM-YYYY"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="bloodGroup">Blood Group</Label>
-              <Input 
-                id="bloodGroup" 
-                value={newFaculty.bloodGroup} 
-                onChange={(e) => setNewFaculty({...newFaculty, bloodGroup: e.target.value})} 
-                placeholder="Enter blood group"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contact">Contact Number</Label>
+                <Input 
+                  id="contact" 
+                  value={newFaculty.contact} 
+                  onChange={(e) => setNewFaculty({...newFaculty, contact: e.target.value})} 
+                  placeholder="Phone number"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  value={newFaculty.email} 
+                  onChange={(e) => setNewFaculty({...newFaculty, email: e.target.value})} 
+                  placeholder="Email address"
+                />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="contact">Contact Number</Label>
-              <Input 
-                id="contact" 
-                value={newFaculty.contact} 
-                onChange={(e) => setNewFaculty({...newFaculty, contact: e.target.value})} 
-                placeholder="Enter contact number"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                value={newFaculty.email} 
-                onChange={(e) => setNewFaculty({...newFaculty, email: e.target.value})} 
-                placeholder="Enter email address"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="aadhaar">Aadhaar Number</Label>
+                <Input 
+                  id="aadhaar" 
+                  value={newFaculty.aadhaar} 
+                  onChange={(e) => setNewFaculty({...newFaculty, aadhaar: e.target.value})} 
+                  placeholder="Aadhaar number"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="panNumber">PAN Number</Label>
+                <Input 
+                  id="panNumber" 
+                  value={newFaculty.panNumber} 
+                  onChange={(e) => setNewFaculty({...newFaculty, panNumber: e.target.value})} 
+                  placeholder="PAN number"
+                />
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -854,7 +984,7 @@ const GenerateFacultyCards = () => {
                 id="address" 
                 value={newFaculty.address} 
                 onChange={(e) => setNewFaculty({...newFaculty, address: e.target.value})} 
-                placeholder="Enter address"
+                placeholder="Full address"
               />
             </div>
           </div>
@@ -877,7 +1007,7 @@ const GenerateFacultyCards = () => {
           <DialogHeader className="pb-2">
             <DialogTitle>Edit Faculty Details</DialogTitle>
             <DialogDescription>
-              Update faculty information for ID card generation
+              Update faculty information for ID card
             </DialogDescription>
           </DialogHeader>
           
@@ -917,94 +1047,120 @@ const GenerateFacultyCards = () => {
                 </Button>
               </div>
               
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editFacultyId">Faculty ID</Label>
+                  <Input 
+                    id="editFacultyId" 
+                    value={editingFaculty.facultyId} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, facultyId: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="editBloodGroup">Blood Group</Label>
+                  <Input 
+                    id="editBloodGroup" 
+                    value={editingFaculty.bloodGroup} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, bloodGroup: e.target.value})} 
+                  />
+                </div>
+              </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="editFacultyName">Full Name</Label>
+                <Label htmlFor="editName">Full Name</Label>
                 <Input 
-                  id="editFacultyName" 
+                  id="editName" 
                   value={editingFaculty.name} 
                   onChange={(e) => setEditingFaculty({...editingFaculty, name: e.target.value})} 
-                  placeholder="Enter faculty name"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="editFacultyId">Faculty ID</Label>
+                <Label htmlFor="editTeluguName">Telugu Name</Label>
                 <Input 
-                  id="editFacultyId" 
-                  value={editingFaculty.facultyId} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, facultyId: e.target.value})} 
-                  placeholder="Enter faculty ID"
+                  id="editTeluguName" 
+                  value={editingFaculty.teluguName || ''} 
+                  onChange={(e) => setEditingFaculty({...editingFaculty, teluguName: e.target.value})} 
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="editDepartment">Department</Label>
-                <Input 
-                  id="editDepartment" 
-                  value={editingFaculty.department} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, department: e.target.value})} 
-                  placeholder="Enter department"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="editDesignation">Designation</Label>
-                <Input 
-                  id="editDesignation" 
-                  value={editingFaculty.designation} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, designation: e.target.value})} 
-                  placeholder="Enter designation"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editDepartment">Department</Label>
+                  <Input 
+                    id="editDepartment" 
+                    value={editingFaculty.department} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, department: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="editDesignation">Designation</Label>
+                  <Input 
+                    id="editDesignation" 
+                    value={editingFaculty.designation} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, designation: e.target.value})} 
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="editQualification">Qualification</Label>
                 <Input 
                   id="editQualification" 
-                  value={editingFaculty.qualification} 
+                  value={editingFaculty.qualification || ''} 
                   onChange={(e) => setEditingFaculty({...editingFaculty, qualification: e.target.value})} 
-                  placeholder="Enter qualification"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="editJoiningDate">Joining Date</Label>
+                <Label htmlFor="editJoinDate">Join Date</Label>
                 <Input 
-                  id="editJoiningDate" 
-                  value={editingFaculty.joiningDate} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, joiningDate: e.target.value})} 
-                  placeholder="Enter joining date (DD-MM-YYYY)"
+                  id="editJoinDate" 
+                  value={editingFaculty.joinDate || ''} 
+                  onChange={(e) => setEditingFaculty({...editingFaculty, joinDate: e.target.value})} 
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="editBloodGroup">Blood Group</Label>
-                <Input 
-                  id="editBloodGroup" 
-                  value={editingFaculty.bloodGroup} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, bloodGroup: e.target.value})} 
-                  placeholder="Enter blood group"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editContact">Contact Number</Label>
+                  <Input 
+                    id="editContact" 
+                    value={editingFaculty.contact} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, contact: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="editEmail">Email</Label>
+                  <Input 
+                    id="editEmail" 
+                    value={editingFaculty.email || ''} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, email: e.target.value})} 
+                  />
+                </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="editContact">Contact Number</Label>
-                <Input 
-                  id="editContact" 
-                  value={editingFaculty.contact} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, contact: e.target.value})} 
-                  placeholder="Enter contact number"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="editEmail">Email</Label>
-                <Input 
-                  id="editEmail" 
-                  value={editingFaculty.email} 
-                  onChange={(e) => setEditingFaculty({...editingFaculty, email: e.target.value})} 
-                  placeholder="Enter email address"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editAadhaar">Aadhaar Number</Label>
+                  <Input 
+                    id="editAadhaar" 
+                    value={editingFaculty.aadhaar} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, aadhaar: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="editPanNumber">PAN Number</Label>
+                  <Input 
+                    id="editPanNumber" 
+                    value={editingFaculty.panNumber || ''} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, panNumber: e.target.value})} 
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -1013,7 +1169,6 @@ const GenerateFacultyCards = () => {
                   id="editAddress" 
                   value={editingFaculty.address} 
                   onChange={(e) => setEditingFaculty({...editingFaculty, address: e.target.value})} 
-                  placeholder="Enter address"
                 />
               </div>
             </div>
