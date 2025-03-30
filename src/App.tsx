@@ -30,9 +30,12 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/category/:category" element={<CategorySelect />} />
             <Route path="/year/:category/:year" element={<YearSelect />} />
-            <Route path="/generate/:category/:year/:option" element={
-              params => params.category === 'faculty' ? <GenerateFacultyCards /> : <GenerateCards />
-            } />
+            <Route 
+              path="/generate/:category/:year/:option" 
+              element={
+                <GenerateRouteWrapper />
+              } 
+            />
             <Route path="/preview" element={<CardPreview />} />
             <Route path="/not-found" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/not-found" replace />} />
@@ -42,6 +45,18 @@ function App() {
       </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+// Helper component to handle route parameters with proper TypeScript typing
+function GenerateRouteWrapper() {
+  const path = window.location.pathname;
+  const segments = path.split('/');
+  const category = segments[2];
+  
+  if (category === 'faculty') {
+    return <GenerateFacultyCards />;
+  }
+  return <GenerateCards />;
 }
 
 export default App;
