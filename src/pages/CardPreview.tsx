@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Grid2X2, User, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import CardTemplate from '@/components/CardTemplate';
-import { Student } from '@/utils/database';
+import FacultyCardTemplate from '@/components/FacultyCardTemplate';
+import { Student, Faculty } from '@/utils/database';
 import ColorPicker from '@/components/ColorPicker';
 import html2canvas from 'html2canvas';
 
 const CardPreview = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [students, setStudents] = useState<Student[]>([]);
+  const [data, setData] = useState<(Student | Faculty)[]>([]);
+  const [dataType, setDataType] = useState<'student' | 'faculty'>('student');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'single' | 'grid'>('single');
   const [templateColor, setTemplateColor] = useState('#1e3c8c');
@@ -44,7 +46,15 @@ const CardPreview = () => {
     
     try {
       const { students, template } = JSON.parse(generatedCardsJSON);
-      setStudents(students);
+      setData(students);
+      
+      // Determine if this is faculty or student data
+      if (students.length > 0 && students[0].category === 'faculty') {
+        setDataType('faculty');
+      } else {
+        setDataType('student');
+      }
+      
       if (template) {
         setTemplateColor(template);
       }
@@ -85,7 +95,12 @@ const CardPreview = () => {
       });
       
       const link = document.createElement('a');
-      link.download = `ID_Card_${students[index].rollNumber}.jpg`;
+      const item = data[index];
+      const fileName = dataType === 'faculty' 
+        ? `Faculty_ID_${(item as Faculty).facultyId}.jpg`
+        : `ID_Card_${(item as Student).rollNumber}.jpg`;
+      
+      link.download = fileName;
       link.href = canvas.toDataURL('image/jpeg', 0.95); // Higher quality setting
       document.body.appendChild(link);
       link.click();
@@ -93,7 +108,7 @@ const CardPreview = () => {
       
       toast({
         title: "Download complete",
-        description: `ID card for ${students[index].name} downloaded successfully`,
+        description: `ID card for ${item.name} downloaded successfully`,
       });
     } catch (error) {
       console.error("Error generating JPEG:", error);
@@ -112,12 +127,12 @@ const CardPreview = () => {
     setDownloading(true);
     toast({
       title: "Preparing download",
-      description: `Processing ${students.length} ID cards for download`,
+      description: `Processing ${data.length} ID cards for download`,
     });
     
     try {
       // Use a delay between downloads to prevent browser from freezing
-      for (let i = 0; i < students.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         const cardElement = cardRefs.current[i];
         if (!cardElement) continue;
         
@@ -129,21 +144,26 @@ const CardPreview = () => {
         });
         
         const link = document.createElement('a');
-        link.download = `ID_Card_${students[i].rollNumber}.jpg`;
+        const item = data[i];
+        const fileName = dataType === 'faculty' 
+          ? `Faculty_ID_${(item as Faculty).facultyId}.jpg`
+          : `ID_Card_${(item as Student).rollNumber}.jpg`;
+          
+        link.download = fileName;
         link.href = canvas.toDataURL('image/jpeg', 0.95); // Higher quality
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         
         // Add a small delay between downloads
-        if (i < students.length - 1) {
+        if (i < data.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 300));
         }
       }
       
       toast({
         title: "Download complete",
-        description: `All ${students.length} ID cards downloaded successfully`,
+        description: `All ${data.length} ID cards downloaded successfully`,
       });
     } catch (error) {
       console.error("Error generating JPEGs:", error);
@@ -162,10 +182,40 @@ const CardPreview = () => {
   };
   
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev < students.length - 1 ? prev + 1 : prev));
+    setCurrentIndex((prev) => (prev < data.length - 1 ? prev + 1 : prev));
+  };
+
+  const renderCard = (item: Student | Faculty, index: number) => {
+    if (dataType === 'faculty') {
+      return (
+        <div 
+          ref={el => cardRefs.current[index] = el}
+          className="card-container"
+        >
+          <FacultyCardTemplate 
+            faculty={item as Faculty} 
+            templateColor={templateColor}
+            showControls={false}
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div 
+          ref={el => cardRefs.current[index] = el}
+          className="card-container"
+        >
+          <CardTemplate 
+            student={item as Student} 
+            templateColor={templateColor}
+            showControls={false}
+          />
+        </div>
+      );
+    }
   };
   
-  if (students.length === 0) {
+  if (data.length === 0) {
     return <div className="p-8 text-center">Loading...</div>;
   }
   
@@ -199,7 +249,7 @@ const CardPreview = () => {
         <div className="flex justify-between items-center mb-6 no-print">
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-500">
-              {viewMode === 'single' ? `Showing card ${currentIndex + 1} of ${students.length}` : `Showing all ${students.length} cards`}
+              {viewMode === 'single' ? `Showing card ${currentIndex + 1} of ${data.length}` : `Showing all ${data.length} cards`}
             </span>
             <div className="flex space-x-2">
               <Button
@@ -224,18 +274,9 @@ const CardPreview = () => {
         
         <div className="flex flex-col items-center">
           {/* Single card view */}
-          {viewMode === 'single' && (
+          {viewMode === 'single' && data[currentIndex] && (
             <div>
-              <div 
-                ref={el => cardRefs.current[currentIndex] = el}
-                className="card-container"
-              >
-                <CardTemplate 
-                  student={students[currentIndex]} 
-                  templateColor={templateColor}
-                  showControls={false}
-                />
-              </div>
+              {renderCard(data[currentIndex], currentIndex)}
               
               <div className="flex justify-center space-x-4 mt-6">
                 <Button 
@@ -258,7 +299,7 @@ const CardPreview = () => {
                 <Button 
                   variant="outline" 
                   onClick={handleNext}
-                  disabled={currentIndex === students.length - 1}
+                  disabled={currentIndex === data.length - 1}
                 >
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />
@@ -270,18 +311,9 @@ const CardPreview = () => {
           {/* Grid view */}
           {viewMode === 'grid' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {students.map((student, index) => (
-                <div key={student.rollNumber} className="relative group">
-                  <div 
-                    ref={el => cardRefs.current[index] = el}
-                    className="card-container"
-                  >
-                    <CardTemplate 
-                      student={student} 
-                      templateColor={templateColor}
-                      showControls={false}
-                    />
-                  </div>
+              {data.map((item, index) => (
+                <div key={index} className="relative group">
+                  {renderCard(item, index)}
                   
                   {/* Download button overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-lg">
@@ -300,23 +332,18 @@ const CardPreview = () => {
           
           {/* Hidden container to keep all cards rendered for download */}
           <div className="hidden">
-            {students.map((student, index) => (
+            {data.map((item, index) => (
               viewMode === 'grid' || index !== currentIndex ? (
                 <div
-                  key={`hidden-${student.rollNumber}`}
+                  key={`hidden-${index}`}
                   ref={el => {
                     // Only update ref if it's not already set
                     if (!cardRefs.current[index]) {
                       cardRefs.current[index] = el;
                     }
                   }}
-                  className="card-container"
                 >
-                  <CardTemplate 
-                    student={student} 
-                    templateColor={templateColor}
-                    showControls={false}
-                  />
+                  {renderCard(item, index)}
                 </div>
               ) : null
             ))}

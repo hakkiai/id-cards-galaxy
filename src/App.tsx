@@ -32,9 +32,7 @@ function App() {
             <Route path="/year/:category/:year" element={<YearSelect />} />
             <Route 
               path="/generate/:category/:year/:option" 
-              element={
-                <GenerateRouteWrapper />
-              } 
+              element={<GenerateRouteWrapper />}
             />
             <Route path="/preview" element={<CardPreview />} />
             <Route path="/not-found" element={<NotFound />} />
