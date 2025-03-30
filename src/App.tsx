@@ -18,7 +18,18 @@ const queryClient = new QueryClient();
 
 function App() {
   useEffect(() => {
-    // Any app-wide initialization can go here
+    // Set up CSS variables for animations and transitions
+    document.documentElement.style.setProperty('--primary-color', '#1e3c8c');
+    
+    // Apply stored theme or use system preference
+    const storedTheme = localStorage.getItem('vite-ui-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (storedTheme) {
+      document.documentElement.classList.add(storedTheme);
+    } else if (prefersDark) {
+      document.documentElement.classList.add('dark');
+    }
   }, []);
 
   return (

@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,23 +85,31 @@ export default {
       keyframes: {
         'accordion-down': {
           from: {
-            height: '0'
+            height: '0',
+            opacity: '0'
           },
           to: {
-            height: 'var(--radix-accordion-content-height)'
+            height: 'var(--radix-accordion-content-height)',
+            opacity: '1'
           }
         },
         'accordion-up': {
           from: {
-            height: 'var(--radix-accordion-content-height)'
+            height: 'var(--radix-accordion-content-height)',
+            opacity: '1'
           },
           to: {
-            height: '0'
+            height: '0',
+            opacity: '0'
           }
         },
         'fade-in': {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' }
+        },
+        'fade-out': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' }
         },
         'fade-up': {
           '0%': { 
@@ -111,13 +120,80 @@ export default {
             opacity: '1',
             transform: 'translateY(0)'
           },
-        }
+        },
+        'fade-down': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateY(-10px)'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'translateY(0)'
+          },
+        },
+        'fade-left': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateX(10px)'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'translateX(0)'
+          },
+        },
+        'fade-right': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateX(-10px)'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'translateX(0)'
+          },
+        },
+        'scale-in': {
+          '0%': { 
+            opacity: '0',
+            transform: 'scale(0.95)'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'scale(1)'
+          },
+        },
+        'scale-out': {
+          '0%': { 
+            opacity: '1',
+            transform: 'scale(1)'
+          },
+          '100%': { 
+            opacity: '0',
+            transform: 'scale(0.95)'
+          },
+        },
+        'pulse': {
+          '0%, 100%': { 
+            opacity: '1',
+            transform: 'scale(1)'
+          },
+          '50%': { 
+            opacity: '0.85',
+            transform: 'scale(1.05)'
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in': 'fade-in 0.5s ease-out',
+        'fade-out': 'fade-out 0.5s ease-out',
         'fade-up': 'fade-up 0.5s ease-out forwards',
+        'fade-down': 'fade-down 0.5s ease-out forwards',
+        'fade-left': 'fade-left 0.5s ease-out forwards',
+        'fade-right': 'fade-right 0.5s ease-out forwards',
+        'scale-in': 'scale-in 0.5s ease-out forwards',
+        'scale-out': 'scale-out 0.5s ease-out forwards',
+        'pulse': 'pulse 2s ease-in-out infinite',
       }
     },
   },
