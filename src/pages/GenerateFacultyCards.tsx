@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -515,12 +516,12 @@ const GenerateFacultyCards = () => {
                   
                   <TabsContent value="excel" className="space-y-4 focus:outline-none">
                     <div className="p-1">
-                    <FileUpload<Faculty> 
-                      onUploadComplete={handleExcelUpload} 
-                      type="faculty"
-                    />
-                  </div>
-                </TabsContent>
+                      <FileUpload<Faculty> 
+                        onUploadComplete={handleExcelUpload} 
+                        type="faculty"
+                      />
+                    </div>
+                  </TabsContent>
                   
                   <TabsContent value="database" className="focus:outline-none">
                     <div className="space-y-4">
@@ -834,4 +835,337 @@ const GenerateFacultyCards = () => {
                   id="bloodGroup" 
                   value={newFaculty.bloodGroup} 
                   onChange={(e) => setNewFaculty({...newFaculty, bloodGroup: e.target.value})} 
-                  placeholder="e.
+                  placeholder="e.g. O+"
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="name">Full Name (English)*</Label>
+                <Input 
+                  id="name" 
+                  value={newFaculty.name} 
+                  onChange={(e) => setNewFaculty({...newFaculty, name: e.target.value.toUpperCase()})} 
+                  placeholder="e.g. DR. RAMAKRISHNA RAO"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="teluguName">Name in Telugu (optional)</Label>
+                <Input 
+                  id="teluguName" 
+                  value={newFaculty.teluguName} 
+                  onChange={(e) => setNewFaculty({...newFaculty, teluguName: e.target.value})} 
+                  placeholder="e.g. డా. రామకృష్ణ రావు"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="department">Department*</Label>
+                <Input 
+                  id="department" 
+                  value={newFaculty.department} 
+                  onChange={(e) => setNewFaculty({...newFaculty, department: e.target.value})} 
+                  placeholder="e.g. CSE"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="designation">Designation</Label>
+                <Input 
+                  id="designation" 
+                  value={newFaculty.designation} 
+                  onChange={(e) => setNewFaculty({...newFaculty, designation: e.target.value})} 
+                  placeholder="e.g. Assistant Professor"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="qualification">Qualification</Label>
+                <Input 
+                  id="qualification" 
+                  value={newFaculty.qualification} 
+                  onChange={(e) => setNewFaculty({...newFaculty, qualification: e.target.value})} 
+                  placeholder="e.g. Ph.D"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="joinDate">Join Date</Label>
+                <Input 
+                  id="joinDate" 
+                  value={newFaculty.joinDate} 
+                  onChange={(e) => setNewFaculty({...newFaculty, joinDate: e.target.value})} 
+                  placeholder="e.g. 10-06-2015"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="aadhaar">Aadhaar Number</Label>
+                <Input 
+                  id="aadhaar" 
+                  value={newFaculty.aadhaar} 
+                  onChange={(e) => setNewFaculty({...newFaculty, aadhaar: e.target.value})} 
+                  placeholder="e.g. 5678 1234 9012"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="panNumber">PAN Number</Label>
+                <Input 
+                  id="panNumber" 
+                  value={newFaculty.panNumber} 
+                  onChange={(e) => setNewFaculty({...newFaculty, panNumber: e.target.value})} 
+                  placeholder="e.g. ABCDE1234F"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="contact">Contact Number</Label>
+                <Input 
+                  id="contact" 
+                  value={newFaculty.contact} 
+                  onChange={(e) => setNewFaculty({...newFaculty, contact: e.target.value})} 
+                  placeholder="e.g. 9876543210"
+                  type="tel"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  value={newFaculty.email} 
+                  onChange={(e) => setNewFaculty({...newFaculty, email: e.target.value})} 
+                  placeholder="e.g. faculty@idealtech.edu.in"
+                  type="email"
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="address">Address</Label>
+                <Input 
+                  id="address" 
+                  value={newFaculty.address} 
+                  onChange={(e) => setNewFaculty({...newFaculty, address: e.target.value})} 
+                  placeholder="e.g. Faculty Quarters, Vidyut Nagar, Kakinada"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setCreateDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateFaculty}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Create Faculty ID
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Faculty Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
+            <DialogTitle>Edit Faculty Member</DialogTitle>
+            <DialogDescription>
+              Update faculty details for the ID card
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingFaculty && (
+            <div className="flex-1 overflow-y-auto pr-2 space-y-4 py-2">
+              <div className="flex flex-col items-center mb-4">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300 mb-2">
+                  {editingFaculty.photo ? (
+                    <img 
+                      src={editingFaculty.photo} 
+                      alt={editingFaculty.name}
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : (
+                    <img 
+                      src={`https://ui-avatars.com/api/?name=${encodeURIComponent(editingFaculty.name)}&background=random`} 
+                      alt={editingFaculty.name}
+                      className="w-full h-full object-cover" 
+                    />
+                  )}
+                </div>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                />
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  <UploadCloud className="h-4 w-4 mr-2" />
+                  Change Photo
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-facultyId">Faculty ID</Label>
+                  <Input 
+                    id="edit-facultyId" 
+                    value={editingFaculty.facultyId} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, facultyId: e.target.value})} 
+                    placeholder="e.g. FAC001"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-bloodGroup">Blood Group</Label>
+                  <Input 
+                    id="edit-bloodGroup" 
+                    value={editingFaculty.bloodGroup} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, bloodGroup: e.target.value})} 
+                    placeholder="e.g. O+"
+                  />
+                </div>
+                
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="edit-name">Full Name (English)</Label>
+                  <Input 
+                    id="edit-name" 
+                    value={editingFaculty.name} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, name: e.target.value.toUpperCase()})} 
+                    placeholder="e.g. DR. RAMAKRISHNA RAO"
+                  />
+                </div>
+                
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="edit-teluguName">Name in Telugu</Label>
+                  <Input 
+                    id="edit-teluguName" 
+                    value={editingFaculty.teluguName} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, teluguName: e.target.value})} 
+                    placeholder="e.g. డా. రామకృష్ణ రావు"
+                  />
+                </div>
+                
+                {/* Remaining edit fields similar to create dialog */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-department">Department</Label>
+                  <Input 
+                    id="edit-department" 
+                    value={editingFaculty.department} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, department: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-designation">Designation</Label>
+                  <Input 
+                    id="edit-designation" 
+                    value={editingFaculty.designation} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, designation: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-qualification">Qualification</Label>
+                  <Input 
+                    id="edit-qualification" 
+                    value={editingFaculty.qualification} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, qualification: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-joinDate">Join Date</Label>
+                  <Input 
+                    id="edit-joinDate" 
+                    value={editingFaculty.joinDate} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, joinDate: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-aadhaar">Aadhaar Number</Label>
+                  <Input 
+                    id="edit-aadhaar" 
+                    value={editingFaculty.aadhaar} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, aadhaar: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-panNumber">PAN Number</Label>
+                  <Input 
+                    id="edit-panNumber" 
+                    value={editingFaculty.panNumber} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, panNumber: e.target.value})} 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-contact">Contact Number</Label>
+                  <Input 
+                    id="edit-contact" 
+                    value={editingFaculty.contact} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, contact: e.target.value})} 
+                    type="tel"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-email">Email</Label>
+                  <Input 
+                    id="edit-email" 
+                    value={editingFaculty.email} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, email: e.target.value})} 
+                    type="email"
+                  />
+                </div>
+                
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="edit-address">Address</Label>
+                  <Input 
+                    id="edit-address" 
+                    value={editingFaculty.address} 
+                    onChange={(e) => setEditingFaculty({...editingFaculty, address: e.target.value})} 
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setEditDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={saveEditedFaculty}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default GenerateFacultyCards;
