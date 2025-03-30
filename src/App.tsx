@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import YearSelect from '@/pages/YearSelect';
@@ -47,9 +47,7 @@ function App() {
 
 // Helper component to handle route parameters with proper TypeScript typing
 function GenerateRouteWrapper() {
-  const path = window.location.pathname;
-  const segments = path.split('/');
-  const category = segments[2];
+  const { category } = useParams<{ category: string }>();
   
   if (category === 'faculty') {
     return <GenerateFacultyCards />;

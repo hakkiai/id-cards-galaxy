@@ -1,354 +1,236 @@
-
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Grid2X2, User, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight, Printer, Home } from 'lucide-react';
 import CardTemplate from '@/components/CardTemplate';
 import FacultyCardTemplate from '@/components/FacultyCardTemplate';
-import { Student, Faculty } from '@/utils/database';
-import ColorPicker from '@/components/ColorPicker';
-import html2canvas from 'html2canvas';
 
 const CardPreview = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [data, setData] = useState<(Student | Faculty)[]>([]);
-  const [dataType, setDataType] = useState<'student' | 'faculty'>('student');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [viewMode, setViewMode] = useState<'single' | 'grid'>('single');
-  const [templateColor, setTemplateColor] = useState('#1e3c8c');
-  const [downloading, setDownloading] = useState(false);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
+  const [cardsData, setCardsData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    // Check if user is authenticated
     const isAuthenticated = sessionStorage.getItem('isAuthenticated');
     if (isAuthenticated !== 'true') {
-      toast({
-        title: "Access denied",
-        description: "Please login to access this page",
-        variant: "destructive",
-      });
       navigate('/');
       return;
     }
     
-    const generatedCardsJSON = sessionStorage.getItem('generatedCards');
-    if (!generatedCardsJSON) {
-      toast({
-        title: "No cards to preview",
-        description: "Please generate cards first",
-        variant: "destructive",
-      });
+    // Get cards data from session storage
+    const storedCards = sessionStorage.getItem('generatedCards');
+    if (!storedCards) {
       navigate('/dashboard');
       return;
     }
     
     try {
-      const { students, template } = JSON.parse(generatedCardsJSON);
-      setData(students);
-      
-      // Determine if this is faculty or student data
-      if (students.length > 0 && students[0].category === 'faculty') {
-        setDataType('faculty');
-      } else {
-        setDataType('student');
-      }
-      
-      if (template) {
-        setTemplateColor(template);
-      }
-      // Initialize card refs
-      cardRefs.current = students.map(() => null);
-    } catch (error) {
-      toast({
-        title: "Error loading cards",
-        description: "Failed to load generated cards",
-        variant: "destructive",
-      });
+      setCardsData(JSON.parse(storedCards));
+      setLoading(false);
+    } catch (err) {
+      console.error("Error parsing cards data", err);
       navigate('/dashboard');
     }
-  }, [navigate, toast]);
+  }, [navigate]);
 
-  const handleColorChange = (color: string) => {
-    setTemplateColor(color);
-  };
-  
-  // Function to download a single card as JPEG
-  const handleDownloadCard = async (index: number) => {
-    const cardElement = cardRefs.current[index];
-    if (!cardElement) {
-      toast({
-        title: "Error",
-        description: "Could not find card element to download",
-        variant: "destructive",
-      });
-      return;
+  // Calculate total pages
+  const totalPages = useMemo(() => {
+    if (!cardsData) return 0;
+    
+    const cardsPerPage = cardsData.cardsPerPage || 2;
+    const items = cardsData.students || cardsData.faculty || [];
+    return Math.ceil(items.length / cardsPerPage);
+  }, [cardsData]);
+
+  // Get current cards to display
+  const currentCards = useMemo(() => {
+    if (!cardsData) return [];
+    
+    const cardsPerPage = cardsData.cardsPerPage || 2;
+    const start = (currentPage - 1) * cardsPerPage;
+    const end = start + cardsPerPage;
+    
+    if (cardsData.type === 'faculty') {
+      return cardsData.faculty.slice(start, end);
     }
     
-    try {
-      const canvas = await html2canvas(cardElement, {
-        scale: 3, // Higher scale for better quality
-        useCORS: true,
-        backgroundColor: null,
-        logging: false
-      });
-      
-      const link = document.createElement('a');
-      const item = data[index];
-      const fileName = dataType === 'faculty' 
-        ? `Faculty_ID_${(item as Faculty).facultyId}.jpg`
-        : `ID_Card_${(item as Student).rollNumber}.jpg`;
-      
-      link.download = fileName;
-      link.href = canvas.toDataURL('image/jpeg', 0.95); // Higher quality setting
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: "Download complete",
-        description: `ID card for ${item.name} downloaded successfully`,
-      });
-    } catch (error) {
-      console.error("Error generating JPEG:", error);
-      toast({
-        title: "Download failed",
-        description: "There was an error generating the JPEG file",
-        variant: "destructive",
-      });
+    return cardsData.students.slice(start, end);
+  }, [cardsData, currentPage]);
+
+  const handlePrint = () => {
+    if (!cardsRef.current) return;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const content = cardsRef.current.innerHTML;
+      printWindow.document.open();
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>ID Card Print</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+              }
+              .card-container {
+                margin: 10px;
+                page-break-inside: avoid;
+              }
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .card-container, .card-container * {
+                  visibility: visible;
+                }
+                .card-container {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                }
+              }
+            </style>
+          </head>
+          <body>${content}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
     }
-  };
-  
-  // Function to download all cards as JPEG
-  const handleDownloadAll = async () => {
-    if (downloading) return;
-    
-    setDownloading(true);
-    toast({
-      title: "Preparing download",
-      description: `Processing ${data.length} ID cards for download`,
-    });
-    
-    try {
-      // Use a delay between downloads to prevent browser from freezing
-      for (let i = 0; i < data.length; i++) {
-        const cardElement = cardRefs.current[i];
-        if (!cardElement) continue;
-        
-        const canvas = await html2canvas(cardElement, {
-          scale: 3, // Higher scale for better quality
-          useCORS: true,
-          backgroundColor: null,
-          logging: false
-        });
-        
-        const link = document.createElement('a');
-        const item = data[i];
-        const fileName = dataType === 'faculty' 
-          ? `Faculty_ID_${(item as Faculty).facultyId}.jpg`
-          : `ID_Card_${(item as Student).rollNumber}.jpg`;
-          
-        link.download = fileName;
-        link.href = canvas.toDataURL('image/jpeg', 0.95); // Higher quality
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Add a small delay between downloads
-        if (i < data.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 300));
-        }
-      }
-      
-      toast({
-        title: "Download complete",
-        description: `All ${data.length} ID cards downloaded successfully`,
-      });
-    } catch (error) {
-      console.error("Error generating JPEGs:", error);
-      toast({
-        title: "Download failed",
-        description: "There was an error generating the JPEG files",
-        variant: "destructive",
-      });
-    } finally {
-      setDownloading(false);
-    }
-  };
-  
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
-  };
-  
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev < data.length - 1 ? prev + 1 : prev));
   };
 
-  const renderCard = (item: Student | Faculty, index: number) => {
-    if (dataType === 'faculty') {
-      return (
-        <div 
-          ref={el => cardRefs.current[index] = el}
-          className="card-container"
-        >
-          <FacultyCardTemplate 
-            faculty={item as Faculty} 
-            templateColor={templateColor}
-            showControls={false}
-          />
-        </div>
-      );
-    } else {
-      return (
-        <div 
-          ref={el => cardRefs.current[index] = el}
-          className="card-container"
-        >
-          <CardTemplate 
-            student={item as Student} 
-            templateColor={templateColor}
-            showControls={false}
-          />
-        </div>
-      );
-    }
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
   };
-  
-  if (data.length === 0) {
-    return <div className="p-8 text-center">Loading...</div>;
-  }
-  
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8 no-print">
+        <div className="flex items-center mb-8">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/dashboard')} 
+            onClick={() => navigate('/dashboard')}
             className="mr-4"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
-          <div className="flex items-center gap-4">
-            <ColorPicker initialColor={templateColor} onChange={handleColorChange} />
-            <div className="flex space-x-2">
+          <h1 className="text-2xl font-bold">ID Card Preview</h1>
+        </div>
+        
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500">Loading cards preview...</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>ID Card Preview</CardTitle>
+                  <CardDescription>Preview and print your generated ID cards</CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <div className="text-sm text-gray-500">
+                    Page {currentPage} of {totalPages}
+                  </div>
+                  <div className="flex">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={handlePrevPage}
+                      disabled={currentPage === 1}
+                      className="rounded-r-none"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="rounded-l-none"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button onClick={handlePrint} className="ml-2">
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print Cards
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div 
+                  ref={cardsRef}
+                  className="flex flex-col md:flex-row justify-center items-center gap-6 py-8"
+                >
+                  {currentCards.map((card: any, index: number) => (
+                    <div key={index} className="card-container">
+                      {cardsData.type === 'faculty' ? (
+                        <FacultyCardTemplate 
+                          faculty={card}
+                          templateColor={cardsData.template}
+                        />
+                      ) : (
+                        <CardTemplate 
+                          student={card}
+                          templateColor={cardsData.template}
+                        />
+                      )}
+                    </div>
+                  ))}
+                  
+                  {/* Fill empty slots with blank cards */}
+                  {Array.from({ length: (cardsData.cardsPerPage || 2) - currentCards.length }).map((_, index) => (
+                    <div key={`empty-${index}`} className="w-[350px] h-[550px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                      <p className="text-gray-400">Empty Slot</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="flex justify-between">
               <Button 
-                onClick={handleDownloadAll}
-                disabled={downloading}
-                className="bg-green-600 hover:bg-green-700"
+                variant="outline" 
+                onClick={() => navigate('/dashboard')}
               >
-                <Download className="h-4 w-4 mr-2" />
-                {downloading ? "Processing..." : "Download All as JPEG"}
+                <Home className="h-4 w-4 mr-2" />
+                Return to Dashboard
               </Button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex justify-between items-center mb-6 no-print">
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
-              {viewMode === 'single' ? `Showing card ${currentIndex + 1} of ${data.length}` : `Showing all ${data.length} cards`}
-            </span>
-            <div className="flex space-x-2">
-              <Button
-                variant={viewMode === 'single' ? 'default' : 'outline'}
-                onClick={() => setViewMode('single')}
-                size="sm"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Single View
-              </Button>
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
-                onClick={() => setViewMode('grid')}
-                size="sm"
-              >
-                <Grid2X2 className="h-4 w-4 mr-2" />
-                Grid View
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex flex-col items-center">
-          {/* Single card view */}
-          {viewMode === 'single' && data[currentIndex] && (
-            <div>
-              {renderCard(data[currentIndex], currentIndex)}
               
-              <div className="flex justify-center space-x-4 mt-6">
+              <div className="flex gap-2">
                 <Button 
                   variant="outline" 
-                  onClick={handlePrevious}
-                  disabled={currentIndex === 0}
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
                 >
                   <ChevronLeft className="h-4 w-4 mr-2" />
-                  Previous
+                  Previous Page
                 </Button>
-                
                 <Button 
-                  onClick={() => handleDownloadCard(currentIndex)}
-                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download as JPEG
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleNext}
-                  disabled={currentIndex === data.length - 1}
-                >
-                  Next
+                  Next Page
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
             </div>
-          )}
-          
-          {/* Grid view */}
-          {viewMode === 'grid' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.map((item, index) => (
-                <div key={index} className="relative group">
-                  {renderCard(item, index)}
-                  
-                  {/* Download button overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-lg">
-                    <Button 
-                      onClick={() => handleDownloadCard(index)}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Hidden container to keep all cards rendered for download */}
-          <div className="hidden">
-            {data.map((item, index) => (
-              viewMode === 'grid' || index !== currentIndex ? (
-                <div
-                  key={`hidden-${index}`}
-                  ref={el => {
-                    // Only update ref if it's not already set
-                    if (!cardRefs.current[index]) {
-                      cardRefs.current[index] = el;
-                    }
-                  }}
-                >
-                  {renderCard(item, index)}
-                </div>
-              ) : null
-            ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
