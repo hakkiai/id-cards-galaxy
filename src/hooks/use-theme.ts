@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-export const useTheme = () => {
+export const useThemeColor = () => {
   const [primaryColor, setPrimaryColor] = useState('#4052b5');
   
   useEffect(() => {
