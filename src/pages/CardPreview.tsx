@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { ChevronLeft, ChevronRight, Printer, Home, Download, Grid2X2, Grid3X3, I
 import CardTemplate from '@/components/CardTemplate';
 import FacultyCardTemplate from '@/components/FacultyCardTemplate';
 import EnhancedColorPicker from '@/components/EnhancedColorPicker';
-import html2canvas from 'html2canvas';
+import { downloadElementAsJpeg, downloadElementsAsZippedJpegs } from '@/utils/cardExport';
 
 const CardPreview = () => {
   const navigate = useNavigate();
@@ -125,48 +124,22 @@ const CardPreview = () => {
         // Download a single card
         const cardElements = cardsRef.current.querySelectorAll('.card-container');
         if (cardElements[singleCardIndex]) {
-          const canvas = await html2canvas(cardElements[singleCardIndex] as HTMLElement, {
-            scale: 2, // Better quality
-            backgroundColor: null,
-            useCORS: true,
-            allowTaint: true,
-          });
-          
-          const link = document.createElement('a');
-          link.download = `id_card_${singleCardIndex + 1}.jpeg`;
-          link.href = canvas.toDataURL('image/jpeg', 1.0);
-          link.click();
+          await downloadElementAsJpeg(
+            cardElements[singleCardIndex] as HTMLElement, 
+            `id_card_${singleCardIndex + 1}.jpeg`
+          );
         }
       } else {
-        // Download all cards
+        // Download all cards as a zip
         const allCards = cardsData.students || cardsData.faculty || [];
         const cardType = cardsData.type === 'faculty' ? 'faculty' : 'student';
+        const cardElements = Array.from(cardsRef.current.querySelectorAll('.card-container')) as HTMLElement[];
         
-        // Create zip file of all cards
-        const zip = new JSZip();
-        const cardElements = cardsRef.current.querySelectorAll('.card-container');
-        
-        // Convert all cards to canvas and add to zip
-        for (let i = 0; i < cardElements.length; i++) {
-          const canvas = await html2canvas(cardElements[i] as HTMLElement, {
-            scale: 2,
-            backgroundColor: null,
-            useCORS: true,
-            allowTaint: true,
-          });
-          
-          const imgData = canvas.toDataURL('image/jpeg', 1.0).split(',')[1];
-          const name = allCards[i]?.name || `card_${i + 1}`;
-          const safeFileName = name.replace(/[^a-zA-Z0-9]/g, '_');
-          zip.file(`${cardType}_${safeFileName}.jpeg`, imgData, {base64: true});
-        }
-        
-        // Generate and download zip
-        const content = await zip.generateAsync({type: 'blob'});
-        const link = document.createElement('a');
-        link.download = `all_${cardType}_cards.zip`;
-        link.href = URL.createObjectURL(content);
-        link.click();
+        await downloadElementsAsZippedJpegs(
+          cardElements,
+          `all_${cardType}_cards.zip`,
+          cardType
+        );
       }
     } catch (error) {
       console.error('Error downloading cards:', error);
