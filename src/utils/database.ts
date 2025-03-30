@@ -27,6 +27,26 @@ export interface Student {
   isBusStudent?: boolean; // Property for bus students
 }
 
+// Faculty record schema
+export interface Faculty {
+  id: number;
+  facultyId: string;
+  name: string;
+  teluguName?: string;
+  department: string;
+  designation: string;
+  qualification?: string;
+  bloodGroup: string;
+  aadhaar: string;
+  panNumber?: string;
+  contact: string;
+  email?: string;
+  address: string;
+  photo: string;
+  joinDate?: string;
+  category: 'faculty';
+}
+
 // Mock database
 class Database {
   private users: User[] = [
@@ -87,6 +107,63 @@ class Database {
     }
   ];
   
+  private faculty: Faculty[] = [
+    {
+      id: 1,
+      facultyId: 'FAC001',
+      name: 'A.S.S.V. BHASKARA RAJA',
+      teluguName: 'ఏ.ఎస్.ఎస్.వి. భాస్కర రాజా',
+      department: 'CSE',
+      designation: 'Assistant Professor',
+      qualification: 'M.Tech',
+      bloodGroup: 'B+',
+      aadhaar: '6780 7082 5790',
+      panNumber: 'KXOPS4214K',
+      contact: '9505540858',
+      email: 'bhaskar.raja@idealtech.edu.in',
+      address: 'Plot No. 42, Srinagar Colony, Kakinada',
+      photo: '',
+      joinDate: '15-06-2020',
+      category: 'faculty'
+    },
+    {
+      id: 2,
+      facultyId: 'FAC002',
+      name: 'JAMPALA SRIDEVI',
+      teluguName: 'జంపాల శ్రీదేవి',
+      department: 'CSE',
+      designation: 'Associate Professor',
+      qualification: 'Ph.D',
+      bloodGroup: 'A+',
+      aadhaar: '5621 4398 7612',
+      panNumber: 'ABLPS7689R',
+      contact: '8978453621',
+      email: 'sridevi.j@idealtech.edu.in',
+      address: '7-8-22/1, Teachers Colony, Kakinada',
+      photo: '',
+      joinDate: '10-07-2018',
+      category: 'faculty'
+    },
+    {
+      id: 3,
+      facultyId: 'FAC003',
+      name: 'RAMANA MURTHY K.V.',
+      teluguName: 'రమణ మూర్తి కె.వి.',
+      department: 'CSM',
+      designation: 'Professor',
+      qualification: 'Ph.D',
+      bloodGroup: 'O-',
+      aadhaar: '4523 8671 9034',
+      panNumber: 'CVTPR4523K',
+      contact: '9849076532',
+      email: 'ramanamurthy@idealtech.edu.in',
+      address: 'Flat No. 301, Sri Sai Residency, Bhanugudi Junction, Kakinada',
+      photo: '',
+      joinDate: '20-08-2015',
+      category: 'faculty'
+    }
+  ];
+  
   // Authentication
   public authenticateUser(username: string, password: string): boolean {
     const user = this.users.find(u => u.username === username && u.password === password);
@@ -96,6 +173,11 @@ class Database {
   // Get all students
   public getAllStudents(): Student[] {
     return [...this.students];
+  }
+  
+  // Get all faculty
+  public getAllFaculty(): Faculty[] {
+    return [...this.faculty];
   }
   
   // Get students by category and year
@@ -119,9 +201,22 @@ class Database {
     );
   }
   
+  // Get faculty by department
+  public getFacultyByDepartment(department: string): Faculty[] {
+    if (department === 'All') {
+      return [...this.faculty];
+    }
+    return this.faculty.filter(faculty => faculty.department === department);
+  }
+  
   // Get student by roll number
   public getStudentByRollNumber(rollNumber: string): Student | undefined {
     return this.students.find(student => student.rollNumber === rollNumber);
+  }
+  
+  // Get faculty by ID
+  public getFacultyById(facultyId: string): Faculty | undefined {
+    return this.faculty.find(faculty => faculty.facultyId === facultyId);
   }
   
   // Get students by roll number range
@@ -139,6 +234,14 @@ class Database {
     return newStudent;
   }
   
+  // Add faculty
+  public addFaculty(faculty: Omit<Faculty, 'id'>): Faculty {
+    const newId = this.faculty.length > 0 ? Math.max(...this.faculty.map(f => f.id)) + 1 : 1;
+    const newFaculty = { ...faculty, id: newId };
+    this.faculty.push(newFaculty);
+    return newFaculty;
+  }
+  
   // Add multiple students (for Excel import)
   public addMultipleStudents(students: Omit<Student, 'id'>[]): Student[] {
     let lastId = this.students.length > 0 ? Math.max(...this.students.map(s => s.id)) : 0;
@@ -150,6 +253,19 @@ class Database {
     
     this.students.push(...newStudents);
     return newStudents;
+  }
+  
+  // Add multiple faculty (for Excel import)
+  public addMultipleFaculty(facultyMembers: Omit<Faculty, 'id'>[]): Faculty[] {
+    let lastId = this.faculty.length > 0 ? Math.max(...this.faculty.map(f => f.id)) : 0;
+    
+    const newFaculty = facultyMembers.map(faculty => {
+      lastId++;
+      return { ...faculty, id: lastId };
+    });
+    
+    this.faculty.push(...newFaculty);
+    return newFaculty;
   }
 
   // Get bus students
@@ -164,6 +280,15 @@ class Database {
     
     this.students[index] = { ...this.students[index], ...updatedStudent };
     return this.students[index];
+  }
+  
+  // Update faculty
+  public updateFaculty(id: number, updatedFaculty: Partial<Faculty>): Faculty | undefined {
+    const index = this.faculty.findIndex(f => f.id === id);
+    if (index === -1) return undefined;
+    
+    this.faculty[index] = { ...this.faculty[index], ...updatedFaculty };
+    return this.faculty[index];
   }
 }
 
