@@ -1,3 +1,4 @@
+
 export interface Student {
   id: number;
   rollNumber: string;
@@ -52,6 +53,9 @@ interface Database {
   addFaculty: (faculty: Omit<Faculty, 'id'>) => Faculty;
   addMultipleFaculty: (facultyList: Omit<Faculty, 'id'>[]) => Faculty[];
   updateFaculty: (id: number, updatedFaculty: Faculty) => void;
+  
+  // Add the missing authenticateUser method
+  authenticateUser: (username: string, password: string) => boolean;
 }
 
 const db: Database = {
@@ -149,6 +153,13 @@ const db: Database = {
     );
     
     localStorage.setItem('faculty', JSON.stringify(updatedList));
+  },
+  
+  // Implement the authenticateUser method
+  authenticateUser: (username: string, password: string): boolean => {
+    // For simplicity, we'll use hardcoded credentials
+    // In a real application, you would validate against stored credentials
+    return username === 'admin' && password === 'password';
   },
 };
 
