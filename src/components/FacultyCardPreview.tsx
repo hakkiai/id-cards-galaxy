@@ -2,7 +2,7 @@
 import React from 'react';
 import { Faculty } from '@/utils/database';
 import { Button } from '@/components/ui/button';
-import { Eye, Download } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 interface FacultyCardPreviewProps {
   faculty: Faculty;
