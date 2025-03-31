@@ -1,0 +1,64 @@
+
+import React from 'react';
+import { Faculty } from '@/utils/database';
+import { Button } from '@/components/ui/button';
+import { Eye, Download } from 'lucide-react';
+
+interface FacultyCardPreviewProps {
+  faculty: Faculty;
+  templateColor: string;
+  onPreview: (faculty: Faculty) => void;
+}
+
+const FacultyCardPreview = ({ faculty, templateColor, onPreview }: FacultyCardPreviewProps) => {
+  return (
+    <div 
+      className="cursor-pointer transform transition-all duration-300 hover:scale-105"
+      onClick={() => onPreview(faculty)}
+    >
+      <div className="relative w-full aspect-[2/3] bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+        <div 
+          className="h-1/5 w-full flex items-center px-2" 
+          style={{ backgroundColor: templateColor }}
+        >
+          <img 
+            src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
+            alt="IDEAL Logo" 
+            className="h-8 w-8 object-contain"
+          />
+          <div className="text-center text-white flex-1 text-xs">
+            <h3 className="font-bold">IDEAL INSTITUTE</h3>
+            <p className="text-xs">VIDYUT NAGAR</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center h-3/5 p-2">
+          <div className="w-20 h-24 border-2 border-red-500 p-1 mb-2">
+            <img 
+              src={faculty.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(faculty.name)}&background=random`}
+              alt={faculty.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(faculty.name)}&background=random`;
+              }}
+            />
+          </div>
+          <p className="text-xs font-bold text-center line-clamp-1">{faculty.name}</p>
+          <p className="text-xs text-center line-clamp-1">{faculty.designation}, {faculty.department}</p>
+        </div>
+        <div 
+          className="h-1/5 w-full" 
+          style={{ backgroundColor: templateColor }}
+        ></div>
+        
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/40 transition-opacity rounded-lg">
+          <Button variant="outline" className="bg-white hover:bg-white/90">
+            <Eye className="h-4 w-4 mr-2" />
+            Preview Card
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FacultyCardPreview;

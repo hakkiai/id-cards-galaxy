@@ -63,6 +63,10 @@ const GenerateFacultyCards = () => {
   const [currentFaculty, setCurrentFaculty] = useState<Faculty | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   
+  // Preview card dialog state
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
+  
   // Form fields
   const [formData, setFormData] = useState({
     facultyId: '',
@@ -254,6 +258,12 @@ const GenerateFacultyCards = () => {
     navigate('/preview');
   };
   
+  // Handle click on faculty card preview
+  const handleOpenCardPreview = (facultyMember: Faculty) => {
+    setSelectedFaculty(facultyMember);
+    setPreviewDialogOpen(true);
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -355,6 +365,55 @@ const GenerateFacultyCards = () => {
                       </div>
                     </div>
                     
+                    {/* Preview cards grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                      {filteredFaculty.slice(0, 3).map((facultyMember) => (
+                        <div 
+                          key={`preview-${facultyMember.id}`}
+                          className="cursor-pointer transform transition-all duration-300 hover:scale-105"
+                          onClick={() => handleOpenCardPreview(facultyMember)}
+                        >
+                          <div className="relative w-full aspect-[2/3] bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+                            <div 
+                              className="h-1/5 w-full flex items-center px-2" 
+                              style={{ backgroundColor: selectedTemplate }}
+                            >
+                              <img 
+                                src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
+                                alt="IDEAL Logo" 
+                                className="h-8 w-8 object-contain"
+                              />
+                              <div className="text-center text-white flex-1 text-xs">
+                                <h3 className="font-bold">IDEAL INSTITUTE</h3>
+                                <p className="text-xs">VIDYUT NAGAR</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-center justify-center h-3/5 p-2">
+                              <div className="w-20 h-24 border-2 border-red-500 p-1 mb-2">
+                                <img 
+                                  src={facultyMember.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(facultyMember.name)}&background=random`}
+                                  alt={facultyMember.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <p className="text-xs font-bold text-center line-clamp-1">{facultyMember.name}</p>
+                              <p className="text-xs text-center line-clamp-1">{facultyMember.designation}, {facultyMember.department}</p>
+                            </div>
+                            <div 
+                              className="h-1/5 w-full" 
+                              style={{ backgroundColor: selectedTemplate }}
+                            ></div>
+                            
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/40 transition-opacity rounded-lg">
+                              <Button variant="outline" className="bg-white hover:bg-white/90">
+                                Preview Card
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
                     <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
                       {filteredFaculty.map((facultyMember, index) => (
                         <div 
@@ -389,6 +448,15 @@ const GenerateFacultyCards = () => {
                           </div>
                           
                           <div className="flex items-center gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="flex items-center gap-1"
+                              onClick={() => handleOpenCardPreview(facultyMember)}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Preview</span>
+                            </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
@@ -664,6 +732,61 @@ const GenerateFacultyCards = () => {
               {isEditMode ? 'Update' : 'Save'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Card Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-2">
+            <DialogTitle>
+              Faculty ID Card Preview
+            </DialogTitle>
+            <DialogDescription>
+              Preview and download the faculty ID card
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto py-2">
+            <div className="flex flex-col items-center justify-center">
+              {selectedFaculty && (
+                <FacultyCardTemplate 
+                  faculty={selectedFaculty} 
+                  templateColor={selectedTemplate}
+                />
+              )}
+              
+              <div className="flex gap-4 mt-6">
+                <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>
+                  Close
+                </Button>
+                <Button 
+                  className="bg-green-500 hover:bg-green-600"
+                  onClick={handlePreviewCards}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Print All Cards
+                </Button>
+                <Button 
+                  className="bg-blue-500 hover:bg-blue-600"
+                  onClick={() => {
+                    if (selectedFaculty) {
+                      sessionStorage.setItem('generatedCards', JSON.stringify({
+                        faculty: [selectedFaculty],
+                        template: selectedTemplate,
+                        cardsPerPage: 1,
+                        type: 'faculty'
+                      }));
+                      navigate('/preview');
+                    }
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Print This Card
+                </Button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
