@@ -50,7 +50,7 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-2xl login-card animate-fade-in">
+    <Card className="w-full max-w-md shadow-2xl login-card animate-fade-in backdrop-blur-md bg-white/70 border border-white/20">
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-center mb-4 animate-[float_4s_ease-in-out_infinite]" style={{ animationDelay: "200ms" }}>
           <div className="p-3 rounded-full transition-transform hover:scale-110 duration-300 animate-[pulse-glow_3s_ease-in-out_infinite]">

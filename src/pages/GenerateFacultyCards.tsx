@@ -56,7 +56,6 @@ const GenerateFacultyCards = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   
   // Faculty create/edit dialog states
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -99,24 +98,19 @@ const GenerateFacultyCards = () => {
   }, [navigate, toast]);
   
   useEffect(() => {
-    // Filter faculty based on search query and selected department
-    let result = [...faculty];
-    
+    // Filter faculty based on search query only
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(f => 
+      const result = faculty.filter(f => 
         f.name.toLowerCase().includes(query) || 
         f.facultyId.toLowerCase().includes(query) ||
         f.department.toLowerCase().includes(query)
       );
+      setFilteredFaculty(result);
+    } else {
+      setFilteredFaculty(faculty);
     }
-    
-    if (selectedDepartment && selectedDepartment !== 'All') {
-      result = result.filter(f => f.department === selectedDepartment);
-    }
-    
-    setFilteredFaculty(result);
-  }, [faculty, searchQuery, selectedDepartment]);
+  }, [faculty, searchQuery]);
   
   const loadFacultyData = () => {
     setIsLoading(true);
@@ -165,7 +159,7 @@ const GenerateFacultyCards = () => {
     setFormData({
       facultyId: `FAC${100 + faculty.length + 1}`,
       name: '',
-      department: selectedDepartment || '',
+      department: '',
       designation: 'Assistant Professor',
       qualification: '',
       bloodGroup: 'O+',
@@ -247,10 +241,6 @@ const GenerateFacultyCards = () => {
     setDialogOpen(false);
   };
   
-  const handleDepartmentSelect = (department: string) => {
-    setSelectedDepartment(department === selectedDepartment ? null : department);
-  };
-  
   const handlePreviewCards = () => {
     // Store the generated cards data in session storage for the preview page
     sessionStorage.setItem('generatedCards', JSON.stringify({
@@ -323,20 +313,6 @@ const GenerateFacultyCards = () => {
                       <Plus className="h-4 w-4 mr-2" />
                       Add Faculty
                     </Button>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {['All', 'CSE', 'CSM', 'ECE', 'EEE', 'ME'].map(dept => (
-                      <Button
-                        key={dept}
-                        variant={selectedDepartment === dept ? "default" : "outline"}
-                        className={selectedDepartment === dept ? "bg-green-500 hover:bg-green-600" : ""}
-                        onClick={() => handleDepartmentSelect(dept)}
-                        size="sm"
-                      >
-                        {dept}
-                      </Button>
-                    ))}
                   </div>
                 </div>
                 

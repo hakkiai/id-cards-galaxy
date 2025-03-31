@@ -15,7 +15,14 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="login-page flex flex-col items-center justify-center">
+    <div 
+      className="login-page flex flex-col items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ 
+        backgroundImage: `url('/lovable-uploads/dbba3eed-fb05-4b44-ac1a-251edd31a232.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
       <div className="w-full max-w-lg">
         <LoginForm />
       </div>

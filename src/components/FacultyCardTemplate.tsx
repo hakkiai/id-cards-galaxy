@@ -56,7 +56,7 @@ const FacultyCardTemplate = ({ faculty, templateColor, showControls = false }: F
       >
         <div className="flex items-center justify-between gap-2">
           <img 
-            src="/lovable-uploads/9ccd4a71-e098-444e-8550-c01abec83c24.png" 
+            src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
             alt="IDEAL Logo" 
             className="h-12 w-12 object-contain"
           />
