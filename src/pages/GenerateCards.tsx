@@ -57,7 +57,11 @@ const generateMockStudents = (year: string, category: string): Student[] => {
       address: `${i+1}-${i+10}-${i+15}/1/${i+30} SRI VENKATESHWARA COLONY, KAKINADA`,
       photo: '', // Will be handled by placeholder
       category: 'student',
-      isBusStudent: category === 'bus' ? true : Math.random() > 0.7 // All bus category are bus students, for others 30% random
+      isBusStudent: category === 'bus' ? true : Math.random() > 0.7, // All bus category are bus students, for others 30% random
+      // Bus specific fields
+      busHalt: category === 'bus' ? ['VENKATNAGAR', 'BHANUGUDI', 'GAJUWAKA', 'SAMALKOT'][i % 4] : '',
+      studentCellNo: category === 'bus' ? `9347${760000 + i}` : '',
+      parentCellNo: category === 'bus' ? `7794${800000 + i}` : ''
     };
   });
 };
@@ -66,7 +70,9 @@ const GenerateCards = () => {
   const navigate = useNavigate();
   const { category, year, option } = useParams<{ category: string; year: string; option: string }>();
   const { toast } = useToast();
-  const [selectedTemplate, setSelectedTemplate] = useState('#1e3c8c'); // Default blue
+  const [selectedTemplate, setSelectedTemplate] = useState(
+    category === 'bus' ? '#aa2e25' : '#1e3c8c'
+  ); // Burgundy for bus cards, blue for others
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tabOption, setTabOption] = useState('excel');
@@ -98,6 +104,10 @@ const GenerateCards = () => {
   const [editYear, setEditYear] = useState('');
   const [editAcademicYear, setEditAcademicYear] = useState('');
   const [editBloodGroup, setEditBloodGroup] = useState('');
+  // Bus specific fields
+  const [editBusHalt, setEditBusHalt] = useState('');
+  const [editStudentCellNo, setEditStudentCellNo] = useState('');
+  const [editParentCellNo, setEditParentCellNo] = useState('');
   
   useEffect(() => {
     // Check if user is authenticated
@@ -252,6 +262,12 @@ const GenerateCards = () => {
     setEditYear(student.year);
     setEditAcademicYear(student.academicYear);
     setEditBloodGroup(student.bloodGroup);
+    
+    // Bus specific fields
+    setEditBusHalt(student.busHalt || '');
+    setEditStudentCellNo(student.studentCellNo || '');
+    setEditParentCellNo(student.parentCellNo || '');
+    
     setEditDialogOpen(true);
   };
   
@@ -288,7 +304,11 @@ const GenerateCards = () => {
       course: editCourse,
       year: editYear,
       academicYear: editAcademicYear,
-      bloodGroup: editBloodGroup
+      bloodGroup: editBloodGroup,
+      // Bus specific fields
+      busHalt: editBusHalt,
+      studentCellNo: editStudentCellNo,
+      parentCellNo: editParentCellNo
     };
     
     // Update in database
@@ -344,11 +364,85 @@ const GenerateCards = () => {
     sessionStorage.setItem('generatedCards', JSON.stringify({
       students,
       template: selectedTemplate,
-      cardsPerPage: 2 // Ensure exactly 2 cards per page
+      cardsPerPage: 2,
+      cardType: category // Add card type to know which template to use
     }));
     
     // Navigate to the preview page
     navigate('/preview');
+  };
+
+  // Custom template for bus id cards based on the provided image
+  const BusCardTemplate = ({ student }: { student: Student }) => {
+    return (
+      <div className="w-full bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+        <div className="relative w-full aspect-[9/16] overflow-hidden flex flex-col">
+          {/* Card Header */}
+          <div className="bg-gradient-to-b from-amber-900 to-amber-800 h-8 w-full">
+            <div className="h-1.5 w-full bg-amber-500"></div>
+          </div>
+          
+          {/* Institute Header */}
+          <div className="bg-white p-2 flex items-center">
+            <img 
+              src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
+              alt="IDEAL Logo" 
+              className="h-10 w-10 object-contain mr-2"
+            />
+            <div className="flex-1">
+              <h3 className="font-bold text-black text-sm leading-tight">IDEAL INSTITUTE OF TECHNOLOGY</h3>
+              <p className="text-xs text-gray-800 leading-tight">VIDYUT NAGAR, KAKINADA</p>
+              <p className="text-xs text-gray-600 leading-tight">Ph: 0884-2363345</p>
+            </div>
+          </div>
+          
+          {/* Photo and Bus ID section */}
+          <div className="flex px-4 py-2">
+            <div className="w-1/4">
+              <div className="font-bold text-lg">BUS</div>
+              <div className="font-bold text-lg">ID</div>
+            </div>
+            <div className="w-1/2 flex justify-center">
+              <div className="w-20 h-24 border border-gray-400 rounded-lg overflow-hidden">
+                <img 
+                  src={student.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
+                  alt={student.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
+                  }}
+                />
+              </div>
+            </div>
+            <div className="w-1/4 flex justify-center items-start">
+              <div className="font-bold text-xl">A</div>
+            </div>
+          </div>
+          
+          {/* Student details */}
+          <div className="px-4 py-2 flex-1">
+            <p className="font-bold text-base">{student.name}</p>
+            <p className="font-bold text-base">{student.rollNumber}</p>
+            <div className="mt-1 space-y-1">
+              <p className="text-xs text-rose-800">Department : <span className="font-semibold">{student.department}</span></p>
+              <p className="text-xs text-rose-800">Halt : <span className="font-semibold">{student.busHalt || "VENKATNAGAR"}</span></p>
+            </div>
+          </div>
+          
+          {/* Signatures */}
+          <div className="mt-2 px-4 py-1 flex justify-between text-xs text-red-900">
+            <div>Administrative Officer</div>
+            <div>Principal</div>
+          </div>
+          
+          {/* Footer */}
+          <div className="bg-gradient-to-b from-amber-800 to-amber-900 mt-auto p-2 text-white">
+            <p className="text-xs font-semibold">Student Cell No: {student.studentCellNo || "9347761874"}</p>
+            <p className="text-xs font-semibold">Parent Cell No: {student.parentCellNo || "7794808517"}</p>
+          </div>
+        </div>
+      </div>
+    );
   };
   
   return (
@@ -356,7 +450,7 @@ const GenerateCards = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-6 animate-[fade-in_0.5s_ease-out]">
           <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-[pulse_3s_ease-in-out_infinite]">
-            Ideal Institute of Technology – Student Identity Card Portal
+            Ideal Institute of Technology – {category === 'bus' ? 'Bus' : 'Student'} Identity Card Portal
           </h1>
         </div>
 
@@ -591,7 +685,7 @@ const GenerateCards = () => {
                             <div>
                               <div className="font-medium text-gray-900 flex items-center gap-2">
                                 {student.name}
-                                {student.isBusStudent && (
+                                {student.isBusStudent && category !== 'bus' && (
                                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
                                     Bus
                                   </span>
@@ -601,6 +695,12 @@ const GenerateCards = () => {
                                 <span>{student.rollNumber}</span>
                                 <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
                                 <span>{student.department}</span>
+                                {category === 'bus' && student.busHalt && (
+                                  <>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                    <span>{student.busHalt}</span>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -622,7 +722,11 @@ const GenerateCards = () => {
                     
                     <Button 
                       onClick={handlePreviewCards} 
-                      className="w-full mt-4 bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 group"
+                      className={`w-full mt-4 transition-colors flex items-center justify-center gap-2 group ${
+                        category === 'bus' 
+                          ? 'bg-amber-700 hover:bg-amber-800' 
+                          : 'bg-blue-500 hover:bg-blue-600'
+                      }`}
                       disabled={students.length === 0}
                     >
                       <FileDown className="h-4 w-4" />
@@ -641,10 +745,14 @@ const GenerateCards = () => {
                   <CardDescription>Preview your generated ID card</CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
-                  <CardTemplate 
-                    student={students[0]} 
-                    templateColor={selectedTemplate} 
-                  />
+                  {category === 'bus' ? (
+                    <BusCardTemplate student={students[0]} />
+                  ) : (
+                    <CardTemplate 
+                      student={students[0]} 
+                      templateColor={selectedTemplate} 
+                    />
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -661,16 +769,31 @@ const GenerateCards = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
-                    {['#1e3c8c', '#e53935', '#4caf50', '#9c27b0', '#ff9800', '#795548'].map((color) => (
-                      <div 
-                        key={color}
-                        className={`w-full h-12 rounded-md cursor-pointer border-2 transition-all duration-200 ${
-                          selectedTemplate === color ? 'border-black shadow-md scale-110' : 'border-transparent hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: color }}
-                        onClick={() => setSelectedTemplate(color)}
-                      />
-                    ))}
+                    {category === 'bus' ? (
+                      // Bus card color options - orange and brown tones
+                      ['#aa2e25', '#c53d13', '#e65100', '#bf360c', '#863507', '#5d4037'].map((color) => (
+                        <div 
+                          key={color}
+                          className={`w-full h-12 rounded-md cursor-pointer border-2 transition-all duration-200 ${
+                            selectedTemplate === color ? 'border-black shadow-md scale-110' : 'border-transparent hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: color }}
+                          onClick={() => setSelectedTemplate(color)}
+                        />
+                      ))
+                    ) : (
+                      // Regular card color options
+                      ['#1e3c8c', '#e53935', '#4caf50', '#9c27b0', '#ff9800', '#795548'].map((color) => (
+                        <div 
+                          key={color}
+                          className={`w-full h-12 rounded-md cursor-pointer border-2 transition-all duration-200 ${
+                            selectedTemplate === color ? 'border-black shadow-md scale-110' : 'border-transparent hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: color }}
+                          onClick={() => setSelectedTemplate(color)}
+                        />
+                      ))
+                    )}
                   </div>
                   
                   <div className="border rounded-md p-3 mt-4">
@@ -686,23 +809,50 @@ const GenerateCards = () => {
                   
                   <div className="mt-4">
                     <p className="text-sm text-gray-500 mb-2">Template preview:</p>
-                    <div className="aspect-[2/3] bg-white border rounded relative overflow-hidden shadow-sm">
-                      <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate }}></div>
-                      <div className="h-3/5 w-full bg-white p-3">
-                        <div className="w-16 h-20 mx-auto bg-gray-200 mb-2"></div>
-                        <div className="h-2 bg-gray-200 rounded w-3/4 mx-auto mb-1"></div>
-                        <div className="h-2 bg-gray-200 rounded w-1/2 mx-auto mb-3"></div>
-                        <div className="grid grid-cols-2 gap-1">
-                          <div className="h-1.5 bg-gray-200 rounded"></div>
-                          <div className="h-1.5 bg-gray-200 rounded"></div>
-                          <div className="h-1.5 bg-gray-200 rounded"></div>
-                          <div className="h-1.5 bg-gray-200 rounded"></div>
+                    {category === 'bus' ? (
+                      // Bus card template preview
+                      <div className="aspect-[9/16] bg-white border rounded relative overflow-hidden shadow-sm">
+                        <div className="bg-gradient-to-b from-amber-900 to-amber-800 h-8 w-full">
+                          <div className="h-1.5 w-full bg-amber-500"></div>
+                        </div>
+                        <div className="h-3/5 w-full bg-white p-3 flex flex-col">
+                          <div className="flex justify-between mb-2">
+                            <div className="text-sm font-bold">BUS</div>
+                            <div className="w-12 h-12 bg-gray-200 rounded-lg mx-auto"></div>
+                            <div className="text-lg font-bold">A</div>
+                          </div>
+                          <div className="h-2 bg-gray-200 rounded w-1/2 mx-auto mb-1 mt-3"></div>
+                          <div className="h-2 bg-gray-200 rounded w-1/3 mx-auto mb-3"></div>
+                          <div className="mt-auto grid grid-cols-2 gap-1">
+                            <div className="h-1.5 bg-gray-200 rounded"></div>
+                            <div className="h-1.5 bg-gray-200 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="bg-gradient-to-b from-amber-800 to-amber-900 h-12 w-full mt-auto">
+                          <div className="h-1.5 bg-white/20 rounded w-3/4 mx-auto mt-2"></div>
+                          <div className="h-1.5 bg-white/20 rounded w-3/4 mx-auto mt-1"></div>
                         </div>
                       </div>
-                      <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate, opacity: 0.8 }}>
-                        <div className="h-2 bg-white/20 rounded w-3/4 mx-auto mt-2"></div>
+                    ) : (
+                      // Regular card template preview
+                      <div className="aspect-[2/3] bg-white border rounded relative overflow-hidden shadow-sm">
+                        <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate }}></div>
+                        <div className="h-3/5 w-full bg-white p-3">
+                          <div className="w-16 h-20 mx-auto bg-gray-200 mb-2"></div>
+                          <div className="h-2 bg-gray-200 rounded w-3/4 mx-auto mb-1"></div>
+                          <div className="h-2 bg-gray-200 rounded w-1/2 mx-auto mb-3"></div>
+                          <div className="grid grid-cols-2 gap-1">
+                            <div className="h-1.5 bg-gray-200 rounded"></div>
+                            <div className="h-1.5 bg-gray-200 rounded"></div>
+                            <div className="h-1.5 bg-gray-200 rounded"></div>
+                            <div className="h-1.5 bg-gray-200 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate, opacity: 0.8 }}>
+                          <div className="h-2 bg-white/20 rounded w-3/4 mx-auto mt-2"></div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -870,6 +1020,45 @@ const GenerateCards = () => {
                     placeholder="Enter address"
                   />
                 </div>
+                
+                {/* Bus specific fields */}
+                {(category === 'bus' || editIsBusStudent) && (
+                  <>
+                    <div className="mt-4 pt-4 border-t border-dashed">
+                      <h4 className="font-medium text-amber-800 mb-2">Bus Card Details</h4>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="busHalt">Bus Halt</Label>
+                        <Input 
+                          id="busHalt" 
+                          value={editBusHalt} 
+                          onChange={(e) => setEditBusHalt(e.target.value)} 
+                          placeholder="Enter bus halt location"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="studentCellNo">Student Cell Number</Label>
+                        <Input 
+                          id="studentCellNo" 
+                          value={editStudentCellNo} 
+                          onChange={(e) => setEditStudentCellNo(e.target.value)} 
+                          placeholder="Enter student's cell number"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="parentCellNo">Parent Cell Number</Label>
+                        <Input 
+                          id="parentCellNo" 
+                          value={editParentCellNo} 
+                          onChange={(e) => setEditParentCellNo(e.target.value)} 
+                          placeholder="Enter parent's cell number"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
                 
                 <div className="flex items-center space-x-2 pt-2">
                   <Checkbox 

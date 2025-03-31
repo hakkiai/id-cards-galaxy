@@ -91,7 +91,7 @@ const Dashboard = () => {
             </CardContent>
             <CardFooter>
               <Button 
-                onClick={() => navigate("/category/student")}
+                onClick={() => navigate("/generate/student/All/excel")}
                 className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-300"
               >
                 <BookOpen className="mr-2 h-4 w-4" />
