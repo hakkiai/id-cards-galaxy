@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ const generateMockFaculty = (): Faculty[] => {
     address: `${index + 1}-${10 + index}/A, Faculty Quarters, Vidyut Nagar`,
     photo: '',
     joinDate: `${10 + (index % 20)}-${1 + (index % 12)}-${2010 + (index % 10)}`,
-    category: 'faculty'
+    category: 'faculty' as const
   }));
 };
 
@@ -135,10 +136,10 @@ const GenerateFacultyCards = () => {
     
     setTimeout(() => {
       // Simulate adding faculty to database and getting back with IDs
-      const newFaculty = uploadedFaculty.map((f, index) => ({
+      const newFaculty: Faculty[] = uploadedFaculty.map((f, index) => ({
         ...f,
         id: faculty.length + index + 1,
-        category: 'faculty'
+        category: 'faculty' as const
       }));
       
       setFaculty([...faculty, ...newFaculty]);
@@ -251,7 +252,7 @@ const GenerateFacultyCards = () => {
       const newFaculty: Faculty = {
         id: faculty.length + 1,
         ...formData,
-        category: 'faculty'
+        category: 'faculty' as const
       };
       
       setFaculty([...faculty, newFaculty]);
