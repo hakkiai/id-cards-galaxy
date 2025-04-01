@@ -10,7 +10,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
   try {
     const canvas = await html2canvas(element, {
       scale: 2, // Better quality
-      backgroundColor: null,
+      backgroundColor: '#ffffff', // White background instead of transparent
       useCORS: true,
       allowTaint: true,
     });
@@ -45,7 +45,7 @@ export const downloadElementsAsZippedJpegs = async (
     for (let i = 0; i < elements.length; i++) {
       const canvas = await html2canvas(elements[i], {
         scale: 2,
-        backgroundColor: null,
+        backgroundColor: '#ffffff', // White background instead of transparent
         useCORS: true,
         allowTaint: true,
       });
