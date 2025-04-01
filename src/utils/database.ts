@@ -1,4 +1,3 @@
-
 export interface Student {
   id: number;
   rollNumber: string;
@@ -15,10 +14,17 @@ export interface Student {
   photo: string;
   category: 'student';
   isBusStudent?: boolean;
+  // Add the missing bus-specific properties
+  busHalt?: string;
+  studentCellNo?: string;
+  parentCellNo?: string;
 }
 
 export interface BusStudent extends Student {
   isBusStudent: true;
+  busHalt: string;
+  studentCellNo: string;
+  parentCellNo: string;
 }
 
 // Add/ensure this type exists:
