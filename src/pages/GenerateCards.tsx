@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -377,30 +376,29 @@ const GenerateCards = () => {
     return (
       <div className="w-full bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
         <div className="relative w-full aspect-[9/16] overflow-hidden flex flex-col">
-          {/* Card Header */}
-          <div className="bg-gradient-to-b from-amber-900 to-amber-800 h-8 w-full">
-            <div className="h-1.5 w-full bg-amber-500"></div>
-          </div>
+          {/* Top curved header with orange gradient border */}
+          <div className="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-800 h-4 w-full rounded-t-lg"></div>
           
-          {/* Institute Header */}
+          {/* Institute Header with logo */}
           <div className="bg-white p-2 flex items-center">
             <img 
-              src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
+              src="/lovable-uploads/dc9cdbe0-d30a-483a-85c9-46c1268c5605.png" 
               alt="IDEAL Logo" 
-              className="h-10 w-10 object-contain mr-2"
+              className="h-16 w-16 object-contain"
             />
-            <div className="flex-1">
-              <h3 className="font-bold text-black text-sm leading-tight">IDEAL INSTITUTE OF TECHNOLOGY</h3>
+            <div className="flex-1 text-center">
+              <h3 className="font-bold text-black text-xl leading-tight tracking-wider">IDEAL</h3>
+              <h4 className="font-semibold text-black text-sm leading-tight">INSTITUTE OF TECHNOLOGY</h4>
               <p className="text-xs text-gray-800 leading-tight">VIDYUT NAGAR, KAKINADA</p>
               <p className="text-xs text-gray-600 leading-tight">Ph: 0884-2363345</p>
             </div>
           </div>
           
           {/* Photo and Bus ID section */}
-          <div className="flex px-4 py-2">
+          <div className="flex px-4 py-2 items-center">
             <div className="w-1/4">
-              <div className="font-bold text-lg">BUS</div>
-              <div className="font-bold text-lg">ID</div>
+              <div className="font-bold text-2xl leading-tight">BUS</div>
+              <div className="font-bold text-2xl leading-tight">ID</div>
             </div>
             <div className="w-1/2 flex justify-center">
               <div className="w-20 h-24 border border-gray-400 rounded-lg overflow-hidden">
@@ -415,28 +413,28 @@ const GenerateCards = () => {
               </div>
             </div>
             <div className="w-1/4 flex justify-center items-start">
-              <div className="font-bold text-xl">A</div>
+              <div className="font-bold text-3xl">A</div>
             </div>
           </div>
           
           {/* Student details */}
           <div className="px-4 py-2 flex-1">
-            <p className="font-bold text-base">{student.name}</p>
-            <p className="font-bold text-base">{student.rollNumber}</p>
-            <div className="mt-1 space-y-1">
-              <p className="text-xs text-rose-800">Department : <span className="font-semibold">{student.department}</span></p>
-              <p className="text-xs text-rose-800">Halt : <span className="font-semibold">{student.busHalt || "VENKATNAGAR"}</span></p>
+            <p className="font-bold text-xl text-center">{student.name}</p>
+            <p className="font-bold text-lg text-center">{student.rollNumber}</p>
+            <div className="mt-3 space-y-1">
+              <p className="text-sm text-rose-800">Department : <span className="font-semibold">{student.department}</span></p>
+              <p className="text-sm text-rose-800">Halt : <span className="font-semibold">{student.busHalt || "VENKATNAGAR"}</span></p>
             </div>
           </div>
           
           {/* Signatures */}
-          <div className="mt-2 px-4 py-1 flex justify-between text-xs text-red-900">
+          <div className="mt-2 px-4 py-1 flex justify-between text-xs text-red-700">
             <div>Administrative Officer</div>
             <div>Principal</div>
           </div>
           
-          {/* Footer */}
-          <div className="bg-gradient-to-b from-amber-800 to-amber-900 mt-auto p-2 text-white">
+          {/* Footer with cell numbers */}
+          <div className="bg-gradient-to-r from-amber-800 via-amber-700 to-amber-800 mt-auto p-2 text-white rounded-b-lg">
             <p className="text-xs font-semibold">Student Cell No: {student.studentCellNo || "9347761874"}</p>
             <p className="text-xs font-semibold">Parent Cell No: {student.parentCellNo || "7794808517"}</p>
           </div>
