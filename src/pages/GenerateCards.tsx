@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { db, Student } from '@/utils/database';
 import FileUpload from '@/components/FileUpload';
 import CardTemplate from '@/components/CardTemplate';
+import BusCardTemplate from '@/components/BusCardTemplate';
 
 // Sample student data for demonstration
 const generateMockStudents = (year: string, category: string): Student[] => {
@@ -371,80 +372,6 @@ const GenerateCards = () => {
     navigate('/preview');
   };
 
-  // Updated Bus Card Template to match the provided image
-  const BusCardTemplate = ({ student }: { student: Student }) => {
-    return (
-      <div className="w-full bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-        <div className="relative w-full aspect-[6/9] overflow-hidden flex flex-col">
-          {/* Top curved header with orange gradient border */}
-          <div className="bg-gradient-to-r from-orange-800 via-orange-600 to-orange-800 h-6 w-full rounded-t-lg"></div>
-          
-          {/* Institute Header with logo */}
-          <div className="bg-white p-2 pt-3">
-            <div className="flex items-center justify-start">
-              <img 
-                src="/lovable-uploads/7e5b27e8-a281-4e5a-b549-0e3e8adbf11a.png" 
-                alt="IDEAL Logo" 
-                className="h-16 w-16 object-contain mr-2"
-              />
-              <div>
-                <h3 className="font-bold text-black text-2xl tracking-wider">IDEAL</h3>
-                <h4 className="font-semibold text-black text-sm">INSTITUTE OF TECHNOLOGY</h4>
-                <p className="text-xs text-gray-800">VIDYUT NAGAR, KAKINADA</p>
-                <p className="text-xs text-gray-800">Ph: 0884-2363345</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Photo section with BUS ID and photo */}
-          <div className="flex px-2 py-3 items-center">
-            <div className="w-1/4">
-              <div className="font-bold text-2xl">BUS</div>
-              <div className="font-bold text-2xl">ID</div>
-            </div>
-            <div className="w-1/2 flex justify-center">
-              <div className="w-20 h-24 rounded-lg overflow-hidden border border-gray-400">
-                <img 
-                  src={student.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
-                  alt={student.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
-                  }}
-                />
-              </div>
-            </div>
-            <div className="w-1/4 flex justify-center items-center">
-              <div className="font-bold text-4xl">A</div>
-            </div>
-          </div>
-          
-          {/* Student details - centered as in the image */}
-          <div className="px-4 py-2 flex-1">
-            <p className="font-bold text-xl text-center">{student.name}</p>
-            <p className="font-bold text-lg text-center">{student.rollNumber}</p>
-            <div className="mt-3 space-y-1">
-              <p className="text-rose-800">Department : <span className="font-semibold">{student.department}</span></p>
-              <p className="text-rose-800">Halt : <span className="font-semibold">{student.busHalt || "VENKATNAGAR"}</span></p>
-            </div>
-          </div>
-          
-          {/* Signatures - red text as in the image */}
-          <div className="mt-auto px-4 py-1 flex justify-between text-sm text-red-600">
-            <div>Administrative Officer</div>
-            <div>Principal</div>
-          </div>
-          
-          {/* Footer with cell numbers - burgundy background with white text */}
-          <div className="bg-gradient-to-r from-purple-900 via-red-800 to-purple-900 mt-auto p-3 text-white">
-            <p className="text-sm font-medium">Student Cell No: {student.studentCellNo || "9347761874"}</p>
-            <p className="text-sm font-medium">Parent Cell No: {student.parentCellNo || "7794808517"}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -746,7 +673,15 @@ const GenerateCards = () => {
                 </CardHeader>
                 <CardContent className="flex justify-center">
                   {category === 'bus' ? (
-                    <BusCardTemplate student={students[0]} />
+                    <BusCardTemplate 
+                      student={students[0]} 
+                      templateColor={selectedTemplate} 
+                      showControls={true}
+                      onBusIdChange={(busId) => {
+                        // This would update the bus ID for the student in a real implementation
+                        console.log('Bus ID changed to:', busId);
+                      }}
+                    />
                   ) : (
                     <CardTemplate 
                       student={students[0]} 

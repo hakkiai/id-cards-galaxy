@@ -7,6 +7,7 @@ import CardTemplate from '@/components/CardTemplate';
 import FacultyCardTemplate from '@/components/FacultyCardTemplate';
 import EnhancedColorPicker from '@/components/EnhancedColorPicker';
 import { downloadElementAsJpeg, downloadElementsAsZippedJpegs } from '@/utils/cardExport';
+import BusCardTemplate from '@/components/BusCardTemplate';
 
 const CardPreview = () => {
   const navigate = useNavigate();
@@ -286,6 +287,11 @@ const CardPreview = () => {
                         {cardsData.type === 'faculty' ? (
                           <FacultyCardTemplate 
                             faculty={card}
+                            templateColor={cardColor}
+                          />
+                        ) : cardsData.cardType === 'bus' ? (
+                          <BusCardTemplate 
+                            student={card}
                             templateColor={cardColor}
                           />
                         ) : (
