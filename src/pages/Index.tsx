@@ -18,7 +18,7 @@ const Index = () => {
     <div 
       className="login-page flex flex-col items-center justify-center min-h-screen bg-cover bg-center"
       style={{ 
-        backgroundImage: `url('/lovable-uploads/9ccd4a71-e098-444e-8550-c01abec83c24.png')`,
+        backgroundImage: `url('/lovable-uploads/833b48f4-b18c-443c-bc02-57f488bc38fb.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}

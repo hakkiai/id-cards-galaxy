@@ -158,8 +158,9 @@ class Database {
 
   // Authenticate user (mock implementation)
   authenticateUser(username: string, password: string): boolean {
-    // Simple authentication for demo
-    return username === 'admin' && password === 'admin123';
+    // Changed to accept "admin" and "password" as valid credentials
+    return (username === 'admin' && password === 'password') || 
+           (username === 'admin' && password === 'admin123');
   }
 }
 

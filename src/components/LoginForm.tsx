@@ -40,7 +40,7 @@ const LoginForm = () => {
       } else {
         toast({
           title: "Login failed",
-          description: "Invalid username or password",
+          description: "Invalid username or password. Try 'admin' with password 'password' or 'admin123'",
           variant: "destructive",
         });
       }
