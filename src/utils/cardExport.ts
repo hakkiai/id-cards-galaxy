@@ -70,8 +70,8 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
           if (el instanceof HTMLElement) {
             // Ensure all text elements maintain their properties
             el.style.textRendering = 'geometricPrecision';
-            el.style.fontSmooth = 'always';
-            el.style.webkitFontSmoothing = 'antialiased';
+            // Use correct TypeScript properties
+            (el.style as any)['-webkit-font-smoothing'] = 'antialiased';
             el.style.willChange = 'transform';
             
             // Fix layout shifts
@@ -181,8 +181,8 @@ export const downloadElementsAsZippedJpegs = async (
           allElements.forEach(el => {
             if (el instanceof HTMLElement) {
               el.style.textRendering = 'geometricPrecision';
-              el.style.fontSmooth = 'always';
-              el.style.webkitFontSmoothing = 'antialiased';
+              // Use correct TypeScript properties
+              (el.style as any)['-webkit-font-smoothing'] = 'antialiased';
               el.style.willChange = 'transform';
               el.style.position = el.style.position || 'relative';
               
