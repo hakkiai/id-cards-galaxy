@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -764,3 +765,329 @@ const GenerateCards = () => {
                           </Button>
                         </div>
                       )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Student Edit Dialog */}
+            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+              <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Student Details</DialogTitle>
+                  <DialogDescription>
+                    Update information for {editName}
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="editName">Full Name</Label>
+                      <Input 
+                        id="editName" 
+                        value={editName} 
+                        onChange={(e) => setEditName(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editRollNumber">Roll Number</Label>
+                      <Input 
+                        id="editRollNumber" 
+                        value={editRollNumber} 
+                        onChange={(e) => setEditRollNumber(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editDepartment">Department</Label>
+                      <Input 
+                        id="editDepartment" 
+                        value={editDepartment} 
+                        onChange={(e) => setEditDepartment(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editCourse">Course</Label>
+                      <Input 
+                        id="editCourse" 
+                        value={editCourse} 
+                        onChange={(e) => setEditCourse(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editYear">Year</Label>
+                      <Input 
+                        id="editYear" 
+                        value={editYear} 
+                        onChange={(e) => setEditYear(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editAcademicYear">Academic Years</Label>
+                      <Input 
+                        id="editAcademicYear" 
+                        value={editAcademicYear} 
+                        onChange={(e) => setEditAcademicYear(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editDob">Date of Birth</Label>
+                      <Input 
+                        id="editDob" 
+                        value={editDob} 
+                        onChange={(e) => setEditDob(e.target.value)} 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="editBloodGroup">Blood Group</Label>
+                      <Input 
+                        id="editBloodGroup" 
+                        value={editBloodGroup} 
+                        onChange={(e) => setEditBloodGroup(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editAadhaar">Aadhaar</Label>
+                      <Input 
+                        id="editAadhaar" 
+                        value={editAadhaar} 
+                        onChange={(e) => setEditAadhaar(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editContact">Contact</Label>
+                      <Input 
+                        id="editContact" 
+                        value={editContact} 
+                        onChange={(e) => setEditContact(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="editAddress">Address</Label>
+                      <Input 
+                        id="editAddress" 
+                        value={editAddress} 
+                        onChange={(e) => setEditAddress(e.target.value)} 
+                      />
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 mt-4">
+                      <Checkbox 
+                        id="editIsBusStudent" 
+                        checked={editIsBusStudent} 
+                        onCheckedChange={(checked) => {
+                          setEditIsBusStudent(checked as boolean);
+                        }} 
+                      />
+                      <Label 
+                        htmlFor="editIsBusStudent" 
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Bus Student
+                      </Label>
+                    </div>
+                    
+                    {/* Bus specific fields */}
+                    {editIsBusStudent && (
+                      <div className="space-y-4 border-t border-dashed pt-4 mt-4">
+                        <h4 className="font-medium text-sm">Bus Details</h4>
+                        <div>
+                          <Label htmlFor="editBusHalt">Bus Halt</Label>
+                          <Input 
+                            id="editBusHalt" 
+                            value={editBusHalt} 
+                            onChange={(e) => setEditBusHalt(e.target.value)} 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="editStudentCellNo">Student Cell No</Label>
+                          <Input 
+                            id="editStudentCellNo" 
+                            value={editStudentCellNo} 
+                            onChange={(e) => setEditStudentCellNo(e.target.value)} 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="editParentCellNo">Parent Cell No</Label>
+                          <Input 
+                            id="editParentCellNo" 
+                            value={editParentCellNo} 
+                            onChange={(e) => setEditParentCellNo(e.target.value)} 
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="border-t border-gray-200 pt-4">
+                  <Label className="block mb-2">Photo</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="h-24 w-24 rounded-md overflow-hidden bg-gray-100 border">
+                      {editPhoto ? (
+                        <img 
+                          src={editPhoto} 
+                          alt={editName} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          No photo
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="file"
+                        ref={photoInputRef}
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhotoUpload}
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => photoInputRef.current?.click()}
+                      >
+                        Upload photo
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={saveStudentEdit}>
+                    Save Changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <div className="space-y-6">
+            {/* Card Preview */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Card Preview</CardTitle>
+                <CardDescription>
+                  Preview how the ID card will look
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center p-4">
+                {students.length > 0 && (
+                  <div className="transform scale-[0.65] origin-top">
+                    {category === 'bus' ? (
+                      <BusCardTemplate
+                        student={students[0]}
+                        templateColor={selectedTemplate}
+                      />
+                    ) : (
+                      <CardTemplate
+                        student={students[0]}
+                        templateColor={selectedTemplate}
+                      />
+                    )}
+                  </div>
+                )}
+                
+                {students.length === 0 && !isLoading && (
+                  <div className="text-center py-10 text-gray-500">
+                    <User className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                    <p>Select a student to preview ID card</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Template Color Selection */}
+            <Card>
+              <CardHeader>
+                <CardTitle>ID Card Settings</CardTitle>
+                <CardDescription>
+                  Customize the appearance of the ID cards
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="mb-2 block">Template Color</Label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {[
+                        '#1e3c8c', // Blue
+                        '#1e5c1e', // Green
+                        '#8c1e1e', // Red
+                        '#5e1e8c', // Purple
+                        '#aa2e25', // Burgundy
+                        '#2e7d32', // Forest Green
+                        '#0277bd', // Light Blue
+                        '#5d4037', // Brown
+                        '#00695c', // Teal
+                        '#546e7a'  // Blue Grey
+                      ].map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          className={`h-8 w-full rounded-md border-2 ${selectedTemplate === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
+                          style={{ backgroundColor: color }}
+                          onClick={() => setSelectedTemplate(color)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Instructions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Instructions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <p className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600">1</span>
+                    <span>Search for students or use the database/upload options</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600">2</span>
+                    <span>Edit student details if necessary</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600">3</span>
+                    <span>Customize card appearance with template colors</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600">4</span>
+                    <span>Preview and print ID cards</span>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default GenerateCards;

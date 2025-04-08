@@ -11,33 +11,77 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     // Apply export mode class
     element.classList.add('card-for-export');
     
-    // Clone the element to avoid modifying the original
+    // Create a clone to avoid modifying the original
     const clone = element.cloneNode(true) as HTMLElement;
-    clone.style.transform = 'none'; // Reset any transformations
+    
+    // Reset transformations and position it off-screen for rendering
+    clone.style.transform = 'none';
     clone.style.position = 'fixed';
     clone.style.top = '-9999px';
     clone.style.left = '-9999px';
     clone.style.zIndex = '-1000';
     clone.style.width = '350px';
     clone.style.height = '550px';
+    clone.style.borderRadius = '0'; // Ensure consistent border radius
+    clone.style.boxShadow = 'none'; // Remove shadows for clean export
+    
+    // Apply additional export styling
+    const style = document.createElement('style');
+    style.textContent = `
+      * {
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        text-rendering: geometricPrecision !important;
+        -webkit-font-smoothing: antialiased !important;
+        will-change: auto !important;
+        letter-spacing: normal !important;
+        line-height: normal !important;
+      }
+      img {
+        image-rendering: high-quality !important;
+        object-fit: cover !important;
+      }
+      text, p, h1, h2, h3, h4, h5, h6, span {
+        font-weight: normal !important;
+        text-align: left !important;
+      }
+      strong, b, .font-bold, .font-semibold {
+        font-weight: bold !important;
+      }
+    `;
+    
+    clone.appendChild(style);
     document.body.appendChild(clone);
     
+    // Render the element with high resolution
     const canvas = await html2canvas(clone, {
-      scale: 6, // Increased for better quality (was 4)
-      backgroundColor: '#ffffff', // White background instead of transparent
+      scale: 8, // Increased for better quality (was 6)
+      backgroundColor: '#ffffff',
       useCORS: true,
       allowTaint: true,
       logging: false,
       removeContainer: true,
+      imageTimeout: 0, // No timeout for image loading
       onclone: (clonedDoc, clonedElement) => {
-        // Additional styling tweaks to ensure proper rendering
+        // Add additional styling tweaks to ensure proper rendering
         const allElements = clonedElement.querySelectorAll('*');
         allElements.forEach(el => {
           if (el instanceof HTMLElement) {
             // Ensure all text elements maintain their properties
             el.style.textRendering = 'geometricPrecision';
-            // Force all elements to render at full quality
+            el.style.fontSmooth = 'always';
+            el.style.webkitFontSmoothing = 'antialiased';
             el.style.willChange = 'transform';
+            
+            // Fix layout shifts
+            el.style.position = el.style.position || 'relative';
+            
+            // Ensure images are rendered correctly
+            if (el instanceof HTMLImageElement) {
+              el.style.imageRendering = 'high-quality';
+              el.crossOrigin = 'anonymous';
+            }
           }
         });
       }
@@ -49,10 +93,12 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     // Remove export mode class from original
     element.classList.remove('card-for-export');
     
+    // Download the image with maximum quality
     const link = document.createElement('a');
     link.download = fileName;
-    link.href = canvas.toDataURL('image/jpeg', 1.0); // Maximum quality
+    link.href = canvas.toDataURL('image/jpeg', 1.0);
     link.click();
+    
     return true;
   } catch (error) {
     console.error('Error downloading as JPEG:', error);
@@ -89,22 +135,61 @@ export const downloadElementsAsZippedJpegs = async (
       clone.style.zIndex = '-1000';
       clone.style.width = '350px';
       clone.style.height = '550px';
+      clone.style.borderRadius = '0';
+      clone.style.boxShadow = 'none';
+      
+      // Apply additional export styling
+      const style = document.createElement('style');
+      style.textContent = `
+        * {
+          transform: none !important;
+          transition: none !important;
+          animation: none !important;
+          text-rendering: geometricPrecision !important;
+          -webkit-font-smoothing: antialiased !important;
+          will-change: auto !important;
+          letter-spacing: normal !important;
+          line-height: normal !important;
+        }
+        img {
+          image-rendering: high-quality !important;
+          object-fit: cover !important;
+        }
+        text, p, h1, h2, h3, h4, h5, h6, span {
+          font-weight: normal !important;
+          text-align: left !important;
+        }
+        strong, b, .font-bold, .font-semibold {
+          font-weight: bold !important;
+        }
+      `;
+      
+      clone.appendChild(style);
       document.body.appendChild(clone);
       
       const canvas = await html2canvas(clone, {
-        scale: 6, // Increased for better quality (was 4)
+        scale: 8,
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
         logging: false,
         removeContainer: true,
+        imageTimeout: 0,
         onclone: (clonedDoc, clonedElement) => {
           // Additional styling tweaks to ensure proper rendering
           const allElements = clonedElement.querySelectorAll('*');
           allElements.forEach(el => {
             if (el instanceof HTMLElement) {
               el.style.textRendering = 'geometricPrecision';
+              el.style.fontSmooth = 'always';
+              el.style.webkitFontSmoothing = 'antialiased';
               el.style.willChange = 'transform';
+              el.style.position = el.style.position || 'relative';
+              
+              if (el instanceof HTMLImageElement) {
+                el.style.imageRendering = 'high-quality';
+                el.crossOrigin = 'anonymous';
+              }
             }
           });
         }
