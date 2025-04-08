@@ -11,18 +11,30 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     // Apply export mode class
     element.classList.add('card-for-export');
     
-    const canvas = await html2canvas(element, {
-      scale: 3, // Higher scale for better quality
+    // Clone the element to avoid modifying the original
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.transform = 'none'; // Reset any transformations
+    clone.style.position = 'fixed';
+    clone.style.top = '-9999px';
+    clone.style.left = '-9999px';
+    clone.style.zIndex = '-1000';
+    clone.style.width = '350px';
+    clone.style.height = '550px';
+    document.body.appendChild(clone);
+    
+    const canvas = await html2canvas(clone, {
+      scale: 4, // Higher scale for better quality
       backgroundColor: '#ffffff', // White background instead of transparent
       useCORS: true,
       allowTaint: true,
       logging: false,
-      imageRendering: 'auto',
-      letterRendering: true,
-      removeContainer: false,
+      removeContainer: true,
     });
     
-    // Remove export mode class
+    // Remove the clone after capture
+    document.body.removeChild(clone);
+    
+    // Remove export mode class from original
     element.classList.remove('card-for-export');
     
     const link = document.createElement('a');
@@ -53,21 +65,34 @@ export const downloadElementsAsZippedJpegs = async (
     
     // Convert all elements to canvas and add to zip
     for (let i = 0; i < elements.length; i++) {
-      // Apply export mode class
-      elements[i].classList.add('card-for-export');
+      // Create a clone of the element to avoid modifying the original
+      const original = elements[i];
+      original.classList.add('card-for-export');
       
-      const canvas = await html2canvas(elements[i], {
-        scale: 3,
+      const clone = original.cloneNode(true) as HTMLElement;
+      clone.style.transform = 'none';
+      clone.style.position = 'fixed';
+      clone.style.top = '-9999px';
+      clone.style.left = '-9999px';
+      clone.style.zIndex = '-1000';
+      clone.style.width = '350px';
+      clone.style.height = '550px';
+      document.body.appendChild(clone);
+      
+      const canvas = await html2canvas(clone, {
+        scale: 4, // Increased for better quality
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
         logging: false,
-        imageRendering: 'auto',
-        letterRendering: true
+        removeContainer: true,
       });
       
-      // Remove export mode class
-      elements[i].classList.remove('card-for-export');
+      // Remove the clone after capture
+      document.body.removeChild(clone);
+      
+      // Remove export mode class from original
+      original.classList.remove('card-for-export');
       
       const imgData = canvas.toDataURL('image/jpeg', 1.0).split(',')[1];
       zip.file(`${namePrefix}_${i + 1}.jpeg`, imgData, {base64: true});

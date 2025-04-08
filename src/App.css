@@ -52,7 +52,31 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
-/* High quality image rendering */
-.high-quality-image {
-  image-rendering: auto;
+/* Card export styles */
+.card-for-export {
+  /* Remove transition and animation effects when exporting */
+  transition: none !important;
+  animation: none !important;
+  transform: none !important;
+  
+  /* Ensure text is crisp and images are high quality */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Ensure fixed size for export */
+  width: 350px !important;
+  height: 550px !important;
+}
+
+/* Ensure text is properly rendered in exports */
+.card-for-export .writing-vertical {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+}
+
+/* Ensure elements stay visible during export */
+.card-for-export * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
