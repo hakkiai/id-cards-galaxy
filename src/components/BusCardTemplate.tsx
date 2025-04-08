@@ -75,7 +75,6 @@ const BusCardTemplate = ({
             src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
             alt="IDEAL Logo" 
             className="h-12 w-12 object-contain"
-            style={{ imageRendering: 'high-quality' }}
           />
           <div className="text-center text-white flex-1">
             <h2 className="text-xl font-bold leading-tight tracking-wide">IDEAL</h2>
@@ -102,7 +101,6 @@ const BusCardTemplate = ({
                 src={student.photo} 
                 alt={student.name}
                 className="w-full h-full object-cover"
-                style={{ imageRendering: 'high-quality' }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
                 }}
@@ -112,7 +110,6 @@ const BusCardTemplate = ({
                 src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
                 alt={student.name}
                 className="w-full h-full object-cover"
-                style={{ imageRendering: 'high-quality' }}
               />
             )}
           </div>
