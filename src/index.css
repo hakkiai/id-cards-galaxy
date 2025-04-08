@@ -1,23 +1,18 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
+
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
  
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
  
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
@@ -25,13 +20,18 @@
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
  
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
  
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
- 
-    --ring: 215 20.2% 65.1%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
  
     --radius: 0.5rem;
   }
@@ -40,17 +40,11 @@
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
  
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
  
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
  
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -58,13 +52,18 @@
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
  
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
  
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
+    --destructive-foreground: 210 40% 98%;
  
-    --ring: 217.2 32.6% 17.5%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
  
@@ -73,139 +72,64 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Custom class for vertical text */
-.writing-vertical {
-  writing-mode: vertical-lr;
-  transform: rotate(180deg);
-  text-orientation: mixed;
-}
-
-/* Enhanced animations */
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInRight {
-  0% { opacity: 0; transform: translateX(-20px); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes scale {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-/* Add animation classes */
-.animate-bounce {
-  animation: bounce 2s ease-in-out infinite;
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animate-fade-in-right {
-  animation: fadeInRight 0.6s ease-out forwards;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-scale {
-  animation: scale 2s ease-in-out infinite;
-}
-
-/* Styling for the card container to ensure proper printing */
-@media print {
-  .card-container {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  
-  /* Hide elements with no-print class when printing */
-  .no-print {
-    display: none !important;
-  }
-  
-  /* Ensure two cards per page */
-  @page {
-    size: A4;
-    margin: 0.5cm;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Add page break after every second card */
-  .page-break {
-    page-break-after: always;
-    break-after: page;
-  }
-}
-
-/* Add hover effects to cards */
-.card-hover-effect {
-  transition: all 0.3s ease;
-}
-
-.card-hover-effect:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-/* Dark mode transition */
-.dark-mode-transition {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Add glass morphism effect */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.dark .glass-effect {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Card download improvements */
-.card-for-export {
-  background-color: white !important;
-  color: black !important;
+/* Enhancement for exporting ID cards */
+.card-for-export * {
   transform: none !important;
-  box-shadow: none !important;
-  border: none !important;
+  transition: none !important;
+  animation: none !important;
+  text-rendering: geometricPrecision !important;
+  -webkit-font-smoothing: antialiased !important;
+  will-change: transform !important;
+  font-weight: normal !important;
+}
+
+.card-for-export strong,
+.card-for-export b {
+  font-weight: bold !important;
+}
+
+.card-for-export h1,
+.card-for-export h2,
+.card-for-export h3,
+.card-for-export h4,
+.card-for-export h5,
+.card-for-export h6 {
+  font-weight: bold !important;
 }
 
 .card-for-export img {
-  max-width: 100%;
-  object-fit: cover;
-  image-rendering: auto;
+  object-fit: cover !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
 }

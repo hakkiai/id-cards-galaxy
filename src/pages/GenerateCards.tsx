@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ import { db, Student } from '@/utils/database';
 import FileUpload from '@/components/FileUpload';
 import CardTemplate from '@/components/CardTemplate';
 import BusCardTemplate from '@/components/BusCardTemplate';
+import StudentSearch from '@/components/StudentSearch';
 
 // Sample student data for demonstration
 const generateMockStudents = (year: string, category: string): Student[] => {
@@ -378,7 +378,31 @@ const GenerateCards = () => {
     navigate('/preview');
   };
   
-  // Add a search function to filter students
+  // Handle selecting a student from search
+  const handleStudentSelect = (student: Student) => {
+    // Add the student to the current list if not already present
+    if (!students.some(s => s.id === student.id)) {
+      setStudents(prev => [...prev, student]);
+      setFilteredStudents(prev => [...prev, student]);
+      
+      toast({
+        title: "Student added",
+        description: `${student.name} has been added to the list`,
+      });
+    }
+    
+    // Navigate to the student in the list
+    const studentElement = document.getElementById(`student-${student.id}`);
+    if (studentElement) {
+      studentElement.scrollIntoView({ behavior: 'smooth' });
+      studentElement.classList.add('bg-blue-100');
+      setTimeout(() => {
+        studentElement.classList.remove('bg-blue-100');
+      }, 2000);
+    }
+  };
+  
+  // Add a search function to filter displayed students
   const handleSearchStudents = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) {
@@ -401,19 +425,6 @@ const GenerateCards = () => {
   useEffect(() => {
     setFilteredStudents(students);
   }, [students]);
-  
-  // Handle selecting a student from search results
-  const handleStudentSelect = (student: Student) => {
-    // Navigate to the student in the list or highlight them
-    const studentElement = document.getElementById(`student-${student.id}`);
-    if (studentElement) {
-      studentElement.scrollIntoView({ behavior: 'smooth' });
-      studentElement.classList.add('bg-blue-100');
-      setTimeout(() => {
-        studentElement.classList.remove('bg-blue-100');
-      }, 2000);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
@@ -451,6 +462,23 @@ const GenerateCards = () => {
               </CardHeader>
               
               <CardContent>
+                {/* Add student search component */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium mb-2">Search for a Student</h3>
+                  <StudentSearch 
+                    onStudentSelect={handleStudentSelect}
+                    filter={{
+                      isBusOnly: category === 'bus',
+                      department: category !== 'bus' ? category : undefined,
+                      year: year !== 'All' ? year : undefined
+                    }}
+                    placeholder="Search by name, roll number, or department..."
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Search for and select students to add them to your ID card generation list
+                  </p>
+                </div>
+                
                 <Tabs defaultValue="excel" value={tabOption} onValueChange={setTabOption} className="w-full">
                   <TabsList className="grid grid-cols-2 mb-6">
                     <TabsTrigger value="excel" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
@@ -630,7 +658,7 @@ const GenerateCards = () => {
                       <div className="relative">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
-                          placeholder="Search by name, roll number, or department..."
+                          placeholder="Filter current students..."
                           value={searchQuery}
                           onChange={(e) => handleSearchStudents(e.target.value)}
                           className="pl-10 pr-10"
@@ -736,292 +764,3 @@ const GenerateCards = () => {
                           </Button>
                         </div>
                       )}
-                    </div>
-                    
-                    <Button 
-                      onClick={handlePreviewCards} 
-                      className={`w-full mt-4 transition-colors flex items-center justify-center gap-2 group ${
-                        category === 'bus' 
-                          ? 'bg-amber-700 hover:bg-amber-800' 
-                          : 'bg-blue-500 hover:bg-blue-600'
-                      }`}
-                      disabled={filteredStudents.length === 0}
-                    >
-                      <FileDown className="h-4 w-4" />
-                      <span>Preview ID Cards</span>
-                      <ArrowRight className="h-4 w-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            {students.length > 0 && (
-              <Card className="animate-[fade-up_0.8s_ease-out]">
-                <CardHeader>
-                  <CardTitle>Card Preview</CardTitle>
-                  <CardDescription>Preview your generated ID card</CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  {students.length > 0 && (
-                    <div className="flex flex-col sm:flex-row gap-6 items-center justify-center">
-                      {/* Front side of the card */}
-                      <div className="flex flex-col items-center">
-                        <h3 className="text-lg font-medium mb-3">Student Card</h3>
-                        {category === 'bus' ? (
-                          <BusCardTemplate student={students[0]} templateColor={selectedTemplate} />
-                        ) : (
-                          <CardTemplate student={students[0]} templateColor={selectedTemplate} />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                  <Button 
-                    onClick={handlePreviewCards}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print All Cards
-                  </Button>
-                </CardFooter>
-              </Card>
-            )}
-          </div>
-          
-          {/* Student edit dialog */}
-          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Edit Student Information</DialogTitle>
-                <DialogDescription>
-                  Update the student's information and save changes.
-                </DialogDescription>
-              </DialogHeader>
-              
-              {editingStudent && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="edit-name" className="text-sm font-medium">Name</Label>
-                      <Input
-                        id="edit-name"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-rollNumber" className="text-sm font-medium">Roll Number</Label>
-                      <Input
-                        id="edit-rollNumber"
-                        value={editRollNumber}
-                        onChange={(e) => setEditRollNumber(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-department" className="text-sm font-medium">Department</Label>
-                      <Input
-                        id="edit-department"
-                        value={editDepartment}
-                        onChange={(e) => setEditDepartment(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-course" className="text-sm font-medium">Course</Label>
-                      <Input
-                        id="edit-course"
-                        value={editCourse}
-                        onChange={(e) => setEditCourse(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-year" className="text-sm font-medium">Year</Label>
-                      <Input
-                        id="edit-year"
-                        value={editYear}
-                        onChange={(e) => setEditYear(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-academicYear" className="text-sm font-medium">Academic Year</Label>
-                      <Input
-                        id="edit-academicYear"
-                        value={editAcademicYear}
-                        onChange={(e) => setEditAcademicYear(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-dob" className="text-sm font-medium">Date of Birth</Label>
-                      <Input
-                        id="edit-dob"
-                        value={editDob}
-                        onChange={(e) => setEditDob(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-bloodGroup" className="text-sm font-medium">Blood Group</Label>
-                      <Input
-                        id="edit-bloodGroup"
-                        value={editBloodGroup}
-                        onChange={(e) => setEditBloodGroup(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="is-bus-student" 
-                        checked={editIsBusStudent} 
-                        onCheckedChange={(checked) => setEditIsBusStudent(!!checked)}
-                      />
-                      <Label htmlFor="is-bus-student">Bus Student</Label>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="edit-photo" className="text-sm font-medium">Photo</Label>
-                      <div className="mt-1 flex items-start space-x-4">
-                        <div className="w-24 h-32 border rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
-                          {editPhoto ? (
-                            <img 
-                              src={editPhoto} 
-                              alt={editName} 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <User className="h-12 w-12 text-gray-400" />
-                          )}
-                        </div>
-                        <div>
-                          <Input
-                            id="photo-upload"
-                            type="file"
-                            accept="image/*"
-                            ref={photoInputRef}
-                            onChange={handlePhotoUpload}
-                            className="hidden"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => photoInputRef.current?.click()}
-                          >
-                            Upload Image
-                          </Button>
-                          {editPhoto && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-500 mt-2"
-                              onClick={() => setEditPhoto('')}
-                            >
-                              Remove
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-address" className="text-sm font-medium">Address</Label>
-                      <Input
-                        id="edit-address"
-                        value={editAddress}
-                        onChange={(e) => setEditAddress(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-contact" className="text-sm font-medium">Contact</Label>
-                      <Input
-                        id="edit-contact"
-                        value={editContact}
-                        onChange={(e) => setEditContact(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="edit-aadhaar" className="text-sm font-medium">Aadhaar</Label>
-                      <Input
-                        id="edit-aadhaar"
-                        value={editAadhaar}
-                        onChange={(e) => setEditAadhaar(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    {/* Bus specific fields - Only show if bus student is checked */}
-                    {editIsBusStudent && (
-                      <>
-                        <div>
-                          <Label htmlFor="edit-busHalt" className="text-sm font-medium">Bus Halt</Label>
-                          <Input
-                            id="edit-busHalt"
-                            value={editBusHalt}
-                            onChange={(e) => setEditBusHalt(e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="edit-studentCellNo" className="text-sm font-medium">Student Cell Number</Label>
-                          <Input
-                            id="edit-studentCellNo"
-                            value={editStudentCellNo}
-                            onChange={(e) => setEditStudentCellNo(e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="edit-parentCellNo" className="text-sm font-medium">Parent Cell Number</Label>
-                          <Input
-                            id="edit-parentCellNo"
-                            value={editParentCellNo}
-                            onChange={(e) => setEditParentCellNo(e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              <DialogFooter className="mt-4">
-                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={saveStudentEdit} className="bg-green-600 hover:bg-green-700">
-                  Save Changes
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default GenerateCards;

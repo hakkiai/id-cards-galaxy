@@ -23,12 +23,24 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     document.body.appendChild(clone);
     
     const canvas = await html2canvas(clone, {
-      scale: 4, // Higher scale for better quality
+      scale: 6, // Increased for better quality (was 4)
       backgroundColor: '#ffffff', // White background instead of transparent
       useCORS: true,
       allowTaint: true,
       logging: false,
       removeContainer: true,
+      onclone: (clonedDoc, clonedElement) => {
+        // Additional styling tweaks to ensure proper rendering
+        const allElements = clonedElement.querySelectorAll('*');
+        allElements.forEach(el => {
+          if (el instanceof HTMLElement) {
+            // Ensure all text elements maintain their properties
+            el.style.textRendering = 'geometricPrecision';
+            // Force all elements to render at full quality
+            el.style.willChange = 'transform';
+          }
+        });
+      }
     });
     
     // Remove the clone after capture
@@ -39,7 +51,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     
     const link = document.createElement('a');
     link.download = fileName;
-    link.href = canvas.toDataURL('image/jpeg', 1.0);
+    link.href = canvas.toDataURL('image/jpeg', 1.0); // Maximum quality
     link.click();
     return true;
   } catch (error) {
@@ -80,12 +92,22 @@ export const downloadElementsAsZippedJpegs = async (
       document.body.appendChild(clone);
       
       const canvas = await html2canvas(clone, {
-        scale: 4, // Increased for better quality
+        scale: 6, // Increased for better quality (was 4)
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
         logging: false,
         removeContainer: true,
+        onclone: (clonedDoc, clonedElement) => {
+          // Additional styling tweaks to ensure proper rendering
+          const allElements = clonedElement.querySelectorAll('*');
+          allElements.forEach(el => {
+            if (el instanceof HTMLElement) {
+              el.style.textRendering = 'geometricPrecision';
+              el.style.willChange = 'transform';
+            }
+          });
+        }
       });
       
       // Remove the clone after capture
