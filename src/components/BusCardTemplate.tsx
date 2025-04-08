@@ -10,6 +10,7 @@ interface BusCardTemplateProps {
   showControls?: boolean;
   busId?: string;
   onBusIdChange?: (value: string) => void;
+  exportMode?: boolean;
 }
 
 const BusCardTemplate = ({ 
@@ -17,7 +18,8 @@ const BusCardTemplate = ({
   templateColor, 
   showControls = false,
   busId = 'A',
-  onBusIdChange
+  onBusIdChange,
+  exportMode = false
 }: BusCardTemplateProps) => {
   const [editableBusId, setEditableBusId] = useState(busId);
   const barcodeRef = useRef<SVGSVGElement>(null);
@@ -55,11 +57,13 @@ const BusCardTemplate = ({
   const borderColor = '#fbc02d'; // Gold/yellow border
   const accentColor = '#d81b60'; // Pink for text accents
 
+  const cardClasses = exportMode ? 'card-for-export' : '';
+
   return (
-    <div className="w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg relative flex flex-col">
+    <div className={`w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg relative flex flex-col ${cardClasses}`}>
       {/* Header with logo and institute name - Purple with yellow border */}
       <div 
-        className="py-2 px-4 relative"
+        className="py-2 px-4 relative corsiva-font"
         style={{ 
           backgroundColor: headerFooterColor,
           borderTop: `2px solid ${borderColor}`,
@@ -71,6 +75,7 @@ const BusCardTemplate = ({
             src="/lovable-uploads/57d8494a-a5a9-4c02-817d-c38211f71f61.png" 
             alt="IDEAL Logo" 
             className="h-12 w-12 object-contain"
+            style={{ imageRendering: 'high-quality' }}
           />
           <div className="text-center text-white flex-1">
             <h2 className="text-xl font-bold leading-tight tracking-wide">IDEAL</h2>
@@ -82,7 +87,7 @@ const BusCardTemplate = ({
       </div>
 
       {/* Main content area - White background */}
-      <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col">
+      <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col corsiva-font">
         {/* Bus ID on left, Photo in middle, Bus letter on right */}
         <div className="flex justify-between items-center mt-2">
           <div className="text-black font-bold text-2xl">
@@ -97,6 +102,7 @@ const BusCardTemplate = ({
                 src={student.photo} 
                 alt={student.name}
                 className="w-full h-full object-cover"
+                style={{ imageRendering: 'high-quality' }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
                 }}
@@ -106,6 +112,7 @@ const BusCardTemplate = ({
                 src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
                 alt={student.name}
                 className="w-full h-full object-cover"
+                style={{ imageRendering: 'high-quality' }}
               />
             )}
           </div>
@@ -167,7 +174,7 @@ const BusCardTemplate = ({
 
       {/* Footer with contact details - Purple with yellow border */}
       <div 
-        className="w-full py-2 px-3"
+        className="w-full py-2 px-3 corsiva-font"
         style={{ 
           backgroundColor: headerFooterColor,
           borderTop: `2px solid ${borderColor}`,
