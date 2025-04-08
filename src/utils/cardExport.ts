@@ -8,12 +8,22 @@ import html2canvas from 'html2canvas';
  */
 export const downloadElementAsJpeg = async (element: HTMLElement, fileName: string) => {
   try {
+    // Apply export mode class
+    element.classList.add('card-for-export');
+    
     const canvas = await html2canvas(element, {
-      scale: 2, // Better quality
+      scale: 3, // Higher scale for better quality
       backgroundColor: '#ffffff', // White background instead of transparent
       useCORS: true,
       allowTaint: true,
+      logging: false,
+      imageRendering: 'auto',
+      letterRendering: true,
+      removeContainer: false,
     });
+    
+    // Remove export mode class
+    element.classList.remove('card-for-export');
     
     const link = document.createElement('a');
     link.download = fileName;
@@ -43,12 +53,21 @@ export const downloadElementsAsZippedJpegs = async (
     
     // Convert all elements to canvas and add to zip
     for (let i = 0; i < elements.length; i++) {
+      // Apply export mode class
+      elements[i].classList.add('card-for-export');
+      
       const canvas = await html2canvas(elements[i], {
-        scale: 2,
-        backgroundColor: '#ffffff', // White background instead of transparent
+        scale: 3,
+        backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
+        logging: false,
+        imageRendering: 'auto',
+        letterRendering: true
       });
+      
+      // Remove export mode class
+      elements[i].classList.remove('card-for-export');
       
       const imgData = canvas.toDataURL('image/jpeg', 1.0).split(',')[1];
       zip.file(`${namePrefix}_${i + 1}.jpeg`, imgData, {base64: true});

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { User, BookOpen, Bus, GraduationCap, School, LogOut, UserPlus, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DarkModeToggle from "@/components/DarkModeToggle";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -49,6 +50,10 @@ const Dashboard = () => {
               <span>Logout</span>
             </Button>
           </div>
+        </div>
+        
+        <div className="mb-6 animate-fade-in">
+          <GlobalSearch placeholder="Search any student across all departments..." searchType="all" />
         </div>
         
         <div className="bg-card rounded-lg shadow-sm p-6 mb-8 animate-[fade-up_0.6s_ease-out]">

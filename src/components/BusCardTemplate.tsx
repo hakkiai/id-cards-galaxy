@@ -63,7 +63,7 @@ const BusCardTemplate = ({
     <div className={`w-[350px] h-[550px] rounded-lg overflow-hidden shadow-lg relative flex flex-col ${cardClasses}`}>
       {/* Header with logo and institute name - Purple with yellow border */}
       <div 
-        className="py-2 px-4 relative corsiva-font"
+        className="py-2 px-4 relative"
         style={{ 
           backgroundColor: headerFooterColor,
           borderTop: `2px solid ${borderColor}`,
@@ -86,7 +86,7 @@ const BusCardTemplate = ({
       </div>
 
       {/* Main content area - White background */}
-      <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col corsiva-font">
+      <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col">
         {/* Bus ID on left, Photo in middle, Bus letter on right */}
         <div className="flex justify-between items-center mt-2">
           <div className="text-black font-bold text-2xl">
@@ -171,7 +171,7 @@ const BusCardTemplate = ({
 
       {/* Footer with contact details - Purple with yellow border */}
       <div 
-        className="w-full py-2 px-3 corsiva-font"
+        className="w-full py-2 px-3"
         style={{ 
           backgroundColor: headerFooterColor,
           borderTop: `2px solid ${borderColor}`,
