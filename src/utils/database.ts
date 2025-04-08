@@ -1,5 +1,5 @@
-// Add this to the existing database.ts file
-// This assumes the current file exists with Student interface and db object
+
+// This file contains all database interfaces and mock implementation
 
 export interface Student {
   id: number;
@@ -22,10 +22,31 @@ export interface Student {
   parentCellNo?: string;
 }
 
+export interface Faculty {
+  id: number;
+  facultyId: string;
+  name: string;
+  teluguName?: string;
+  department: string;
+  designation: string;
+  qualification?: string;
+  bloodGroup: string;
+  aadhaar: string;
+  panNumber?: string;
+  contact: string;
+  email?: string;
+  address: string;
+  photo: string;
+  joinDate: string;
+  category: 'faculty';
+}
+
 // This is a mock database implementation
 class Database {
   private students: Student[] = [];
-  private nextId = 1;
+  private faculty: Faculty[] = [];
+  private nextStudentId = 1;
+  private nextFacultyId = 1;
 
   constructor() {
     // Add some initial data
@@ -68,7 +89,7 @@ class Database {
 
   // Add a single student
   addStudent(student: Omit<Student, 'id'>): Student {
-    const newStudent = { ...student, id: this.nextId++ };
+    const newStudent = { ...student, id: this.nextStudentId++ };
     this.students.push(newStudent);
     return newStudent;
   }
@@ -77,7 +98,7 @@ class Database {
   addMultipleStudents(students: Omit<Student, 'id'>[]): Student[] {
     const newStudents = students.map(student => ({
       ...student,
-      id: this.nextId++
+      id: this.nextStudentId++
     }));
     
     this.students.push(...newStudents);
@@ -98,6 +119,41 @@ class Database {
     const initialLength = this.students.length;
     this.students = this.students.filter(student => student.id !== id);
     return this.students.length !== initialLength;
+  }
+
+  // Faculty methods
+  getAllFaculty(): Faculty[] {
+    return [...this.faculty];
+  }
+
+  addFaculty(faculty: Omit<Faculty, 'id'>): Faculty {
+    const newFaculty = { ...faculty, id: this.nextFacultyId++ };
+    this.faculty.push(newFaculty);
+    return newFaculty;
+  }
+
+  addMultipleFaculty(facultyMembers: Omit<Faculty, 'id'>[]): Faculty[] {
+    const newFacultyMembers = facultyMembers.map(faculty => ({
+      ...faculty,
+      id: this.nextFacultyId++
+    }));
+    
+    this.faculty.push(...newFacultyMembers);
+    return newFacultyMembers;
+  }
+
+  updateFaculty(id: number, updatedFaculty: Partial<Faculty>): boolean {
+    const index = this.faculty.findIndex(faculty => faculty.id === id);
+    if (index === -1) return false;
+    
+    this.faculty[index] = { ...this.faculty[index], ...updatedFaculty };
+    return true;
+  }
+
+  deleteFaculty(id: number): boolean {
+    const initialLength = this.faculty.length;
+    this.faculty = this.faculty.filter(faculty => faculty.id !== id);
+    return this.faculty.length !== initialLength;
   }
 
   // Authenticate user (mock implementation)
