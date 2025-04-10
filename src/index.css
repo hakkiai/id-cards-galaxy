@@ -107,6 +107,13 @@
   image-rendering: crisp-edges !important;
 }
 
+/* Custom Grid Layout */
+.grid-3x3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
 /* Animations */
 @keyframes fade-in {
   from { opacity: 0; }

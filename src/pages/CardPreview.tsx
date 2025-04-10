@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ const CardPreview = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const cardsRef = useRef<HTMLDivElement>(null);
   const [cardColor, setCardColor] = useState('#1e3c8c');
-  const [gridView, setGridView] = useState('grid-2'); // grid-2, grid-4
+  const [gridView, setGridView] = useState('single'); // single, grid-3x3
   const [downloading, setDownloading] = useState(false);
   
   useEffect(() => {
@@ -48,11 +49,11 @@ const CardPreview = () => {
     }
   }, [navigate]);
 
-  // Calculate total pages
+  // Calculate total pages based on grid view mode
   const totalPages = useMemo(() => {
     if (!cardsData) return 0;
     
-    const cardsPerPage = gridView === 'grid-2' ? 2 : 4;
+    const cardsPerPage = gridView === 'single' ? 1 : 9; // 1 for single view, 9 for 3x3 grid
     const items = cardsData.students || cardsData.faculty || [];
     return Math.ceil(items.length / cardsPerPage);
   }, [cardsData, gridView]);
@@ -61,7 +62,7 @@ const CardPreview = () => {
   const currentCards = useMemo(() => {
     if (!cardsData) return [];
     
-    const cardsPerPage = gridView === 'grid-2' ? 2 : 4;
+    const cardsPerPage = gridView === 'single' ? 1 : 9; // 1 for single view, 9 for 3x3 grid
     const start = (currentPage - 1) * cardsPerPage;
     const end = start + cardsPerPage;
     
@@ -205,16 +206,18 @@ const CardPreview = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setGridView('grid-2')}
-                      className={gridView === 'grid-2' ? 'bg-primary/10' : ''}
+                      onClick={() => setGridView('single')}
+                      className={gridView === 'single' ? 'bg-primary/10' : ''}
+                      title="Single Card View"
                     >
-                      <Grid2X2 className="h-4 w-4" />
+                      <Image className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setGridView('grid-4')}
-                      className={gridView === 'grid-4' ? 'bg-primary/10' : ''}
+                      onClick={() => setGridView('grid-3x3')}
+                      className={gridView === 'grid-3x3' ? 'bg-primary/10' : ''}
+                      title="3x3 Grid View"
                     >
                       <Grid3X3 className="h-4 w-4" />
                     </Button>
@@ -258,7 +261,7 @@ const CardPreview = () => {
                       ) : (
                         <Image className="h-4 w-4 mr-2" />
                       )}
-                      Download JPEG
+                      Download All
                     </Button>
                   </div>
                 </div>
@@ -266,12 +269,12 @@ const CardPreview = () => {
               <CardContent>
                 <div 
                   ref={cardsRef}
-                  className={`flex flex-wrap justify-center gap-6 py-8 ${
-                    gridView === 'grid-4' ? 'md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'md:flex'
+                  className={`${
+                    gridView === 'grid-3x3' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex justify-center'
                   }`}
                 >
                   {currentCards.map((card: any, index: number) => (
-                    <div key={index} className="card-container group relative">
+                    <div key={index} className="card-container group relative mb-6">
                       {/* Download button for individual card */}
                       <Button 
                         size="icon"
@@ -301,13 +304,6 @@ const CardPreview = () => {
                           />
                         )}
                       </div>
-                    </div>
-                  ))}
-                  
-                  {/* Fill empty slots with blank cards */}
-                  {Array.from({ length: (gridView === 'grid-2' ? 2 : 4) - currentCards.length }).map((_, index) => (
-                    <div key={`empty-${index}`} className="w-[350px] h-[550px] border-2 border-dashed border-border rounded-lg flex items-center justify-center">
-                      <p className="text-muted-foreground">Empty Slot</p>
                     </div>
                   ))}
                 </div>
