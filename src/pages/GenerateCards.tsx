@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -763,3 +764,318 @@ const GenerateCards = () => {
                               size="sm" 
                               variant="outline"
                               className="flex items-center gap-1"
+                              onClick={() => handleEditStudent(student)}
+                              title="Edit Student"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Edit</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button 
+                      onClick={handlePreviewCards} 
+                      className="w-full mt-6 bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                      disabled={filteredStudents.length === 0}
+                    >
+                      <Printer className="h-4 w-4" />
+                      <span>Preview All Cards</span>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {students.length > 0 && (
+              <Card className="animate-[fade-up_0.8s_ease-out]">
+                <CardHeader>
+                  <CardTitle>Card Preview</CardTitle>
+                  <CardDescription>Preview your generated ID card</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  {category === 'bus' ? (
+                    <BusCardTemplate 
+                      student={students[0]} 
+                      templateColor={selectedTemplate} 
+                    />
+                  ) : (
+                    <CardTemplate 
+                      student={students[0]} 
+                      templateColor={selectedTemplate} 
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+          
+          <div>
+            <Card className="transition-shadow duration-300 hover:shadow-md sticky top-6 animate-[fade-in-right_0.7s_ease-out]">
+              <CardHeader>
+                <CardTitle>Card Template</CardTitle>
+                <CardDescription>
+                  Choose a template color for your ID cards
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    {['#1e3c8c', '#d32f2f', '#1976d2', '#388e3c', '#ff9800', '#5d4037'].map((color) => (
+                      <div 
+                        key={color}
+                        className={`w-full h-12 rounded-md cursor-pointer border-2 transition-all duration-200 ${
+                          selectedTemplate === color ? 'border-black shadow-md scale-110' : 'border-transparent hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setSelectedTemplate(color)}
+                      />
+                    ))}
+                  </div>
+                  
+                  <div className="border rounded-md p-3 mt-4">
+                    <Label>Selected Color:</Label>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div 
+                        className="w-6 h-6 rounded-full" 
+                        style={{ backgroundColor: selectedTemplate }}
+                      ></div>
+                      <span className="text-sm font-mono">{selectedTemplate}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500 mb-2">Template preview:</p>
+                    <div className="aspect-[2/3] bg-white border rounded relative overflow-hidden shadow-sm">
+                      <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate }}></div>
+                      <div className="h-3/5 w-full bg-white p-3">
+                        <div className="w-16 h-20 mx-auto bg-gray-200 mb-2"></div>
+                        <div className="h-2 bg-gray-200 rounded w-3/4 mx-auto mb-1"></div>
+                        <div className="h-2 bg-gray-200 rounded w-1/2 mx-auto mb-3"></div>
+                        <div className="grid grid-cols-2 gap-1">
+                          <div className="h-1.5 bg-gray-200 rounded"></div>
+                          <div className="h-1.5 bg-gray-200 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="h-1/5 w-full" style={{ backgroundColor: selectedTemplate, opacity: 0.8 }}>
+                        <div className="h-2 bg-white/20 rounded w-3/4 mx-auto mt-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+      
+      {/* Student Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Student Details</DialogTitle>
+            <DialogDescription>
+              Make changes to the student information below
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300">
+                {editPhoto ? (
+                  <img 
+                    src={editPhoto} 
+                    alt={editName} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(editName) + '&background=random';
+                    }}
+                  />
+                ) : (
+                  <img 
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(editName)}&background=random`} 
+                    alt={editName}
+                    className="w-full h-full object-cover" 
+                  />
+                )}
+              </div>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => photoInputRef.current?.click()}
+              >
+                Change Photo
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="editRollNumber">Roll Number</Label>
+                <Input 
+                  id="editRollNumber" 
+                  value={editRollNumber} 
+                  onChange={(e) => setEditRollNumber(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editBloodGroup">Blood Group</Label>
+                <Input 
+                  id="editBloodGroup" 
+                  value={editBloodGroup} 
+                  onChange={(e) => setEditBloodGroup(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="editName">Full Name</Label>
+                <Input 
+                  id="editName" 
+                  value={editName} 
+                  onChange={(e) => setEditName(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editDepartment">Department</Label>
+                <Input 
+                  id="editDepartment" 
+                  value={editDepartment} 
+                  onChange={(e) => setEditDepartment(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editCourse">Course</Label>
+                <Input 
+                  id="editCourse" 
+                  value={editCourse} 
+                  onChange={(e) => setEditCourse(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editYear">Year</Label>
+                <Input 
+                  id="editYear" 
+                  value={editYear} 
+                  onChange={(e) => setEditYear(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editAcademicYear">Academic Year</Label>
+                <Input 
+                  id="editAcademicYear" 
+                  value={editAcademicYear} 
+                  onChange={(e) => setEditAcademicYear(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editContact">Contact</Label>
+                <Input 
+                  id="editContact" 
+                  value={editContact} 
+                  onChange={(e) => setEditContact(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editDob">Date of Birth</Label>
+                <Input 
+                  id="editDob" 
+                  value={editDob} 
+                  onChange={(e) => setEditDob(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="editAadhaar">Aadhaar</Label>
+                <Input 
+                  id="editAadhaar" 
+                  value={editAadhaar} 
+                  onChange={(e) => setEditAadhaar(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="editAddress">Address</Label>
+                <Input 
+                  id="editAddress" 
+                  value={editAddress} 
+                  onChange={(e) => setEditAddress(e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="editIsBusStudent" 
+                    checked={editIsBusStudent} 
+                    onCheckedChange={(checked) => setEditIsBusStudent(checked === true)}
+                  />
+                  <Label htmlFor="editIsBusStudent" className="cursor-pointer">
+                    Bus Student
+                  </Label>
+                </div>
+              </div>
+              
+              {/* Bus specific fields - only show if bus student checkbox is checked */}
+              {editIsBusStudent && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="editBusHalt">Bus Halt</Label>
+                    <Input 
+                      id="editBusHalt" 
+                      value={editBusHalt} 
+                      onChange={(e) => setEditBusHalt(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="editStudentCellNo">Student Cell Number</Label>
+                    <Input 
+                      id="editStudentCellNo" 
+                      value={editStudentCellNo} 
+                      onChange={(e) => setEditStudentCellNo(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="editParentCellNo">Parent Cell Number</Label>
+                    <Input 
+                      id="editParentCellNo" 
+                      value={editParentCellNo} 
+                      onChange={(e) => setEditParentCellNo(e.target.value)} 
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveStudentEdit}>
+              <Check className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default GenerateCards;
