@@ -115,9 +115,10 @@
 }
 
 /* Ensure proper horizontal layout for academic year */
-.card-for-export .text-red-600.font-bold.text-sm.py-1 {
-  display: block !important;
-  width: 100% !important;
+.card-for-export .text-red-600.font-bold.text-sm.py-1,
+.text-red-600.font-bold.text-sm.py-1 {
+  display: inline-block !important;
+  width: auto !important;
   text-align: center !important;
 }
 
