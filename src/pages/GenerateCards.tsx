@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -763,3 +764,284 @@ const GenerateCards = () => {
                               size="sm" 
                               variant="outline"
                               className="flex items-center gap-1"
+                              onClick={() => handleEditStudent(student)}
+                              title="Edit Student"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Edit</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="md:col-span-1">
+            <Card className="sticky top-6 transition-shadow duration-300 hover:shadow-md animate-[fade-up_0.8s_ease-out]">
+              <CardHeader>
+                <CardTitle className="text-lg">Card Preview</CardTitle>
+                <CardDescription>
+                  {category === 'bus' ? 'Bus Student' : 'Student'} ID Card
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center">
+                {students.length > 0 ? (
+                  <div className="w-full max-w-md mx-auto scale-90">
+                    {category === 'bus' ? (
+                      <BusCardTemplate
+                        student={students[0]}
+                        color={selectedTemplate}
+                      />
+                    ) : (
+                      <CardTemplate
+                        student={students[0]}
+                        color={selectedTemplate}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center p-8 text-gray-500 border border-dashed rounded-lg w-full">
+                    <User className="w-10 h-10 mx-auto mb-3 text-gray-400" />
+                    <p>No student data available yet</p>
+                    <p className="text-sm mt-1">Upload data or select from database</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+      
+      {/* Edit Student Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Student Details</DialogTitle>
+            <DialogDescription>
+              Update the student information below
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="space-y-3">
+              <Label htmlFor="edit-name">Full Name</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Enter full name"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-roll">Roll Number</Label>
+              <Input
+                id="edit-roll"
+                value={editRollNumber}
+                onChange={(e) => setEditRollNumber(e.target.value)}
+                placeholder="Enter roll number"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-department">Department</Label>
+              <Input
+                id="edit-department"
+                value={editDepartment}
+                onChange={(e) => setEditDepartment(e.target.value)}
+                placeholder="Enter department"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-course">Course</Label>
+              <Input
+                id="edit-course"
+                value={editCourse}
+                onChange={(e) => setEditCourse(e.target.value)}
+                placeholder="Enter course"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-year">Year</Label>
+              <Input
+                id="edit-year"
+                value={editYear}
+                onChange={(e) => setEditYear(e.target.value)}
+                placeholder="Enter year"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-academic-year">Academic Year</Label>
+              <Input
+                id="edit-academic-year"
+                value={editAcademicYear}
+                onChange={(e) => setEditAcademicYear(e.target.value)}
+                placeholder="e.g. 2021-2025"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-dob">Date of Birth</Label>
+              <Input
+                id="edit-dob"
+                value={editDob}
+                onChange={(e) => setEditDob(e.target.value)}
+                placeholder="e.g. DD-MM-YYYY"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-bloodgroup">Blood Group</Label>
+              <Input
+                id="edit-bloodgroup"
+                value={editBloodGroup}
+                onChange={(e) => setEditBloodGroup(e.target.value)}
+                placeholder="e.g. A+"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-contact">Contact Number</Label>
+              <Input
+                id="edit-contact"
+                value={editContact}
+                onChange={(e) => setEditContact(e.target.value)}
+                placeholder="Enter contact number"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="edit-aadhaar">Aadhaar Number</Label>
+              <Input
+                id="edit-aadhaar"
+                value={editAadhaar}
+                onChange={(e) => setEditAadhaar(e.target.value)}
+                placeholder="Enter Aadhaar number"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3 md:col-span-2">
+              <Label htmlFor="edit-address">Address</Label>
+              <Input
+                id="edit-address"
+                value={editAddress}
+                onChange={(e) => setEditAddress(e.target.value)}
+                placeholder="Enter full address"
+                className="w-full"
+              />
+            </div>
+            
+            <div className="space-y-3 md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="is-bus-student"
+                  checked={editIsBusStudent}
+                  onCheckedChange={(checked) => setEditIsBusStudent(checked === true)}
+                />
+                <Label htmlFor="is-bus-student">Bus Student</Label>
+              </div>
+            </div>
+            
+            {/* Only show bus-specific fields if the student is a bus student */}
+            {editIsBusStudent && (
+              <>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-bus-halt">Bus Halt Point</Label>
+                  <Input
+                    id="edit-bus-halt"
+                    value={editBusHalt}
+                    onChange={(e) => setEditBusHalt(e.target.value)}
+                    placeholder="Enter bus halt point"
+                    className="w-full"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <Label htmlFor="edit-student-cell">Student Cell No.</Label>
+                  <Input
+                    id="edit-student-cell"
+                    value={editStudentCellNo}
+                    onChange={(e) => setEditStudentCellNo(e.target.value)}
+                    placeholder="Enter student cell number"
+                    className="w-full"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <Label htmlFor="edit-parent-cell">Parent Cell No.</Label>
+                  <Input
+                    id="edit-parent-cell"
+                    value={editParentCellNo}
+                    onChange={(e) => setEditParentCellNo(e.target.value)}
+                    placeholder="Enter parent cell number"
+                    className="w-full"
+                  />
+                </div>
+              </>
+            )}
+            
+            <div className="space-y-3 md:col-span-2">
+              <Label htmlFor="edit-photo">Photo</Label>
+              <div className="flex items-start gap-4">
+                <div className="w-24 h-24 border rounded-md overflow-hidden bg-gray-100">
+                  {editPhoto ? (
+                    <img 
+                      src={editPhoto} 
+                      alt={editName} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                      <User className="w-12 h-12" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Input
+                    id="edit-photo"
+                    type="file"
+                    accept="image/*"
+                    className="w-full"
+                    ref={photoInputRef}
+                    onChange={handlePhotoUpload}
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Upload a new photo or keep the existing one
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="mt-6">
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveStudentEdit}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default GenerateCards;
