@@ -77,16 +77,13 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
       {/* Main content area */}
       <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col">
-        {/* Academic year on the left, photo and QR on right */}
-        <div className="flex justify-between">
-          {/* Academic year on left side vertically */}
-          <div className="text-red-600 font-bold text-sm writing-vertical pl-1 py-2">
-            {getAcademicYear().split('-').join(' - ')}
-          </div>
-          
-          {/* Photo and QR side by side */}
-          <div className="flex justify-between gap-4 flex-1">
-            {/* Photo container with red border */}
+        {/* Academic year and Photo and QR section */}
+        <div className="flex justify-between items-start">
+          {/* Photo with academic year above it */}
+          <div className="flex flex-col items-center space-y-1">
+            <div className="text-red-600 font-bold text-sm py-1">
+              {getAcademicYear().split('-').join(' - ')}
+            </div>
             <div className="w-28 h-36 border-2 border-red-500 p-1 overflow-hidden">
               {student.photo ? (
                 <img 
@@ -105,16 +102,16 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
                 />
               )}
             </div>
-            
-            {/* QR Code */}
-            <div className="flex items-center">
-              <QRCodeSVG 
-                value={`https://idealtech.edu.in/student/${student.rollNumber}`}
-                size={100}
-                level="H"
-                includeMargin={false}
-              />
-            </div>
+          </div>
+          
+          {/* QR Code */}
+          <div className="flex items-center">
+            <QRCodeSVG 
+              value={`https://idealtech.edu.in/student/${student.rollNumber}`}
+              size={100}
+              level="H"
+              includeMargin={false}
+            />
           </div>
         </div>
         

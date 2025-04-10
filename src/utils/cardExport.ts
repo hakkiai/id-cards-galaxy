@@ -54,9 +54,28 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     clone.appendChild(style);
     document.body.appendChild(clone);
     
+    // Fix image loading
+    const preloadImages = async (element: HTMLElement) => {
+      const images = element.querySelectorAll('img');
+      const promises = Array.from(images).map(img => {
+        return new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve();
+          } else {
+            img.onload = () => resolve();
+            img.onerror = () => resolve(); // Continue even if an image fails to load
+          }
+        });
+      });
+      return Promise.all(promises);
+    };
+    
+    // Ensure all images are loaded
+    await preloadImages(clone);
+    
     // Render the element with high resolution
     const canvas = await html2canvas(clone, {
-      scale: 8, // Increased for better quality (was 6)
+      scale: 8, // Increased for better quality
       backgroundColor: '#ffffff',
       useCORS: true,
       allowTaint: true,
@@ -70,8 +89,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
           if (el instanceof HTMLElement) {
             // Ensure all text elements maintain their properties
             el.style.textRendering = 'geometricPrecision';
-            // Use correct TypeScript properties
-            (el.style as any)['-webkit-font-smoothing'] = 'antialiased';
+            el.style.webkitFontSmoothing = 'antialiased';
             el.style.willChange = 'transform';
             
             // Fix layout shifts
@@ -81,6 +99,13 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
             if (el instanceof HTMLImageElement) {
               el.style.imageRendering = 'high-quality';
               el.crossOrigin = 'anonymous';
+              
+              // Force reload the image to ensure it's loaded before capture
+              const originalSrc = el.src;
+              if (originalSrc) {
+                el.src = '';
+                setTimeout(() => { el.src = originalSrc; }, 10);
+              }
             }
           }
         });
@@ -120,6 +145,22 @@ export const downloadElementsAsZippedJpegs = async (
   try {
     const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
+    
+    // Fix image loading
+    const preloadImages = async (element: HTMLElement) => {
+      const images = element.querySelectorAll('img');
+      const promises = Array.from(images).map(img => {
+        return new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve();
+          } else {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          }
+        });
+      });
+      return Promise.all(promises);
+    };
     
     // Convert all elements to canvas and add to zip
     for (let i = 0; i < elements.length; i++) {
@@ -167,6 +208,9 @@ export const downloadElementsAsZippedJpegs = async (
       clone.appendChild(style);
       document.body.appendChild(clone);
       
+      // Ensure all images are loaded
+      await preloadImages(clone);
+      
       const canvas = await html2canvas(clone, {
         scale: 8,
         backgroundColor: '#ffffff',
@@ -181,14 +225,20 @@ export const downloadElementsAsZippedJpegs = async (
           allElements.forEach(el => {
             if (el instanceof HTMLElement) {
               el.style.textRendering = 'geometricPrecision';
-              // Use correct TypeScript properties
-              (el.style as any)['-webkit-font-smoothing'] = 'antialiased';
+              el.style.webkitFontSmoothing = 'antialiased';
               el.style.willChange = 'transform';
               el.style.position = el.style.position || 'relative';
               
               if (el instanceof HTMLImageElement) {
                 el.style.imageRendering = 'high-quality';
                 el.crossOrigin = 'anonymous';
+                
+                // Force reload the image
+                const originalSrc = el.src;
+                if (originalSrc) {
+                  el.src = '';
+                  setTimeout(() => { el.src = originalSrc; }, 10);
+                }
               }
             }
           });

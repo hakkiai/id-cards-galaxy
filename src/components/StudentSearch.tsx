@@ -33,14 +33,9 @@ const StudentSearch = ({
 
     const searchTimer = setTimeout(() => {
       const searchTerm = query.toLowerCase().trim();
-      let searchResults: Student[];
       
-      // Get all students first
-      if (filter.isBusOnly) {
-        searchResults = db.getBusStudents();
-      } else {
-        searchResults = db.getAllStudents();
-      }
+      // Always search in the entire database first
+      let searchResults = db.getAllStudents();
       
       // Apply department filter if provided
       if (filter.department && filter.department !== 'All') {
@@ -50,6 +45,11 @@ const StudentSearch = ({
       // Apply year filter if provided
       if (filter.year && filter.year !== 'All') {
         searchResults = searchResults.filter(s => s.year === filter.year);
+      }
+      
+      // Apply bus filter if specified
+      if (filter.isBusOnly) {
+        searchResults = searchResults.filter(s => s.isBusStudent === true);
       }
       
       // Finally, filter by search term
