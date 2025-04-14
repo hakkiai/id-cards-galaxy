@@ -113,22 +113,6 @@
   opacity: 1 !important;
 }
 
-/* Academic year vertical text styling - revised for the new position */
-.academic-year-vertical {
-  writing-mode: vertical-lr;
-  text-orientation: upright;
-  transform: rotate(180deg);
-  letter-spacing: -2px;
-  text-align: center;
-  white-space: nowrap;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  line-height: 1;
-  padding-left: 2px;
-}
-
 /* Custom Grid Layout */
 .grid-3x3 {
   display: grid;

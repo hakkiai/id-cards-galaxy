@@ -74,40 +74,40 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
         </div>
       </div>
+      
+      {/* Academic year on top of the main content */}
+      <div className="bg-white py-1 px-4 flex justify-center">
+        <div className="text-red-600 font-bold text-sm">
+          {getAcademicYear().split('-').join(' - ')}
+        </div>
+      </div>
 
       {/* Main content area */}
       <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col">
-        {/* Student photo and academic year section */}
-        <div className="flex justify-between items-start mt-1">
-          <div className="relative mb-2">
-            <div className="w-28 h-36 border-2 border-red-500 p-1 overflow-hidden">
-              {student.photo ? (
-                <img 
-                  src={student.photo} 
-                  alt={student.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
-                  }}
-                />
-              ) : (
-                <img 
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
-                  alt={student.name}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
-            {/* Academic year - positioned on the left side of photo */}
-            <div className="absolute -left-1 top-0 h-full flex items-center">
-              <div className="text-red-600 font-bold text-sm py-1 academic-year-vertical">
-                {getAcademicYear().split('-').join(' - ')}
-              </div>
-            </div>
+        {/* Student photo and QR section */}
+        <div className="flex justify-between items-start mb-3">
+          {/* Photo */}
+          <div className="w-28 h-36 border-2 border-red-500 p-1 overflow-hidden">
+            {student.photo ? (
+              <img 
+                src={student.photo} 
+                alt={student.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`;
+                }}
+              />
+            ) : (
+              <img 
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=random`}
+                alt={student.name}
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           
-          {/* QR Code - centered on right */}
-          <div className="flex items-center justify-center">
+          {/* QR Code - aligned to the right */}
+          <div className="flex items-center justify-end">
             <QRCodeSVG 
               value={`https://idealtech.edu.in/student/${student.rollNumber}`}
               size={100}
@@ -118,7 +118,7 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
         </div>
         
         {/* Student Name and Department - centered */}
-        <div className="mt-3 text-center">
+        <div className="mt-2 text-center">
           {getNameComponent()}
           <p className="text-sm font-semibold text-gray-700 uppercase">
             {student.department === 'CSM' 
