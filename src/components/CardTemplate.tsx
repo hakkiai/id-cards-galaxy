@@ -77,11 +77,11 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
       {/* Main content area */}
       <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col">
-        {/* Academic year and Photo and QR section */}
+        {/* Academic year, Photo and QR section - Updated alignment */}
         <div className="flex justify-between items-start">
-          {/* Photo with academic year above it */}
+          {/* Academic year and Photo - positioned on left as shown in image */}
           <div className="flex flex-col items-center space-y-1">
-            <div className="text-red-600 font-bold text-sm py-1">
+            <div className="text-red-600 font-bold text-sm py-1 writing-vertical">
               {getAcademicYear().split('-').join(' - ')}
             </div>
             <div className="w-28 h-36 border-2 border-red-500 p-1 overflow-hidden">
@@ -104,8 +104,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
             </div>
           </div>
           
-          {/* QR Code */}
-          <div className="flex items-center">
+          {/* QR Code - positioned on right as shown in image */}
+          <div className="flex items-center justify-end">
             <QRCodeSVG 
               value={`https://idealtech.edu.in/student/${student.rollNumber}`}
               size={100}
@@ -115,7 +115,7 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
         </div>
         
-        {/* Student Name and Department */}
+        {/* Student Name and Department - centered */}
         <div className="mt-3 text-center">
           {getNameComponent()}
           <p className="text-sm font-semibold text-gray-700 uppercase">
@@ -146,6 +146,11 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
             <span>: {student.bloodGroup}</span>
           </div>
         </div>
+
+        {/* Principal signature - moved to white section above colored footer */}
+        <div className="flex justify-end mt-auto mb-1">
+          <span className="text-xs italic">Principal</span>
+        </div>
       </div>
 
       {/* Footer with contact details and barcode */}
@@ -163,13 +168,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
             <span>: {student.contact}</span>
           </div>
           
-          {/* Principal signature */}
-          <div className="flex justify-end mt-1">
-            <span className="text-xs italic">Principal</span>
-          </div>
-          
           {/* Barcode */}
-          <div className="bg-white rounded-sm p-1 w-full flex items-center justify-center h-12">
+          <div className="bg-white rounded-sm p-1 w-full flex items-center justify-center h-12 mt-1">
             <svg ref={barcodeRef} className="w-full h-10"></svg>
           </div>
         </div>

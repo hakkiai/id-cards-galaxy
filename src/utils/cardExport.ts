@@ -33,7 +33,6 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
         transition: none !important;
         animation: none !important;
         text-rendering: geometricPrecision !important;
-        -webkit-font-smoothing: antialiased !important;
         will-change: auto !important;
         letter-spacing: normal !important;
         line-height: normal !important;
@@ -73,9 +72,9 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     // Ensure all images are loaded
     await preloadImages(clone);
     
-    // Render the element with high resolution
+    // Render the element with higher resolution
     const canvas = await html2canvas(clone, {
-      scale: 8, // Increased for better quality
+      scale: 12, // Increased for better quality (was 8)
       backgroundColor: '#ffffff',
       useCORS: true,
       allowTaint: true,
@@ -89,6 +88,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
           if (el instanceof HTMLElement) {
             // Ensure all text elements maintain their properties
             el.style.textRendering = 'geometricPrecision';
+            
             // Use setAttribute for non-standard properties
             el.setAttribute('style', `${el.getAttribute('style') || ''}; -webkit-font-smoothing: antialiased;`);
             el.style.willChange = 'transform';
@@ -188,7 +188,6 @@ export const downloadElementsAsZippedJpegs = async (
           transition: none !important;
           animation: none !important;
           text-rendering: geometricPrecision !important;
-          -webkit-font-smoothing: antialiased !important;
           will-change: auto !important;
           letter-spacing: normal !important;
           line-height: normal !important;
@@ -213,7 +212,7 @@ export const downloadElementsAsZippedJpegs = async (
       await preloadImages(clone);
       
       const canvas = await html2canvas(clone, {
-        scale: 8,
+        scale: 12, // Increased for better quality (was 8)
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
@@ -226,6 +225,7 @@ export const downloadElementsAsZippedJpegs = async (
           allElements.forEach(el => {
             if (el instanceof HTMLElement) {
               el.style.textRendering = 'geometricPrecision';
+              
               // Use setAttribute for non-standard properties
               el.setAttribute('style', `${el.getAttribute('style') || ''}; -webkit-font-smoothing: antialiased;`);
               el.style.willChange = 'transform';

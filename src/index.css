@@ -114,12 +114,21 @@
   opacity: 1 !important;
 }
 
-/* Ensure proper horizontal layout for academic year */
-.card-for-export .text-red-600.font-bold.text-sm.py-1,
-.text-red-600.font-bold.text-sm.py-1 {
-  display: inline-block !important;
-  width: auto !important;
-  text-align: center !important;
+/* Academic year vertical text styling */
+.writing-vertical {
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  letter-spacing: -2px;
+  transform: rotate(180deg);
+  text-align: center;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  position: absolute;
+  left: -25px;
+  top: 0;
 }
 
 /* Custom Grid Layout */
