@@ -77,13 +77,9 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
 
       {/* Main content area */}
       <div className="flex-1 bg-white px-4 pt-2 pb-1 flex flex-col">
-        {/* Academic year, Photo and QR section - Updated alignment */}
-        <div className="flex justify-between items-start">
-          {/* Academic year and Photo - positioned on left as shown in image */}
-          <div className="flex flex-col items-center space-y-1">
-            <div className="text-red-600 font-bold text-sm py-1 writing-vertical">
-              {getAcademicYear().split('-').join(' - ')}
-            </div>
+        {/* Student photo and academic year section */}
+        <div className="flex justify-between items-start mt-1">
+          <div className="relative mb-2">
             <div className="w-28 h-36 border-2 border-red-500 p-1 overflow-hidden">
               {student.photo ? (
                 <img 
@@ -102,10 +98,16 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
                 />
               )}
             </div>
+            {/* Academic year - positioned on the left side of photo */}
+            <div className="absolute -left-1 top-0 h-full flex items-center">
+              <div className="text-red-600 font-bold text-sm py-1 academic-year-vertical">
+                {getAcademicYear().split('-').join(' - ')}
+              </div>
+            </div>
           </div>
           
-          {/* QR Code - positioned on right as shown in image */}
-          <div className="flex items-center justify-end">
+          {/* QR Code - centered on right */}
+          <div className="flex items-center justify-center">
             <QRCodeSVG 
               value={`https://idealtech.edu.in/student/${student.rollNumber}`}
               size={100}
@@ -147,9 +149,9 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
         </div>
 
-        {/* Principal signature - moved to white section above colored footer */}
+        {/* Principal signature - moved to white section */}
         <div className="flex justify-end mt-auto mb-1">
-          <span className="text-xs italic">Principal</span>
+          <span className="text-xs italic font-semibold">Principal</span>
         </div>
       </div>
 

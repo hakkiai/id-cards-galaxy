@@ -48,6 +48,12 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
       strong, b, .font-bold, .font-semibold {
         font-weight: bold !important;
       }
+      .academic-year-vertical {
+        writing-mode: vertical-lr !important;
+        text-orientation: upright !important;
+        transform: rotate(180deg) !important;
+        letter-spacing: -2px !important;
+      }
     `;
     
     clone.appendChild(style);
@@ -74,7 +80,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     
     // Render the element with higher resolution
     const canvas = await html2canvas(clone, {
-      scale: 12, // Increased for better quality (was 8)
+      scale: 12, // High resolution for better quality
       backgroundColor: '#ffffff',
       useCORS: true,
       allowTaint: true,
@@ -203,6 +209,12 @@ export const downloadElementsAsZippedJpegs = async (
         strong, b, .font-bold, .font-semibold {
           font-weight: bold !important;
         }
+        .academic-year-vertical {
+          writing-mode: vertical-lr !important;
+          text-orientation: upright !important;
+          transform: rotate(180deg) !important;
+          letter-spacing: -2px !important;
+        }
       `;
       
       clone.appendChild(style);
@@ -212,7 +224,7 @@ export const downloadElementsAsZippedJpegs = async (
       await preloadImages(clone);
       
       const canvas = await html2canvas(clone, {
-        scale: 12, // Increased for better quality (was 8)
+        scale: 12, // High resolution for better quality
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,

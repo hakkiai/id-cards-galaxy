@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -114,21 +113,20 @@
   opacity: 1 !important;
 }
 
-/* Academic year vertical text styling */
-.writing-vertical {
+/* Academic year vertical text styling - revised for the new position */
+.academic-year-vertical {
   writing-mode: vertical-lr;
   text-orientation: upright;
-  letter-spacing: -2px;
   transform: rotate(180deg);
+  letter-spacing: -2px;
   text-align: center;
   white-space: nowrap;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
-  position: absolute;
-  left: -25px;
-  top: 0;
+  line-height: 1;
+  padding-left: 2px;
 }
 
 /* Custom Grid Layout */
