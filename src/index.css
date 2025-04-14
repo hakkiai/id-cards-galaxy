@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -84,6 +85,7 @@
   -webkit-font-smoothing: antialiased !important;
   will-change: transform !important;
   font-weight: normal !important;
+  overflow: visible !important;
 }
 
 .card-for-export strong,
@@ -111,6 +113,12 @@
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Ensure barcode is visible */
+.card-for-export svg {
+  overflow: visible !important;
+  width: 100% !important;
 }
 
 /* Custom Grid Layout */

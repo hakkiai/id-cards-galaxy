@@ -1,3 +1,4 @@
+
 import html2canvas from 'html2canvas';
 
 /**
@@ -23,6 +24,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     clone.style.height = '550px';
     clone.style.borderRadius = '0'; // Ensure consistent border radius
     clone.style.boxShadow = 'none'; // Remove shadows for clean export
+    clone.style.overflow = 'visible'; // Ensure everything is visible
     
     // Apply additional export styling
     const style = document.createElement('style');
@@ -35,6 +37,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
         will-change: auto !important;
         letter-spacing: normal !important;
         line-height: normal !important;
+        overflow: visible !important;
       }
       img {
         image-rendering: high-quality !important;
@@ -47,13 +50,20 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
       strong, b, .font-bold, .font-semibold {
         font-weight: bold !important;
       }
+      svg {
+        overflow: visible !important;
+        width: 100% !important;
+      }
+      .bg-white {
+        background-color: white !important;
+      }
     `;
     
     clone.appendChild(style);
     document.body.appendChild(clone);
     
-    // Ensure all images are loaded before rendering
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Ensure all images and SVGs are loaded before rendering
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     // Fix image loading
     const preloadImages = async (element: HTMLElement) => {
@@ -73,10 +83,29 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     
     // Ensure all images are loaded
     await preloadImages(clone);
+
+    // Special handling for barcode SVG
+    const barcodeSvg = clone.querySelector('svg');
+    if (barcodeSvg) {
+      // Ensure the barcode is fully visible
+      barcodeSvg.setAttribute('overflow', 'visible');
+      barcodeSvg.style.overflow = 'visible';
+      barcodeSvg.style.width = '100%';
+      barcodeSvg.style.height = '100%';
+      
+      // Make sure barcode container is properly sized
+      const barcodeContainer = barcodeSvg.parentElement;
+      if (barcodeContainer) {
+        barcodeContainer.style.overflow = 'visible';
+        barcodeContainer.style.padding = '2px 10px';
+        barcodeContainer.style.width = '100%';
+        barcodeContainer.style.height = 'auto';
+      }
+    }
     
     // Render the element with higher resolution
     const canvas = await html2canvas(clone, {
-      scale: 16, // Even higher resolution for better quality
+      scale: 20, // Even higher resolution for better quality
       backgroundColor: '#ffffff',
       useCORS: true,
       allowTaint: true,
@@ -92,7 +121,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
             el.style.textRendering = 'geometricPrecision';
             
             // Use setAttribute for non-standard properties
-            el.setAttribute('style', `${el.getAttribute('style') || ''}; -webkit-font-smoothing: antialiased;`);
+            el.setAttribute('style', `${el.getAttribute('style') || ''}; -webkit-font-smoothing: antialiased; overflow: visible !important;`);
             el.style.willChange = 'transform';
             
             // Fix layout shifts
@@ -108,6 +137,27 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
               if (originalSrc) {
                 el.src = '';
                 setTimeout(() => { el.src = originalSrc; }, 10);
+              }
+            }
+            
+            // Special handling for SVG elements (especially barcodes)
+            if (el.tagName.toLowerCase() === 'svg' || el.querySelector('svg')) {
+              el.style.overflow = 'visible';
+              el.setAttribute('overflow', 'visible');
+              
+              const svgElement = el.tagName.toLowerCase() === 'svg' ? el : el.querySelector('svg');
+              if (svgElement) {
+                svgElement.setAttribute('overflow', 'visible');
+                svgElement.style.overflow = 'visible';
+                svgElement.style.width = '100%';
+                
+                // Ensure all child elements of SVG are visible
+                const svgChildren = svgElement.querySelectorAll('*');
+                svgChildren.forEach(child => {
+                  if (child instanceof SVGElement) {
+                    child.setAttribute('overflow', 'visible');
+                  }
+                });
               }
             }
           }
