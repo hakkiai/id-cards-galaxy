@@ -119,10 +119,9 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
             el.style.animation = 'none';
             el.style.boxShadow = 'none';
             
-            // Ensure text renders correctly
+            // Use standard CSS properties for text rendering
             el.style.textRendering = 'geometricPrecision';
-            el.style.fontSmoothing = 'antialiased';
-            el.style.webkitFontSmoothing = 'antialiased';
+            // Removed non-standard fontSmoothing and webkitFontSmoothing properties
             
             // Special handling for images
             if (el instanceof HTMLImageElement) {
@@ -259,7 +258,7 @@ export const downloadElementsAsZippedJpegs = async (
               el.style.animation = 'none';
               el.style.boxShadow = 'none';
               el.style.textRendering = 'geometricPrecision';
-              el.style.webkitFontSmoothing = 'antialiased';
+              // Removed non-standard webkitFontSmoothing property
               
               if (el instanceof HTMLImageElement) {
                 el.style.maxWidth = '100%';
