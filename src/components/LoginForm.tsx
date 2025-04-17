@@ -50,7 +50,7 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-2xl login-card animate-fade-in glass-effect border border-white/40">
+    <Card className="w-full max-w-md shadow-2xl login-card animate-fade-in backdrop-blur-lg bg-white/30 border border-white/40">
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-center mb-4 animate-[float_4s_ease-in-out_infinite]" style={{ animationDelay: "200ms" }}>
           <div className="p-3 rounded-full transition-transform hover:scale-110 duration-300 animate-[pulse-glow_3s_ease-in-out_infinite]">
@@ -72,13 +72,13 @@ const LoginForm = () => {
         <form onSubmit={handleLogin}>
           <div className="space-y-4">
             <div className="space-y-2 animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "500ms" }}>
-              <Label htmlFor="username" className="text-[#2a4b3c]">Username</Label>
+              <Label htmlFor="username" className="text-[#2a4b3c] font-semibold">Username</Label>
               <div className="relative group">
                 <User className="absolute left-3 top-2.5 h-5 w-5 text-[#5d7052] transition-colors group-focus-within:text-[#2a4b3c]" />
                 <Input 
                   id="username"
                   placeholder="admin"
-                  className="pl-10 transition-all border-[#a3b18a] focus:border-[#5d7052] focus:ring-2 focus:ring-[#5d7052]/20 bg-white/80"
+                  className="pl-10 transition-all border-[#a3b18a] focus:border-[#5d7052] focus:ring-2 focus:ring-[#5d7052]/20 bg-white/70"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -86,14 +86,14 @@ const LoginForm = () => {
               </div>
             </div>
             <div className="space-y-2 animate-[slide-up_0.6s_ease-out]" style={{ animationDelay: "600ms" }}>
-              <Label htmlFor="password" className="text-[#2a4b3c]">Password</Label>
+              <Label htmlFor="password" className="text-[#2a4b3c] font-semibold">Password</Label>
               <div className="relative group">
                 <LockKeyhole className="absolute left-3 top-2.5 h-5 w-5 text-[#5d7052] transition-colors group-focus-within:text-[#2a4b3c]" />
                 <Input 
                   id="password"
                   type="password"
                   placeholder="••••••"
-                  className="pl-10 transition-all border-[#a3b18a] focus:border-[#5d7052] focus:ring-2 focus:ring-[#5d7052]/20 bg-white/80"
+                  className="pl-10 transition-all border-[#a3b18a] focus:border-[#5d7052] focus:ring-2 focus:ring-[#5d7052]/20 bg-white/70"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -125,7 +125,7 @@ const LoginForm = () => {
           </div>
         </form>
       </CardContent>
-      <CardFooter className="text-center text-xs text-[#3a5a45] animate-[fade-in_1s_ease-out]" style={{ animationDelay: "800ms" }}>
+      <CardFooter className="text-center text-xs text-[#2a4b3c] font-semibold animate-[fade-in_1s_ease-out]" style={{ animationDelay: "800ms" }}>
         © {new Date().getFullYear()} IDEAL Institute of Technology
       </CardFooter>
     </Card>
