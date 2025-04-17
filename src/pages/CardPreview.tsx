@@ -9,9 +9,11 @@ import FacultyCardTemplate from '@/components/FacultyCardTemplate';
 import EnhancedColorPicker from '@/components/EnhancedColorPicker';
 import { downloadElementAsJpeg, downloadElementsAsZippedJpegs } from '@/utils/cardExport';
 import BusCardTemplate from '@/components/BusCardTemplate';
+import { useToast } from '@/hooks/use-toast';
 
 const CardPreview = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [cardsData, setCardsData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -126,10 +128,23 @@ const CardPreview = () => {
         // Download a single card
         const cardElements = cardsRef.current.querySelectorAll('.card-container');
         if (cardElements[singleCardIndex]) {
-          await downloadElementAsJpeg(
+          const success = await downloadElementAsJpeg(
             cardElements[singleCardIndex] as HTMLElement, 
             `id_card_${singleCardIndex + 1}.jpeg`
           );
+          
+          if (success) {
+            toast({
+              title: "Download Complete",
+              description: "ID card has been downloaded successfully.",
+            });
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Download Failed",
+              description: "There was an issue downloading the ID card.",
+            });
+          }
         }
       } else {
         // Download all cards as a zip
@@ -137,14 +152,38 @@ const CardPreview = () => {
         const cardType = cardsData.type === 'faculty' ? 'faculty' : 'student';
         const cardElements = Array.from(cardsRef.current.querySelectorAll('.card-container')) as HTMLElement[];
         
-        await downloadElementsAsZippedJpegs(
+        // Show download progress toast
+        toast({
+          title: "Preparing Download",
+          description: `Creating ${cardElements.length} ID cards for download...`,
+        });
+        
+        const success = await downloadElementsAsZippedJpegs(
           cardElements,
           `all_${cardType}_cards.zip`,
           cardType
         );
+        
+        if (success) {
+          toast({
+            title: "Download Complete",
+            description: `All ${cardElements.length} ID cards have been downloaded.`,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Download Failed",
+            description: "There was an issue downloading the ID cards.",
+          });
+        }
       }
     } catch (error) {
       console.error('Error downloading cards:', error);
+      toast({
+        variant: "destructive",
+        title: "Download Error",
+        description: "An unexpected error occurred during download.",
+      });
     } finally {
       setDownloading(false);
     }
@@ -184,7 +223,7 @@ const CardPreview = () => {
               <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
                 <div className="animate-fade-in">
                   <CardTitle>ID Card Preview</CardTitle>
-                  <CardDescription>Preview and print your generated ID cards</CardDescription>
+                  <CardDescription>Preview and download your generated ID cards</CardDescription>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <div className="flex items-center gap-2 p-2 border rounded-md">

@@ -173,8 +173,10 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
           
           {/* Barcode - Adjusted to ensure full visibility */}
-          <div className="bg-white rounded-sm py-1 px-0.5 w-full flex items-center justify-center h-14 mt-1 overflow-visible">
-            <svg ref={barcodeRef} className="w-full h-12 overflow-visible"></svg>
+          <div className="bg-white rounded-sm p-1 w-full flex items-center justify-center overflow-visible" style={{ minHeight: '56px' }}>
+            <div className="w-full overflow-visible flex justify-center">
+              <svg ref={barcodeRef} className="w-11/12 overflow-visible"></svg>
+            </div>
           </div>
         </div>
       </div>

@@ -56,9 +56,9 @@ const FileUpload = <T extends Student | Faculty>({
       let processedData: Omit<Student | Faculty, 'id'>[] = [];
       
       if (type === 'student') {
-        // Map Excel columns to student properties (based on the provided format)
+        // Map Excel columns to student properties
         processedData = rows.map((row: any) => {
-          // Extract values from the row (adjust indexes based on your Excel format)
+          // Extract values based on Excel format (adjust indices if needed)
           const rollNumber = row[1] || '';
           const classCode = row[2] || '';
           const department = row[3] || '';
@@ -69,17 +69,17 @@ const FileUpload = <T extends Student | Faculty>({
           const contact = row[8] || '';
           const bloodGroup = (row[9] || '').toString();
           
-          // Create the student object
+          // Create student object
           return {
             rollNumber: rollNumber.toString(),
             name: name.toString().toUpperCase(),
             department: department.toString(),
             course: course.toString(),
-            year: 'First Year', // Default value, can be inferred from rollNumber
-            academicYear: '2024-2028', // Default value, can be inferred from current year
+            year: 'First Year', // Default value
+            academicYear: '2024-2028', // Default value
             dob: dob.toString(),
             bloodGroup: bloodGroup,
-            aadhaar: '', // Not in the provided format
+            aadhaar: '', // Not in provided format
             contact: contact.toString(),
             address: address.toString(),
             photo: '', // Will need to be handled separately
@@ -110,7 +110,7 @@ const FileUpload = <T extends Student | Faculty>({
         });
       }
       
-      // Filter out any rows with empty essential fields
+      // Filter out rows with empty essential fields
       const validData = processedData.filter(item => {
         if (type === 'student') {
           return (item as Student).rollNumber && (item as Student).name;

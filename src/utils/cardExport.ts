@@ -8,62 +8,36 @@ import html2canvas from 'html2canvas';
  */
 export const downloadElementAsJpeg = async (element: HTMLElement, fileName: string) => {
   try {
-    // Apply export mode class
-    element.classList.add('card-for-export');
-    
     // Create a clone to avoid modifying the original
     const clone = element.cloneNode(true) as HTMLElement;
     
-    // Reset transformations and position it off-screen for rendering
-    clone.style.transform = 'none';
+    // Apply export mode class to both the original and clone
+    element.classList.add('card-for-export');
+    clone.classList.add('card-for-export');
+    
+    // Set up clone for rendering
     clone.style.position = 'fixed';
     clone.style.top = '-9999px';
     clone.style.left = '-9999px';
     clone.style.zIndex = '-1000';
-    clone.style.width = '350px';
-    clone.style.height = '550px';
-    clone.style.borderRadius = '0'; // Ensure consistent border radius
-    clone.style.boxShadow = 'none'; // Remove shadows for clean export
-    clone.style.overflow = 'visible'; // Ensure everything is visible
+    clone.style.width = '350px'; // Fixed width
+    clone.style.height = '550px'; // Fixed height
+    clone.style.transformOrigin = 'top left';
+    clone.style.transform = 'none';
+    clone.style.margin = '0';
+    clone.style.padding = '0';
+    clone.style.border = 'none';
+    clone.style.borderRadius = '0';
+    clone.style.boxShadow = 'none';
+    clone.style.background = '#ffffff';
+    clone.style.display = 'block';
+    clone.style.overflow = 'visible';
     
-    // Apply additional export styling
-    const style = document.createElement('style');
-    style.textContent = `
-      * {
-        transform: none !important;
-        transition: none !important;
-        animation: none !important;
-        text-rendering: geometricPrecision !important;
-        will-change: auto !important;
-        letter-spacing: normal !important;
-        line-height: normal !important;
-        overflow: visible !important;
-      }
-      img {
-        image-rendering: high-quality !important;
-        object-fit: cover !important;
-      }
-      text, p, h1, h2, h3, h4, h5, h6, span {
-        font-weight: normal !important;
-        text-align: left !important;
-      }
-      strong, b, .font-bold, .font-semibold {
-        font-weight: bold !important;
-      }
-      svg {
-        overflow: visible !important;
-        width: 100% !important;
-      }
-      .bg-white {
-        background-color: white !important;
-      }
-    `;
-    
-    clone.appendChild(style);
+    // Append clone to body for rendering
     document.body.appendChild(clone);
     
-    // Ensure all images and SVGs are loaded before rendering
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Ensure all images and resources load before capturing
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Fix image loading
     const preloadImages = async (element: HTMLElement) => {
@@ -74,114 +48,120 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
             resolve();
           } else {
             img.onload = () => resolve();
-            img.onerror = () => resolve(); // Continue even if an image fails to load
+            img.onerror = () => resolve();
           }
         });
       });
       return Promise.all(promises);
     };
     
-    // Ensure all images are loaded
+    // Load all images
     await preloadImages(clone);
-
-    // Special handling for barcode SVG
-    const barcodeSvg = clone.querySelector('svg');
-    if (barcodeSvg) {
-      // Ensure the barcode is fully visible
-      barcodeSvg.setAttribute('overflow', 'visible');
-      barcodeSvg.style.overflow = 'visible';
-      barcodeSvg.style.width = '100%';
-      barcodeSvg.style.height = '100%';
-      
-      // Make sure barcode container is properly sized
-      const barcodeContainer = barcodeSvg.parentElement;
-      if (barcodeContainer) {
-        barcodeContainer.style.overflow = 'visible';
-        barcodeContainer.style.padding = '3px 10px';
-        barcodeContainer.style.width = '100%';
-        barcodeContainer.style.height = 'auto';
-      }
-      
-      // Fix specific barcode elements
-      const paths = barcodeSvg.querySelectorAll('rect');
-      paths.forEach(path => {
-        path.setAttribute('vector-effect', 'non-scaling-stroke');
-      });
-    }
     
-    // Render the element with higher resolution
+    // Fix barcode SVG
+    const fixSvg = (element: HTMLElement) => {
+      const svgElements = element.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.style.overflow = 'visible';
+        svg.style.display = 'block';
+        
+        // Fix rectangles in barcode
+        const rects = svg.querySelectorAll('rect');
+        rects.forEach(rect => {
+          rect.setAttribute('shape-rendering', 'crispEdges');
+          rect.setAttribute('vector-effect', 'non-scaling-stroke');
+        });
+      });
+      
+      // Fix SVG containers
+      const svgContainers = element.querySelectorAll('div:has(> svg)');
+      svgContainers.forEach(container => {
+        if (container instanceof HTMLElement) {
+          container.style.overflow = 'visible';
+          container.style.width = '100%';
+          container.style.height = 'auto';
+          container.style.display = 'block';
+        }
+      });
+    };
+    
+    // Apply SVG fixes
+    fixSvg(clone);
+    
+    // Capture the clone with higher resolution
     const canvas = await html2canvas(clone, {
-      scale: 24, // Even higher resolution for better quality
-      backgroundColor: '#ffffff',
+      scale: 4, // Higher resolution
       useCORS: true,
       allowTaint: true,
+      backgroundColor: '#ffffff',
+      imageTimeout: 0,
       logging: false,
-      removeContainer: true,
-      imageTimeout: 0, // No timeout for image loading
-      onclone: (clonedDoc, clonedElement) => {
-        // Add additional styling tweaks to ensure proper rendering
-        const allElements = clonedElement.querySelectorAll('*');
+      width: 350, // Match card width
+      height: 550, // Match card height - Make sure this captures the full card
+      windowWidth: 1200, // Larger context width
+      windowHeight: 800, // Larger context height
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (doc, cloneEl) => {
+        // Apply final styling fixes to ensure proper rendering
+        const allElements = cloneEl.querySelectorAll('*');
         allElements.forEach(el => {
           if (el instanceof HTMLElement) {
-            // Ensure all text elements maintain their properties
+            el.style.margin = el.style.margin || '0';
+            el.style.transform = 'none';
+            el.style.transition = 'none';
+            el.style.animation = 'none';
+            el.style.boxShadow = 'none';
+            
+            // Ensure text renders correctly
             el.style.textRendering = 'geometricPrecision';
+            el.style.fontSmoothing = 'antialiased';
+            el.style.webkitFontSmoothing = 'antialiased';
             
-            // Use setAttribute for non-standard properties
-            el.setAttribute('style', `${el.getAttribute('style') || ''}; -webkit-font-smoothing: antialiased; overflow: visible !important;`);
-            el.style.willChange = 'transform';
-            
-            // Fix layout shifts
-            el.style.position = el.style.position || 'relative';
-            
-            // Ensure images are rendered correctly
+            // Special handling for images
             if (el instanceof HTMLImageElement) {
-              el.style.imageRendering = 'high-quality';
+              el.style.maxWidth = '100%';
+              el.style.objectFit = 'cover';
               el.crossOrigin = 'anonymous';
-              
-              // Force reload the image to ensure it's loaded before capture
-              const originalSrc = el.src;
-              if (originalSrc) {
-                el.src = '';
-                setTimeout(() => { el.src = originalSrc; }, 10);
-              }
-            }
-            
-            // Special handling for SVG elements (especially barcodes)
-            if (el.tagName.toLowerCase() === 'svg' || el.querySelector('svg')) {
-              el.style.overflow = 'visible';
-              el.setAttribute('overflow', 'visible');
-              
-              const svgElement = el.tagName.toLowerCase() === 'svg' ? el : el.querySelector('svg');
-              if (svgElement) {
-                svgElement.setAttribute('overflow', 'visible');
-                svgElement.style.overflow = 'visible';
-                svgElement.style.width = '100%';
-                
-                // Ensure all child elements of SVG are visible
-                const svgChildren = svgElement.querySelectorAll('*');
-                svgChildren.forEach(child => {
-                  if (child instanceof SVGElement) {
-                    child.setAttribute('overflow', 'visible');
-                  }
-                });
-              }
             }
           }
         });
       }
     });
     
-    // Remove the clone after capture
+    // Remove the clone
     document.body.removeChild(clone);
     
-    // Remove export mode class from original
+    // Remove export class from original
     element.classList.remove('card-for-export');
     
-    // Download the image with maximum quality
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/jpeg', 1.0);
-    link.click();
+    // Create a new canvas with padding to ensure nothing is cut off
+    const finalCanvas = document.createElement('canvas');
+    const padding = 0; // Add padding if needed
+    finalCanvas.width = canvas.width + padding * 2;
+    finalCanvas.height = canvas.height + padding * 2;
+    
+    const ctx = finalCanvas.getContext('2d');
+    if (ctx) {
+      // Fill with white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+      
+      // Draw the original canvas with padding
+      ctx.drawImage(canvas, padding, padding);
+      
+      // Download the image
+      const link = document.createElement('a');
+      link.href = finalCanvas.toDataURL('image/jpeg', 1.0);
+      link.download = fileName;
+      link.click();
+    }
     
     return true;
   } catch (error) {
@@ -205,115 +185,97 @@ export const downloadElementsAsZippedJpegs = async (
     const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
     
-    // Ensure all images are loaded before rendering
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Fix image loading
-    const preloadImages = async (element: HTMLElement) => {
-      const images = element.querySelectorAll('img');
-      const promises = Array.from(images).map(img => {
-        return new Promise<void>((resolve) => {
-          if (img.complete) {
-            resolve();
-          } else {
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          }
-        });
-      });
-      return Promise.all(promises);
-    };
-    
-    // Convert all elements to canvas and add to zip
+    // Process each card element
     for (let i = 0; i < elements.length; i++) {
-      // Create a clone of the element to avoid modifying the original
       const original = elements[i];
       original.classList.add('card-for-export');
       
+      // Create a clone with proper sizing
       const clone = original.cloneNode(true) as HTMLElement;
-      clone.style.transform = 'none';
       clone.style.position = 'fixed';
       clone.style.top = '-9999px';
       clone.style.left = '-9999px';
       clone.style.zIndex = '-1000';
       clone.style.width = '350px';
       clone.style.height = '550px';
+      clone.style.transform = 'none';
+      clone.style.transformOrigin = 'top left';
+      clone.style.margin = '0';
+      clone.style.padding = '0';
+      clone.style.border = 'none';
       clone.style.borderRadius = '0';
       clone.style.boxShadow = 'none';
+      clone.style.background = '#ffffff';
+      clone.style.display = 'block';
+      clone.style.overflow = 'visible';
       
-      // Apply additional export styling
-      const style = document.createElement('style');
-      style.textContent = `
-        * {
-          transform: none !important;
-          transition: none !important;
-          animation: none !important;
-          text-rendering: geometricPrecision !important;
-          will-change: auto !important;
-          letter-spacing: normal !important;
-          line-height: normal !important;
-        }
-        img {
-          image-rendering: high-quality !important;
-          object-fit: cover !important;
-        }
-        text, p, h1, h2, h3, h4, h5, h6, span {
-          font-weight: normal !important;
-          text-align: left !important;
-        }
-        strong, b, .font-bold, .font-semibold {
-          font-weight: bold !important;
-        }
-      `;
-      
-      clone.appendChild(style);
       document.body.appendChild(clone);
       
-      // Ensure all images are loaded
-      await preloadImages(clone);
+      // Fix SVG elements (especially barcodes)
+      const svgElements = clone.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.style.overflow = 'visible';
+        svg.style.display = 'block';
+        
+        // Fix barcode rectangles
+        const rects = svg.querySelectorAll('rect');
+        rects.forEach(rect => {
+          rect.setAttribute('shape-rendering', 'crispEdges');
+          rect.setAttribute('vector-effect', 'non-scaling-stroke');
+        });
+      });
       
+      // Wait for images to load
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Capture the card
       const canvas = await html2canvas(clone, {
-        scale: 16, // Even higher resolution for better quality
-        backgroundColor: '#ffffff',
+        scale: 4,
         useCORS: true,
         allowTaint: true,
-        logging: false,
-        removeContainer: true,
+        backgroundColor: '#ffffff',
         imageTimeout: 0,
-        onclone: (clonedDoc, clonedElement) => {
-          // Additional styling tweaks to ensure proper rendering
-          const allElements = clonedElement.querySelectorAll('*');
+        logging: false,
+        width: 350,
+        height: 550,
+        windowWidth: 1200,
+        windowHeight: 800,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        onclone: (doc, cloneEl) => {
+          // Apply final fixes
+          const allElements = cloneEl.querySelectorAll('*');
           allElements.forEach(el => {
             if (el instanceof HTMLElement) {
+              el.style.margin = el.style.margin || '0';
+              el.style.transform = 'none';
+              el.style.transition = 'none';
+              el.style.animation = 'none';
+              el.style.boxShadow = 'none';
               el.style.textRendering = 'geometricPrecision';
-              
-              // Use setAttribute for non-standard properties
-              el.setAttribute('style', `${el.getAttribute('style') || ''}; -webkit-font-smoothing: antialiased;`);
-              el.style.willChange = 'transform';
-              el.style.position = el.style.position || 'relative';
+              el.style.webkitFontSmoothing = 'antialiased';
               
               if (el instanceof HTMLImageElement) {
-                el.style.imageRendering = 'high-quality';
+                el.style.maxWidth = '100%';
+                el.style.objectFit = 'cover';
                 el.crossOrigin = 'anonymous';
-                
-                // Force reload the image
-                const originalSrc = el.src;
-                if (originalSrc) {
-                  el.src = '';
-                  setTimeout(() => { el.src = originalSrc; }, 10);
-                }
               }
             }
           });
         }
       });
       
-      // Remove the clone after capture
+      // Remove the clone
       document.body.removeChild(clone);
-      
-      // Remove export mode class from original
       original.classList.remove('card-for-export');
       
+      // Add to zip
       const imgData = canvas.toDataURL('image/jpeg', 1.0).split(',')[1];
       zip.file(`${namePrefix}_${i + 1}.jpeg`, imgData, {base64: true});
     }
@@ -324,6 +286,7 @@ export const downloadElementsAsZippedJpegs = async (
     link.download = zipFileName;
     link.href = URL.createObjectURL(content);
     link.click();
+    
     return true;
   } catch (error) {
     console.error('Error creating zip file:', error);

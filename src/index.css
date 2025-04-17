@@ -86,6 +86,21 @@
   will-change: transform !important;
   font-weight: normal !important;
   overflow: visible !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.card-for-export {
+  width: 350px !important;
+  height: 550px !important;
+  overflow: visible !important;
+  transform: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  position: relative !important;
+  page-break-inside: avoid !important;
+  print-color-adjust: exact !important;
+  -webkit-print-color-adjust: exact !important;
 }
 
 .card-for-export strong,
@@ -106,6 +121,8 @@
   object-fit: cover !important;
   image-rendering: -webkit-optimize-contrast !important;
   image-rendering: crisp-edges !important;
+  max-width: 100% !important;
+  display: block !important;
 }
 
 /* Ensure logo is displayed correctly in exports */
@@ -119,6 +136,8 @@
 .card-for-export svg {
   overflow: visible !important;
   width: 100% !important;
+  height: auto !important;
+  display: block !important;
 }
 
 /* Barcode-specific enhancements for export */
@@ -135,6 +154,24 @@
 .card-for-export div:has(> svg) {
   overflow: visible !important;
   padding: 3px 10px !important;
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
+
+/* Ensure footer content is fully visible */
+.card-for-export > div:last-child {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: fit-content !important;
+}
+
+/* Ensure full barcode visibility in exports */
+.card-for-export .w-full.flex.items-center.justify-center.h-14.mt-1.overflow-visible {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 56px !important;
+  display: block !important;
 }
 
 /* Custom Grid Layout */
