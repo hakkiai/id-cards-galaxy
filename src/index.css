@@ -121,6 +121,22 @@
   width: 100% !important;
 }
 
+/* Barcode-specific enhancements for export */
+.card-for-export svg rect {
+  shape-rendering: crispEdges !important;
+  vector-effect: non-scaling-stroke !important;
+}
+
+.card-for-export .bg-white {
+  background-color: white !important;
+}
+
+/* Additional fixes for barcode container */
+.card-for-export div:has(> svg) {
+  overflow: visible !important;
+  padding: 3px 10px !important;
+}
+
 /* Custom Grid Layout */
 .grid-3x3 {
   display: grid;

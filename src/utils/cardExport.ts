@@ -63,7 +63,7 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     document.body.appendChild(clone);
     
     // Ensure all images and SVGs are loaded before rendering
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Fix image loading
     const preloadImages = async (element: HTMLElement) => {
@@ -97,15 +97,21 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
       const barcodeContainer = barcodeSvg.parentElement;
       if (barcodeContainer) {
         barcodeContainer.style.overflow = 'visible';
-        barcodeContainer.style.padding = '2px 10px';
+        barcodeContainer.style.padding = '3px 10px';
         barcodeContainer.style.width = '100%';
         barcodeContainer.style.height = 'auto';
       }
+      
+      // Fix specific barcode elements
+      const paths = barcodeSvg.querySelectorAll('rect');
+      paths.forEach(path => {
+        path.setAttribute('vector-effect', 'non-scaling-stroke');
+      });
     }
     
     // Render the element with higher resolution
     const canvas = await html2canvas(clone, {
-      scale: 20, // Even higher resolution for better quality
+      scale: 24, // Even higher resolution for better quality
       backgroundColor: '#ffffff',
       useCORS: true,
       allowTaint: true,

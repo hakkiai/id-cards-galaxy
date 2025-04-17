@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Student, Faculty } from '@/utils/database';
+import * as XLSX from 'xlsx';
 
 interface FileUploadProps<T> {
   onUploadComplete: (data: Omit<T, 'id'>[]) => void;
@@ -20,7 +21,7 @@ const FileUpload = <T extends Student | Faculty>({
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -33,93 +34,107 @@ const FileUpload = <T extends Student | Faculty>({
     setIsUploading(true);
     setError(null);
 
-    // In a real application, you would use a library like xlsx or papaparse
-    // to parse the Excel/CSV file. For this demo, we'll simulate the process.
-    setTimeout(() => {
-      let mockData: any[] = [];
+    try {
+      // Read the Excel file
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      
+      // Get the first worksheet
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Skip header row if exists
+      const rows = jsonData.slice(1);
+      
+      if (rows.length === 0) {
+        throw new Error('No data found in the Excel file');
+      }
+      
+      let processedData: Omit<Student | Faculty, 'id'>[] = [];
       
       if (type === 'student') {
-        // Mock student data
-        mockData = [
-          {
-            rollNumber: '246K5A0304',
-            name: 'JOHN DOE',
-            department: 'CSE',
-            course: 'B.Tech',
-            year: 'Second Year',
-            academicYear: '2023-2026',
-            dob: '15-07-2003',
-            bloodGroup: 'B+',
-            aadhaar: '1234 5678 9012',
-            contact: '9876543210',
-            address: '123 Main Street, Hyderabad',
-            photo: '246K5A0304.jpg',
-            category: 'student'
-          },
-          {
-            rollNumber: '246K5A0305',
-            name: 'JANE SMITH',
-            department: 'ECE',
-            course: 'B.Tech',
-            year: 'Second Year',
-            academicYear: '2023-2026',
-            dob: '22-09-2003',
-            bloodGroup: 'A+',
-            aadhaar: '9876 5432 1098',
-            contact: '8765432109',
-            address: '456 Oak Avenue, Vizag',
-            photo: '246K5A0305.jpg',
-            category: 'student'
-          }
-        ];
+        // Map Excel columns to student properties (based on the provided format)
+        processedData = rows.map((row: any) => {
+          // Extract values from the row (adjust indexes based on your Excel format)
+          const rollNumber = row[1] || '';
+          const classCode = row[2] || '';
+          const department = row[3] || '';
+          const name = row[4] || '';
+          const course = row[5] || '';
+          const dob = row[6] || '';
+          const address = row[7] || '';
+          const contact = row[8] || '';
+          const bloodGroup = (row[9] || '').toString();
+          
+          // Create the student object
+          return {
+            rollNumber: rollNumber.toString(),
+            name: name.toString().toUpperCase(),
+            department: department.toString(),
+            course: course.toString(),
+            year: 'First Year', // Default value, can be inferred from rollNumber
+            academicYear: '2024-2028', // Default value, can be inferred from current year
+            dob: dob.toString(),
+            bloodGroup: bloodGroup,
+            aadhaar: '', // Not in the provided format
+            contact: contact.toString(),
+            address: address.toString(),
+            photo: '', // Will need to be handled separately
+            category: 'student' as const,
+            isBusStudent: false, // Default value
+          };
+        });
       } else {
-        // Mock faculty data
-        mockData = [
-          {
-            facultyId: 'FAC004',
-            name: 'DR. RAVI KUMAR',
-            teluguName: 'డా. రవి కుమార్',
-            department: 'CSE',
-            designation: 'Professor',
-            qualification: 'Ph.D',
-            bloodGroup: 'O+',
-            aadhaar: '5678 1234 9012',
-            panNumber: 'ABCDE1234F',
-            contact: '9876543210',
-            email: 'ravi.kumar@idealtech.edu.in',
-            address: '789 Faculty Quarters, Vidyut Nagar, Kakinada',
+        // Map Excel columns to faculty properties
+        processedData = rows.map((row: any) => {
+          return {
+            facultyId: row[1] || '',
+            name: (row[2] || '').toString().toUpperCase(),
+            teluguName: row[3] || '',
+            department: row[4] || '',
+            designation: row[5] || '',
+            qualification: row[6] || '',
+            bloodGroup: row[7] || '',
+            aadhaar: row[8] || '',
+            panNumber: row[9] || '',
+            contact: row[10] || '',
+            email: row[11] || '',
+            address: row[12] || '',
             photo: '',
-            joinDate: '10-06-2015',
-            category: 'faculty'
-          },
-          {
-            facultyId: 'FAC005',
-            name: 'DR. LAKSHMI PRASAD',
-            teluguName: 'డా. లక్ష్మి ప్రసాద్',
-            department: 'ECE',
-            designation: 'Associate Professor',
-            qualification: 'Ph.D',
-            bloodGroup: 'A-',
-            aadhaar: '8765 4321 0987',
-            panNumber: 'FGHIJ5678K',
-            contact: '8765432109',
-            email: 'lakshmi.prasad@idealtech.edu.in',
-            address: '456 Teachers Colony, Kakinada',
-            photo: '',
-            joinDate: '15-07-2018',
-            category: 'faculty'
-          }
-        ];
+            joinDate: row[13] || '',
+            category: 'faculty' as const
+          };
+        });
       }
-
-      setIsUploading(false);
-      onUploadComplete(mockData as Omit<T, 'id'>[]);
+      
+      // Filter out any rows with empty essential fields
+      const validData = processedData.filter(item => {
+        if (type === 'student') {
+          return (item as Student).rollNumber && (item as Student).name;
+        } else {
+          return (item as Faculty).facultyId && (item as Faculty).name;
+        }
+      });
+      
+      if (validData.length === 0) {
+        throw new Error('No valid data found in the Excel file');
+      }
+      
+      onUploadComplete(validData as Omit<T, 'id'>[]);
       
       toast({
         title: "Upload complete",
-        description: `Successfully processed ${mockData.length} ${type} records`,
+        description: `Successfully processed ${validData.length} ${type} records`,
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Error processing Excel file:', error);
+      setError(error instanceof Error ? error.message : 'Failed to process the Excel file');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (

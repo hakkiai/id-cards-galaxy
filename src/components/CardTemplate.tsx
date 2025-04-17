@@ -46,8 +46,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           background: "#ffffff",
           lineColor: "#000000",
           margin: 5,
-          marginLeft: 10,
-          marginRight: 10
+          marginLeft: 0,
+          marginRight: 0
         });
       } catch (error) {
         console.error('Error generating barcode:', error);
@@ -111,7 +111,7 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           {/* QR Code - aligned to the right */}
           <div className="flex items-center justify-center">
             <QRCodeSVG 
-              value={`https://idealtech.edu.in/student/${student.rollNumber}`}
+              value="https://www.idealtech.edu.in/website/home.html"
               size={100}
               level="H"
               includeMargin={false}
@@ -173,8 +173,8 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
           
           {/* Barcode - Adjusted to ensure full visibility */}
-          <div className="bg-white rounded-sm p-1 w-full flex items-center justify-center h-14 mt-1">
-            <svg ref={barcodeRef} className="w-full h-12 px-1"></svg>
+          <div className="bg-white rounded-sm py-1 px-0.5 w-full flex items-center justify-center h-14 mt-1 overflow-visible">
+            <svg ref={barcodeRef} className="w-full h-12 overflow-visible"></svg>
           </div>
         </div>
       </div>
