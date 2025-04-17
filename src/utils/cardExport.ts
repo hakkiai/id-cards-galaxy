@@ -58,6 +58,35 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
     // Load all images
     await preloadImages(clone);
     
+    // Fix QR Code SVG
+    const fixQrCode = (element: HTMLElement) => {
+      const qrCodes = element.querySelectorAll('.qr-code-svg');
+      qrCodes.forEach(qr => {
+        if (qr instanceof SVGElement) {
+          qr.setAttribute('width', '110');
+          qr.setAttribute('height', '110');
+          qr.style.width = '110px';
+          qr.style.height = '110px';
+          qr.style.minWidth = '110px';
+          qr.style.minHeight = '110px';
+          qr.style.display = 'block';
+          qr.style.aspectRatio = '1';
+          
+          // Fix QR container
+          const parent = qr.parentElement;
+          if (parent instanceof HTMLElement) {
+            parent.style.width = '110px';
+            parent.style.height = '110px';
+            parent.style.minWidth = '110px';
+            parent.style.minHeight = '110px';
+            parent.style.display = 'flex';
+            parent.style.justifyContent = 'center';
+            parent.style.alignItems = 'center';
+          }
+        }
+      });
+    };
+    
     // Fix barcode SVG
     const fixSvg = (element: HTMLElement) => {
       const svgElements = element.querySelectorAll('svg');
@@ -88,6 +117,9 @@ export const downloadElementAsJpeg = async (element: HTMLElement, fileName: stri
         }
       });
     };
+    
+    // Apply QR code fixes
+    fixQrCode(clone);
     
     // Apply SVG fixes
     fixSvg(clone);
@@ -209,6 +241,21 @@ export const downloadElementsAsZippedJpegs = async (
       clone.style.overflow = 'visible';
       
       document.body.appendChild(clone);
+      
+      // Fix QR Code SVG
+      const qrCodes = clone.querySelectorAll('.qr-code-svg');
+      qrCodes.forEach(qr => {
+        if (qr instanceof SVGElement) {
+          qr.setAttribute('width', '110');
+          qr.setAttribute('height', '110');
+          qr.style.width = '110px';
+          qr.style.height = '110px';
+          qr.style.minWidth = '110px';
+          qr.style.minHeight = '110px';
+          qr.style.display = 'block';
+          qr.style.aspectRatio = '1';
+        }
+      });
       
       // Fix SVG elements (especially barcodes)
       const svgElements = clone.querySelectorAll('svg');

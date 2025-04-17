@@ -132,6 +132,15 @@
   opacity: 1 !important;
 }
 
+/* Fix QR code in exports */
+.card-for-export .qr-code-svg {
+  width: 110px !important;
+  height: 110px !important;
+  aspect-ratio: 1 !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
 /* Ensure barcode is visible */
 .card-for-export svg {
   overflow: visible !important;
@@ -157,6 +166,16 @@
   width: 100% !important;
   height: auto !important;
   display: block !important;
+}
+
+/* Special fix for QR code container */
+.card-for-export .w-28.h-28 {
+  width: 110px !important;
+  height: 110px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-right: 0 !important;
 }
 
 /* Ensure footer content is fully visible */

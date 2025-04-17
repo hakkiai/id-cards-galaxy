@@ -109,12 +109,13 @@ const CardTemplate = ({ student, templateColor, showControls = false }: CardTemp
           </div>
           
           {/* QR Code - aligned to the right */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center w-28 h-28">
             <QRCodeSVG 
               value="https://www.idealtech.edu.in/website/home.html"
-              size={100}
+              size={110}
               level="H"
-              includeMargin={false}
+              includeMargin={true}
+              className="qr-code-svg w-full h-full aspect-square"
             />
           </div>
         </div>
